@@ -1,0 +1,43 @@
+{% extends "layout/base.html" %}
+
+{% block title %}CoffeeTrack - Inicio{% endblock %}
+
+{% block body %}
+<style>
+    .hero-container {
+        height: 100vh;
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                    url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2000');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        padding-left: 10%;
+    }
+    .hero-text-box {
+        color: white;
+        max-width: 500px;
+    }
+    .btn-custom-gold {
+        background-color: #c8842a;
+        color: white;
+        border-radius: 5px;
+        padding: 10px 30px;
+        border: none;
+        transition: 0.3s;
+    }
+    .btn-custom-gold:hover { background-color: #a66d22; color: white; }
+</style>
+
+<div class="hero-container">
+    <div class="hero-text-box">
+        <h6 class="text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">Café Artesanal</h6>
+        <h1 class="display-3 fw-bold mb-3" style="font-family: 'Playfair Display', serif;">Cada taza,<br>una experiencia</h1>
+        <p class="lead mb-4">Descubre nuestra selección de cafés especiales preparados con los mejores granos y recetas artesanales.</p>
+        
+        <div class="d-flex gap-3">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-custom-gold">Iniciar Sesión</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

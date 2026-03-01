@@ -1,0 +1,101 @@
+{% extends "layout/base.html" %}
+
+{% block body %}
+<div class="d-flex" id="admin-wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="bg-dark text-white" style="width: 260px; min-height: 100vh;">
+        <div class="p-4">
+            <h4 class="fw-bold mb-0" style="font-family: 'Playfair Display', serif;">
+                <i class="bi bi-cup-hot-fill text-warning"></i> CoffeeTrack
+            </h4>
+            <small class="text-secondary">Panel de Administración</small>
+        </div>
+        <hr class="text-secondary mx-3">
+        <ul class="nav flex-column px-3">
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link text-white rounded {% if request.endpoint == 'admin.dashboard' %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.bebidas') }}" class="nav-link text-white rounded {% if 'bebida' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-cup-straw me-2"></i> Bebidas
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.recetas') }}" class="nav-link text-white rounded {% if 'receta' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-journal-text me-2"></i> Recetas
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.materia_prima') }}" class="nav-link text-white rounded {% if 'materia' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-box-seam me-2"></i> Materia Prima
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.proveedores') }}" class="nav-link text-white rounded {% if 'proveedor' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-truck me-2"></i> Proveedores
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.produccion') }}" class="nav-link text-white rounded {% if 'produccion' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-gear me-2"></i> Producción
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.inventario') }}" class="nav-link text-white rounded {% if 'inventario' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-clipboard-data me-2"></i> Inventario
+                </a>
+            </li>
+            <hr class="text-secondary">
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.pedidos') }}" class="nav-link text-white rounded {% if 'pedido' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-bag me-2"></i> Pedidos
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.ventas') }}" class="nav-link text-white rounded {% if 'venta' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-cash-stack me-2"></i> Ventas
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ url_for('admin.usuarios') }}" class="nav-link text-white rounded {% if 'usuario' in request.endpoint %}active bg-warning bg-opacity-25{% endif %}">
+                    <i class="bi bi-people me-2"></i> Usuarios
+                </a>
+            </li>
+        </ul>
+        <div class="p-3 mt-auto">
+            <hr class="text-secondary">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-person-circle fs-4 me-2 text-warning"></i>
+                <div>
+                    <small class="fw-bold">{{ session.get('user_nombre', 'Admin') }}</small><br>
+                    <small class="text-secondary">{{ session.get('user_email', '') }}</small>
+                </div>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm w-100 mt-2">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1">
+        <!-- Top Bar -->
+        <nav class="navbar navbar-light bg-white shadow-sm px-4 py-2">
+            <span class="navbar-text fw-bold">
+                {% block page_title %}Dashboard{% endblock %}
+            </span>
+            <div>
+                <span class="badge bg-warning text-dark me-2">
+                    <i class="bi bi-bell"></i> Alertas
+                </span>
+            </div>
+        </nav>
+        <!-- Page Content -->
+        <main class="p-4" style="background: #f8f5f0; min-height: calc(100vh - 56px);">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

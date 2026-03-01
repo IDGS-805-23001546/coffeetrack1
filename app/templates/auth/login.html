@@ -1,0 +1,109 @@
+{% extends "layout/base.html" %}
+
+{% block title %}CoffeeTrack - Iniciar Sesión{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2c1810 50%, #1a1a1a 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-card {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 440px;
+    }
+    .login-card input {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        border-radius: 12px;
+        padding: 12px 16px;
+    }
+    .login-card input:focus {
+        background: rgba(255,255,255,0.12);
+        border-color: #c8842a;
+        box-shadow: 0 0 0 3px rgba(200,132,42,0.2);
+        color: #fff;
+    }
+    .login-card input::placeholder { color: rgba(255,255,255,0.4); }
+    .btn-coffee {
+        background: linear-gradient(135deg, #c8842a, #a0681e);
+        border: none;
+        color: #fff;
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-coffee:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 25px rgba(200,132,42,0.3);
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+    <div class="login-card text-center">
+    <h2 class="text-white mb-1" style="font-family: 'Playfair Display', serif;">
+        <i class="bi bi-cup-hot-fill text-warning"></i>
+    </h2>
+    <h3 class="text-white mb-1" style="font-family: 'Playfair Display', serif;">CoffeeTrack</h3>
+    
+    <p class="text-secondary mb-4">{{ 'Crea tu cuenta' if registro else 'Inicia sesión para continuar' }}</p>
+    
+    <form method="POST" action="{{ url_for('auth.registro') if registro else url_for('auth.login') }}">
+        {{ form.hidden_tag() }}
+
+        {% if registro %}
+            <div class="row">
+                <div class="col-md-6 mb-3 text-start">
+                    <label class="form-label text-secondary small">Nombre</label>
+                    {{ form.nombre(class="form-control") }}
+                </div>
+                <div class="col-md-6 mb-3 text-start">
+                    <label class="form-label text-secondary small">Apellidos</label>
+                    {{ form.apellidos(class="form-control") }}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mb-3 text-start">
+            <label class="form-label text-secondary small">Correo Electrónico</label>
+            {{ form.email(class="form-control", placeholder="tu@correo.com") }}
+        </div>
+
+        <div class="{{ 'mb-3' if registro else 'mb-4' }} text-start">
+            <label class="form-label text-secondary small">Contraseña</label>
+            {{ form.password(class="form-control", placeholder="••••••••") }}
+        </div>
+
+        {% if registro %}
+            <div class="mb-4 text-start">
+                <label class="form-label text-secondary small">Confirmar Contraseña</label>
+                {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-coffee w-100 mb-3">
+            {{ 'Registrarse' if registro else 'Iniciar Sesión' }}
+        </button>
+    </form>
+
+    <p class="text-secondary small">
+        {{ '¿Ya tienes cuenta?' if registro else '¿No tienes cuenta?' }}
+        <a href="{{ url_for('auth.login') if registro else url_for('auth.registro') }}" class="text-warning text-decoration-none">
+            {{ 'Inicia sesión aquí' if registro else 'Regístrate aquí' }}
+        </a>
+    </p>
+</div>
+{% endblock %}

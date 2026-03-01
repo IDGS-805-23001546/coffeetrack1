@@ -1,0 +1,110 @@
+/* =============================================
+   CoffeeTrack - Sistema de Estilos Unificado 2026
+   ============================================= */
+
+:root {
+    --coffee-primary: #c8842a;
+    --coffee-dark: #2c1810;
+    --coffee-brown: #1a1a1a;
+    --coffee-cream: #fdfaf5;
+    --coffee-light: #d4a574;
+    --transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fff;
+    color: var(--coffee-brown);
+}
+
+h1, h2, h3, .brand {
+    font-family: 'Playfair Display', serif;
+}
+
+/* --- Botones de Filtro --- */
+.filter-wrapper {
+    display: inline-flex;
+    gap: 5px;
+}
+
+.btn-filter {
+    border: none;
+    background: transparent;
+    padding: 8px 25px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+    transition: var(--transition);
+}
+
+.btn-filter.active, .btn-filter:hover {
+    background-color: var(--coffee-dark);
+    color: white !important;
+}
+
+/* --- Bottle Card (Mejorado) --- */
+.bottle-card {
+    background: white;
+    border-radius: 20px !important;
+    transition: var(--transition);
+    border: 1px solid rgba(0,0,0,0.03) !important;
+}
+
+.bottle-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(44, 24, 16, 0.12) !important;
+}
+
+.bottle-badge {
+    background: var(--coffee-cream);
+    width: 55px;
+    height: 55px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Botón de Compra --- */
+.btn-add-cart {
+    background-color: var(--coffee-dark);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    width: 100%;
+    transition: var(--transition);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.btn-add-cart:hover {
+    background-color: var(--coffee-primary);
+    transform: scale(1.02);
+}
+
+/* --- Hero Section (Consolidado) --- */
+.hero-container {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* --- Animaciones --- */
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Utilidades --- */
+.text-coffee { color: var(--coffee-primary); }
+.bg-coffee { background-color: var(--coffee-primary); }
