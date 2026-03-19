@@ -1,10 +1,10 @@
 from app import db 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db  # El punto significa "desde este mismo paquete"
+from . import db 
 
 class Usuario(db.Model):
-    # tu código...
+  
     __tablename__ = 'usuarios'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -19,7 +19,6 @@ class Usuario(db.Model):
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relaciones
     pedidos = db.relationship('Pedido', backref='usuario', lazy='dynamic')
 
     def set_password(self, password):
@@ -31,9 +30,7 @@ class Usuario(db.Model):
     def __repr__(self):
         return f'<Usuario {self.nombre} {self.apellidos}>'
 
-# =============================================
-# MODELO: Proveedores
-# =============================================
+
 class Proveedor(db.Model):
     __tablename__ = 'proveedores'
     
@@ -48,15 +45,12 @@ class Proveedor(db.Model):
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relaciones
     compras = db.relationship('CompraMateriaPrima', backref='proveedor', lazy='dynamic')
 
     def __repr__(self):
         return f'<Proveedor {self.nombre_empresa}>'
 
-# =============================================
-# MODELO: Categorías de Materia Prima
-# =============================================
+
 class CategoriaMateriaPrima(db.Model):
     __tablename__ = 'categorias_materia_prima'
     
@@ -67,9 +61,7 @@ class CategoriaMateriaPrima(db.Model):
 
     materias_primas = db.relationship('MateriaPrima', backref='categoria', lazy='dynamic')
 
-# =============================================
-# MODELO: Materias Primas
-# =============================================
+
 class MateriaPrima(db.Model):
     __tablename__ = 'materias_primas'
     
@@ -89,9 +81,7 @@ class MateriaPrima(db.Model):
     def __repr__(self):
         return f'<MateriaPrima {self.nombre}>'
 
-# =============================================
-# MODELO: Categoría de Bebidas
-# =============================================
+
 class CategoriaBebida(db.Model):
     __tablename__ = 'categoria_bebidas'
     
@@ -102,9 +92,7 @@ class CategoriaBebida(db.Model):
 
     bebidas = db.relationship('Bebida', backref='categoria', lazy='dynamic')
 
-# =============================================
-# MODELO: Bebidas
-# =============================================
+
 class Bebida(db.Model):
     __tablename__ = 'bebidas'
     
@@ -127,9 +115,7 @@ class Bebida(db.Model):
     def __repr__(self):
         return f'<Bebida {self.nombre}>'
 
-# =============================================
-# MODELO: Recetas
-# =============================================
+
 class Receta(db.Model):
     __tablename__ = 'recetas'
     
@@ -144,9 +130,7 @@ class Receta(db.Model):
         db.UniqueConstraint('bebida_id', 'materia_prima_id', name='unique_receta'),
     )
 
-# =============================================
-# MODELO: Compras de Materia Prima
-# =============================================
+
 class CompraMateriaPrima(db.Model):
     __tablename__ = 'compras_materia_prima'
     
@@ -161,9 +145,7 @@ class CompraMateriaPrima(db.Model):
 
     detalles = db.relationship('DetalleCompraMateriaPrima', backref='compra', lazy='dynamic', cascade='all, delete-orphan')
 
-# =============================================
-# MODELO: Detalles de Compras
-# =============================================
+
 class DetalleCompraMateriaPrima(db.Model):
     __tablename__ = 'detalles_compras_materia_prima'
     
@@ -174,9 +156,7 @@ class DetalleCompraMateriaPrima(db.Model):
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
 
-# =============================================
-# MODELO: Producción
-# =============================================
+
 class Produccion(db.Model):
     __tablename__ = 'produccion'
     
@@ -193,9 +173,7 @@ class Produccion(db.Model):
     bebida = db.relationship('Bebida', backref='producciones')
     usuario = db.relationship('Usuario', backref='producciones')
 
-# =============================================
-# MODELO: Pedidos
-# =============================================
+
 class Pedido(db.Model):
     __tablename__ = 'pedidos'
     
@@ -215,9 +193,7 @@ class Pedido(db.Model):
     detalles = db.relationship('DetallePedido', backref='pedido', lazy='dynamic', cascade='all, delete-orphan')
     venta = db.relationship('Venta', backref='pedido', uselist=False)
 
-# =============================================
-# MODELO: Detalle de Pedidos
-# =============================================
+
 class DetallePedido(db.Model):
     __tablename__ = 'detalle_pedidos'
     
@@ -230,9 +206,7 @@ class DetallePedido(db.Model):
 
     bebida = db.relationship('Bebida', backref='detalles_pedido')
 
-# =============================================
-# MODELO: Ventas
-# =============================================
+
 class Venta(db.Model):
     __tablename__ = 'ventas'
     
@@ -244,9 +218,7 @@ class Venta(db.Model):
     estado_pago = db.Column(db.Enum('pendiente', 'pagado', 'reembolsado'), default='pendiente', index=True)
     referencia_pago = db.Column(db.String(100))
 
-# =============================================
-# MODELO: Historial de Inventario
-# =============================================
+
 class HistorialInventario(db.Model):
     __tablename__ = 'historial_inventario'
     
@@ -264,9 +236,7 @@ class HistorialInventario(db.Model):
     materia_prima = db.relationship('MateriaPrima', backref='historial')
     usuario = db.relationship('Usuario', backref='historial_inventario')
 
-# =============================================
-# MODELO: Alertas de Inventario
-# =============================================
+
 class AlertaInventario(db.Model):
     __tablename__ = 'alertas_inventario'
     

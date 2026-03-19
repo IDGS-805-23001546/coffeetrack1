@@ -6,19 +6,13 @@ from app import db
 from decimal import Decimal
 from . import cliente_bp 
 
-# =============================================
-# INICIO / LANDING
-# =============================================
+
 @cliente_bp.route('/')
 def inicio():
-    # Solo por esta prueba, quita los filtros para ver si trae ALGO
     bebidas_destacadas = Bebida.query.all() 
     print(f"DEBUG: Se encontraron {len(bebidas_destacadas)} bebidas")
     return render_template('cliente/inicio.html', bebidas=bebidas_destacadas)
 
-# =============================================
-# MENÚ COMPLETO
-# =============================================
 @cliente_bp.route('/menu')
 def menu():
     categorias = CategoriaBebida.query.all()
@@ -26,16 +20,13 @@ def menu():
     bebidas = Bebida.query.all() 
     print(f"DEBUG: Se encontraron {len(bebidas)} bebidas en la DB") # Esto saldrá en tu terminal
     return render_template('cliente/menu.html', categorias=categorias, bebidas=bebidas)
-# =============================================
-# ACERCA DE NOSOTROS
-# =============================================
+
+
 @cliente_bp.route('/nosotros')
 def about():
     return render_template('cliente/about.html')
 
-# =============================================
-# CARRITO DE COMPRAS (Session-based)
-# =============================================
+
 @cliente_bp.route('/carrito')
 @login_required
 def carrito():
@@ -81,9 +72,7 @@ def eliminar_carrito(bebida_id):
         flash('Producto eliminado del carrito.', 'info')
     return redirect(url_for('cliente.carrito'))
 
-# =============================================
-# CHECKOUT / CONFIRMAR PEDIDO
-# =============================================
+
 @cliente_bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
@@ -136,9 +125,7 @@ def checkout():
 
     return render_template('cliente/carrito.html', form=form, checkout=True)
 
-# =============================================
-# MIS PEDIDOS
-# =============================================
+
 @cliente_bp.route('/mis-pedidos')
 @login_required
 def mis_pedidos():

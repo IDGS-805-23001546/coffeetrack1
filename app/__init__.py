@@ -11,9 +11,8 @@ def create_app():
 
     with app.app_context():
         from . import models
-        db.create_all() # Opcional: crea las tablas si no existen
+        db.create_all() 
 
-    # IMPORTANTE: Importa y registra aquí
     from .auth import auth_bp
     from .clientes import cliente_bp
     from .carrito import carrito_bp  

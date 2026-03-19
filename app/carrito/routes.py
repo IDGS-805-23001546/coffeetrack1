@@ -29,7 +29,7 @@ def agregar(bebida_id):
     session.modified = True
     
     flash('Producto añadido al carrito.', 'success')
-    # ESTA LÍNEA HACE LA MAGIA: Te manda directo al carrito
+    
     return redirect(url_for('carrito.ver_carrito'))
 
 @carrito_bp.route('/eliminar/<int:bebida_id>', methods=['POST'])

@@ -102,9 +102,8 @@ class RecetaForm(FlaskForm):
     ], validators=[DataRequired()])
     submit = SubmitField('Guardar Ingrediente')
 
-# =============================================
-# FORMULARIO: Producción
-# =============================================
+
+
 class ProduccionForm(FlaskForm):
     bebida_id = SelectField('Bebida', coerce=int, validators=[DataRequired()])
     cantidad_producida = IntegerField('Cantidad a Producir', validators=[
@@ -114,18 +113,14 @@ class ProduccionForm(FlaskForm):
     notas = TextAreaField('Notas', validators=[Optional()])
     submit = SubmitField('Registrar Producción')
 
-# =============================================
-# FORMULARIO: Compra de Materia Prima
-# =============================================
+
 class CompraForm(FlaskForm):
     proveedor_id = SelectField('Proveedor', coerce=int, validators=[DataRequired()])
     fecha_compra = DateField('Fecha de Compra', validators=[DataRequired()])
     notas = TextAreaField('Notas', validators=[Optional()])
     submit = SubmitField('Registrar Compra')
 
-# =============================================
-# FORMULARIO: Pedido (Cliente)
-# =============================================
+
 class PedidoForm(FlaskForm):
     direccion_entrega = TextAreaField('Dirección de Entrega', validators=[
         DataRequired(message='La dirección es obligatoria')

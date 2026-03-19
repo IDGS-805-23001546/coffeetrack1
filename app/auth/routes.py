@@ -7,10 +7,6 @@ from functools import wraps
 from . import auth_bp
 
 
-
-# =============================================
-# DECORADORES DE AUTENTICACIÓN
-# =============================================
 def login_required(f):
     """Decorador: requiere sesión activa."""
     @wraps(f)
@@ -34,9 +30,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# =============================================
-# RUTAS
-# =============================================
+
 @auth_bp.route('/')
 def index():
     if 'user_id' in session:
