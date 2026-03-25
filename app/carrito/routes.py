@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, flash, session, request
 from . import carrito_bp
 from app.models import Bebida
 from app.auth.routes import login_required
+#hola lluvia nestor es puto
 
 @carrito_bp.route('/')
 @login_required
