@@ -106,3 +106,79 @@ h1, h2, h3, .brand {
 /* --- Utilidades --- */
 .text-coffee { color: var(--coffee-primary); }
 .bg-coffee { background-color: var(--coffee-primary); }
+
+
+/* Ajuste para el contenedor dividido */
+    .hero-split {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .hero-image-side {
+        flex: 1;
+        background-color: #4a2c1d; /* Color café de fondo */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        position: relative;
+    }
+
+    .hero-image-side img {
+        max-width: 80%;
+        height: auto;
+        filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+    }
+
+    .hero-content-side {
+        flex: 1;
+        background-color: #fcf8f1; /* Fondo crema de la imagen */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 10% ;
+    }
+
+    .hero-content-side h6 {
+        color: #c8842a;
+        letter-spacing: 3px;
+        font-weight: bold;
+    }
+
+    .hero-content-side h1 {
+        color: #2c1810;
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        margin: 20px 0;
+    }
+
+    .hero-content-side p {
+        color: #5a4a42;
+        max-width: 400px;
+        margin-bottom: 30px;
+    }
+
+    /* Botón estilo "Píldora" transparente como en la imagen */
+    .btn-outline-probar {
+        border: 1px solid #c8842a;
+        color: #c8842a;
+        padding: 10px 40px;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .btn-outline-probar:hover {
+        background-color: #c8842a;
+        color: white;
+    }
+
+    /* Responsivo para móviles */
+    @media (max-width: 768px) {
+        .hero-split { flex-direction: column; }
+        .hero-image-side { min-height: 400px; }
+    }

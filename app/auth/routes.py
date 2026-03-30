@@ -36,7 +36,7 @@ def index():
     if 'user_id' in session:
         if session.get('user_rol') == 'admin':
             return redirect(url_for('admin.dashboard'))
-        return redirect(url_for('cliente.inicio'))
+        return redirect(url_for('admin.dashboard'))
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/login', methods=['GET', 'POST'])

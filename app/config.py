@@ -8,12 +8,13 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'clave-secreta-dev'
     
     # Configuración de la base de datos
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        f"mysql+pymysql://{os.environ.get('DB_USER', 'coffee_admin')}:" \
-        f"{os.environ.get('DB_PASSWORD', 'Password_Coffee_2026')}@" \
-        f"{os.environ.get('DB_HOST', 'localhost')}:" \
-        f"{os.environ.get('DB_PORT', '3306')}/" \
-        f"{os.environ.get('DB_NAME', 'coffeetrack')}"
+    SQLALCHEMY_DATABASE_URI = (
+    f"mysql+pymysql://{os.environ.get('DB_USER', 'coffee_admin')}:"
+    f"{os.environ.get('DB_PASSWORD', 'Password_Coffee_2026')}@"
+    f"{os.environ.get('DB_HOST', 'localhost')}:"
+    f"{os.environ.get('DB_PORT', '3306')}/"
+    f"{os.environ.get('DB_NAME', 'coffeetrack')}"
+)
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # True para debug SQL

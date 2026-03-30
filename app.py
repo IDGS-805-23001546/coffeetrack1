@@ -1,6 +1,8 @@
 from flask import render_template
 from app import create_app
 
+
+#levantar app
 app = create_app()
 
 @app.route('/')

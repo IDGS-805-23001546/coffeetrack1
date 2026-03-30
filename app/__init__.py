@@ -18,6 +18,9 @@ def create_app():
     from .carrito import carrito_bp  
     from .pedidos import pedidos_bp
     from .about import about_bp
+    from .admin import admin_bp
+    from .admin.bebidas import bebidas_bp
+
     
     
     app.register_blueprint(auth_bp)
@@ -25,5 +28,8 @@ def create_app():
     app.register_blueprint(carrito_bp, url_prefix='/carrito')
     app.register_blueprint(pedidos_bp, url_prefix='/pedidos')
     app.register_blueprint(about_bp, url_prefix='/nosotros')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(bebidas_bp, url_prefix='/admin/bebidas')
+
 
     return app
