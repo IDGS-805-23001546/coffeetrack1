@@ -20,6 +20,8 @@ def create_app():
     from .about import about_bp
     from .admin import admin_bp
     from .admin.bebidas import bebidas_bp
+    from .admin.proveedores import proveedores_bp
+    from .admin.usuarios import usuarios_bp
 
     
     
@@ -30,6 +32,6 @@ def create_app():
     app.register_blueprint(about_bp, url_prefix='/nosotros')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(bebidas_bp, url_prefix='/admin/bebidas')
-
-
+    app.register_blueprint(proveedores_bp, url_prefix='/admin/proveedores')
+    app.register_blueprint(usuarios_bp, url_prefix='/admin/usuario')
     return app
