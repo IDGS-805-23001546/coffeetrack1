@@ -1,13 +1,14 @@
-from flask import render_template, session, redirect, url_for
+from flask import render_template, redirect, url_for, jsonify, request, flash
 from . import admin_bp
 from app.auth.routes import admin_required
-from app.models import Bebida, MateriaPrima, Pedido, Venta, AlertaInventario
+from app.models import (Bebida, MateriaPrima, Pedido, Venta, AlertaInventario,
+                        Produccion, CategoriaBebida, Receta)
+from app import db
 from datetime import date
 
 @admin_bp.route('/dashboard')
 @admin_required
 def dashboard():
-    # Tarjetas superiores
     total_bebidas = Bebida.query.filter_by(activo=True).count()
     bebidas_disponibles = Bebida.query.filter_by(disponible=True, activo=True).count()
     total_materias = MateriaPrima.query.filter_by(activo=True).count()
@@ -16,24 +17,14 @@ def dashboard():
         MateriaPrima.activo == True
     ).count()
 
-    # Ventas del día
     hoy = date.today()
-    ventas_hoy = Venta.query.filter(
-        Venta.fecha_venta >= hoy
-    ).all()
+    ventas_hoy = Venta.query.filter(Venta.fecha_venta >= hoy).all()
     total_ventas_hoy = sum(v.total for v in ventas_hoy)
 
-    # Producción activa
-    from app.models import Produccion
     producciones = Produccion.query.filter_by(estado='completada').count()
     producciones_completadas = Produccion.query.filter_by(estado='completada').count()
 
-    # Pedidos recientes
-    pedidos_recientes = Pedido.query.order_by(
-        Pedido.fecha_pedido.desc()
-    ).limit(5).all()
-
-    # Alertas activas
+    pedidos_recientes = Pedido.query.order_by(Pedido.fecha_pedido.desc()).limit(5).all()
     alertas = AlertaInventario.query.filter_by(activa=True).order_by(
         AlertaInventario.fecha_alerta.desc()
     ).limit(5).all()

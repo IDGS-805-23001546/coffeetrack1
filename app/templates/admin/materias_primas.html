@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CoffeeTrack - Materias Primas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
+        .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
+        .brand-sub { font-size: 0.72rem; color: #888; display: block; }
+        .sidebar-section { padding: 18px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
+        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .sidebar nav a:hover { background: #252525; color: white; }
+        .sidebar nav a.active { background: #e8891a; color: white; }
+        .sidebar nav a i { font-size: 1rem; width: 18px; }
+        .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
+        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
+        .sidebar-logout a:hover { color: white; }
+
+        /* CONTENIDO */
+        .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
+        .page-body { padding: 30px; }
+        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+
+        /* TABLA */
+        .table-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 2px solid #f0ece6; font-weight: 600; }
+        .table tbody td { vertical-align: middle; font-size: 0.9rem; border-color: #f5f0eb; }
+        .table tbody tr:hover { background-color: #fdf8f3; }
+
+        .badge-cat { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-disponible { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-bajo { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-agotado { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+
+        .stock-ok { color: #27ae60; font-weight: 700; }
+        .stock-low { color: #e67e22; font-weight: 700; }
+        .stock-empty { color: #e74c3c; font-weight: 700; }
+
+        .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
+        .btn-nueva:hover { background: #d47b15; }
+        .btn-edit { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+        .btn-edit:hover { background: #e8891a; color: white; }
+
+        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 240px; }
+        .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+
+        /* MODAL */
+        .modal-content { border-radius: 16px; border: none; }
+        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        .modal-body { padding: 24px; }
+        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
+        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: #d47b15; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
+        <div>
+            <span class="brand-name">CoffeeTrack</span>
+            <span class="brand-sub">Admin Panel</span>
+        </div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <nav>
+        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    </nav>
+    <div class="sidebar-section">Inventario</div>
+    <nav>
+        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
+        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
+        <a href="{{ url_for('admin_materias.index') }}" class="active"><i class="bi bi-box-seam"></i> Materias Primas</a>
+        <a href="#"><i class="bi bi-gear"></i> Producción</a>
+    </nav>
+    <div class="sidebar-section">Gestión</div>
+    <nav>
+        <a href="#"><i class="bi bi-truck"></i> Proveedores</a>
+        <a href="#"><i class="bi bi-cart"></i> Compras</a>
+        <a href="#"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="#"><i class="bi bi-bag"></i> Pedidos</a>
+        <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>
+    </nav>
+    <div class="sidebar-logout">
+        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
+    </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="main-content">
+    <div class="topbar">
+        <i class="bi bi-layout-sidebar"></i>
+        <span>Panel de Administración</span>
+    </div>
+    <div class="page-body">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show mb-3">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <div class="page-title">Materias Primas</div>
+                <div class="page-subtitle">Control de inventario — {{ materias|length }} registros</div>
+            </div>
+            <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaMateria">
+                + Nueva Materia Prima
+            </button>
+        </div>
+
+        <div class="table-card">
+            <div class="mb-3">
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar materia prima...">
+            </div>
+            <table class="table" id="materiasTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Mínimo</th>
+                        <th>Precio Unit.</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in materias %}
+                    <tr>
+                        <td>{{ m.id }}</td>
+                        <td>{{ m.nombre }}</td>
+                        <td><span class="badge-cat">{{ m.categoria.nombre }}</span></td>
+                        <td class="
+                            {% if m.stock_actual == 0 %}stock-empty
+                            {% elif m.stock_actual <= m.stock_minimo %}stock-low
+                            {% else %}stock-ok{% endif %}">
+                            {{ m.stock_actual }} {{ m.unidad_medida }}
+                        </td>
+                        <td>{{ m.stock_minimo }} {{ m.unidad_medida }}</td>
+                        <td>${{ "%.2f"|format(m.precio_unitario) }}</td>
+                        <td>
+                            {% if m.stock_actual == 0 %}
+                                <span class="badge-agotado">Agotado</span>
+                            {% elif m.stock_actual <= m.stock_minimo %}
+                                <span class="badge-bajo">Bajo</span>
+                            {% else %}
+                                <span class="badge-disponible">Disponible</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-edit"
+                                onclick="abrirEditar({{ m.id }}, '{{ m.nombre }}', {{ m.categoria_id }}, '{{ m.unidad_medida }}', {{ m.stock_actual }}, {{ m.stock_minimo }}, {{ m.precio_unitario }})">
+                                <i class="bi bi-pencil"></i> Editar
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL NUEVA MATERIA -->
+<div class="modal fade" id="modalNuevaMateria" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Materia Prima</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin_materias.nueva') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required placeholder="Ej. Café Arábica">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Categoría</label>
+                        <select name="categoria_id" class="form-select" required>
+                            <option value="">Seleccionar categoría</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Unidad de Medida</label>
+                        <select name="unidad_medida" class="form-select" required>
+                            <option value="ml">Mililitros (ml)</option>
+                            <option value="gr">Gramos (gr)</option>
+                            <option value="kg">Kilogramos (kg)</option>
+                            <option value="lt">Litros (lt)</option>
+                            <option value="unidad">Unidad</option>
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Stock Actual</label>
+                            <input type="number" step="0.01" name="stock_actual" class="form-control" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Stock Mínimo</label>
+                            <input type="number" step="0.01" name="stock_minimo" class="form-control" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Precio Unitario ($)</label>
+                        <input type="number" step="0.001" name="precio_unitario" class="form-control" value="0.00">
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Materia Prima</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR MATERIA -->
+<div class="modal fade" id="modalEditarMateria" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Materia Prima</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formEditar">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Categoría</label>
+                        <select name="categoria_id" id="edit_categoria" class="form-select" required>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Unidad de Medida</label>
+                        <select name="unidad_medida" id="edit_unidad" class="form-select" required>
+                            <option value="ml">Mililitros (ml)</option>
+                            <option value="gr">Gramos (gr)</option>
+                            <option value="kg">Kilogramos (kg)</option>
+                            <option value="lt">Litros (lt)</option>
+                            <option value="unidad">Unidad</option>
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Stock Actual</label>
+                            <input type="number" step="0.01" name="stock_actual" id="edit_stock_actual" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Stock Mínimo</label>
+                            <input type="number" step="0.01" name="stock_minimo" id="edit_stock_minimo" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Precio Unitario ($)</label>
+                        <input type="number" step="0.001" name="precio_unitario" id="edit_precio" class="form-control">
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function abrirEditar(id, nombre, categoria_id, unidad, stock_actual, stock_minimo, precio) {
+        document.getElementById('edit_nombre').value = nombre;
+        document.getElementById('edit_categoria').value = categoria_id;
+        document.getElementById('edit_unidad').value = unidad;
+        document.getElementById('edit_stock_actual').value = stock_actual;
+        document.getElementById('edit_stock_minimo').value = stock_minimo;
+        document.getElementById('edit_precio').value = precio;
+        document.getElementById('formEditar').action = `/admin/materias/editar/${id}`;
+        new bootstrap.Modal(document.getElementById('modalEditarMateria')).show();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#materiasTable tbody tr').forEach(row => {
+            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+</script>
+</body>
+</html>
