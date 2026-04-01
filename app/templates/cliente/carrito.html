@@ -91,10 +91,24 @@
                     </div>
                     <hr class="bg-secondary">
                     <form action="{{ url_for('pedidos.crear') }}" method="POST">
-                        <button type="submit" class="btn btn-warning w-100 py-3 fw-bold" {% if not items %}disabled{% endif %}>
-                            CONFIRMAR PEDIDO
-                        </button>
-                    </form>
+    <div class="mb-3">
+        <label class="form-label text-white small">Tipo de entrega</label>
+        <select name="tipo_entrega" class="form-select" style="background:#2a2a2a; color:white; border-color:#444; border-radius:10px;">
+            <option value="sucursal">Recoger en sucursal</option>
+            <option value="domicilio">Entrega a domicilio</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label text-white small">Notas adicionales</label>
+        <textarea name="notas" class="form-control" rows="2"
+            style="background:#2a2a2a; color:white; border-color:#444; border-radius:10px;"
+            placeholder="Instrucciones especiales..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-warning w-100 py-3 fw-bold"
+        {% if not items %}disabled{% endif %}>
+        CONFIRMAR PEDIDO
+    </button>
+</form>
                 </div>
             </div>
         </div>

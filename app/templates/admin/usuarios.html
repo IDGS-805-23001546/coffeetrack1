@@ -60,14 +60,14 @@
         <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
         <a href="#"><i class="bi bi-journal-text"></i> Recetas</a>
         <a href="#"><i class="bi bi-box-seam"></i> Materias Primas</a>
-        <a href="#"><i class="bi bi-gear"></i> Producción</a>
+        <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>
     </nav>
     <div class="sidebar-section">Gestión</div>
     <nav>
         <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
         <a href="#"><i class="bi bi-cart"></i> Compras</a>
         <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
-        <a href="#"><i class="bi bi-bag"></i> Pedidos</a>
+        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
         <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>
     </nav>
 </div>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CoffeeTrack - Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
+        .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
+        .brand-sub { font-size: 0.72rem; color: #888; display: block; }
+        .sidebar-section { padding: 18px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
+        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .sidebar nav a:hover { background: #252525; color: white; }
+        .sidebar nav a.active { background: #e8891a; color: white; }
+        .sidebar nav a i { font-size: 1rem; width: 18px; }
+        .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
+        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
+        .sidebar-logout a:hover { color: white; }
+
+        /* CONTENIDO */
+        .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
+        .page-body { padding: 30px; }
+        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+
+        /* TABLA */
+        .table-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .table-card-title { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
+        .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 2px solid #f0ece6; font-weight: 600; }
+        .table tbody td { vertical-align: middle; font-size: 0.9rem; border-color: #f5f0eb; }
+        .table tbody tr:hover { background-color: #fdf8f3; }
+
+        /* BADGES ESTADO */
+        .badge-estado { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .badge-pendiente { background: #e9ecef; color: #495057; }
+        .badge-confirmado { background: #d1ecf1; color: #0c5460; }
+        .badge-en_preparacion { background: #fff3cd; color: #856404; }
+        .badge-enviado { background: #cce5ff; color: #004085; }
+        .badge-entregado { background: #e8891a; color: white; }
+        .badge-cancelado { background: #f8d7da; color: #721c24; }
+
+        .btn-accion { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+        .btn-accion:hover { background: #e8891a; color: white; }
+
+        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 240px; }
+        .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+
+        /* MODAL */
+        .modal-content { border-radius: 16px; border: none; }
+        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        .modal-body { padding: 24px; }
+        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
+        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: #d47b15; }
+
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #888; }
+        .info-value { color: #1a1a1a; font-weight: 600; }
+
+        .detalle-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
+        .detalle-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
+        <div>
+            <span class="brand-name">CoffeeTrack</span>
+            <span class="brand-sub">Admin Panel</span>
+        </div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <nav>
+        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    </nav>
+    <div class="sidebar-section">Inventario</div>
+    <nav>
+        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
+        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
+        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a>
+        <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>>
+    </nav>
+    <div class="sidebar-section">Gestión</div>
+    <nav>
+        <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
+        <a href="#"><i class="bi bi-cart"></i> Compras</a>
+        <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="{{ url_for('admin_pedidos.index') }}" class="active"><i class="bi bi-bag"></i> Pedidos</a>
+        <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>
+    </nav>
+    <div class="sidebar-logout">
+        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
+    </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="main-content">
+    <div class="topbar">
+        <i class="bi bi-layout-sidebar"></i>
+        <span>Panel de Administración</span>
+    </div>
+    <div class="page-body">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show mb-3">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">Pedidos</div>
+        <div class="page-subtitle">Gestión de pedidos — {{ pedidos|length }} registros</div>
+
+        <!-- TABLA PEDIDOS -->
+        <div class="table-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="table-card-title mb-0">Lista de Pedidos</div>
+                <input type="text" id="searchPedidos" class="search-input" placeholder="Buscar cliente...">
+            </div>
+            <table class="table" id="pedidosTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Subtotal</th>
+                        <th>Descuento</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Entrega Est.</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pedidos %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
+                        <td>{{ p.fecha_pedido.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>${{ "%.2f"|format(p.subtotal) }}</td>
+                        <td>${{ "%.2f"|format(p.descuento) }}</td>
+                        <td>${{ "%.2f"|format(p.total) }}</td>
+                        <td>
+                            <span class="badge-estado badge-{{ p.estado|replace('_','-') if p.estado else 'pendiente' }}">
+                                {{ p.estado|replace('_',' ')|upper if p.estado else 'PENDIENTE' }}
+                            </span>
+                        </td>
+                        <td>{{ p.fecha_entrega_estimada or '—' }}</td>
+                        <td>
+                            <button class="btn-accion" onclick="verDetalle({{ p.id }})">
+                                <i class="bi bi-eye"></i> Ver
+                            </button>
+                            <button class="btn-accion ms-1" onclick="abrirCambiarEstado({{ p.id }}, '{{ p.estado }}')">
+                                <i class="bi bi-arrow-repeat"></i> Estado
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TABLA DETALLE PEDIDOS -->
+        <div class="table-card">
+            <div class="table-card-title">Detalle de Pedidos</div>
+            <p class="text-muted small mb-3">Productos incluidos en los pedidos — {{ detalles|length }} registros</p>
+            <input type="text" id="searchDetalle" class="search-input mb-3" placeholder="Buscar detalle...">
+            <table class="table" id="detalleTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pedido #</th>
+                        <th>Bebida</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in detalles %}
+                    <tr>
+                        <td>{{ d.id }}</td>
+                        <td>{{ d.pedido_id }}</td>
+                        <td>{{ d.bebida.nombre }}</td>
+                        <td>{{ d.cantidad }}</td>
+                        <td>${{ "%.2f"|format(d.precio_unitario) }}</td>
+                        <td>${{ "%.2f"|format(d.subtotal) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL VER DETALLE -->
+<div class="modal fade" id="modalDetalle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalleContenido">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-warning" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CAMBIAR ESTADO -->
+<div class="modal fade" id="modalEstado" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formEstado">
+                    <div class="mb-4">
+                        <label class="form-label">Nuevo Estado</label>
+                        <select name="estado" id="selectEstado" class="form-select">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="confirmado">Confirmado</option>
+                            <option value="en_preparacion">En Preparación</option>
+                            <option value="enviado">Enviado</option>
+                            <option value="entregado">Entregado</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Estado</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function verDetalle(id) {
+        document.getElementById('detalleContenido').innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-warning" role="status"></div>
+            </div>`;
+        new bootstrap.Modal(document.getElementById('modalDetalle')).show();
+
+        fetch(`/admin/pedidos/detalle/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            let html = `
+                <div class="mb-3">
+                    <div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">${data.id}</span></div>
+                    <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">${data.cliente}</span></div>
+                    <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">${data.direccion}</span></div>
+                    <div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">${data.telefono}</span></div>
+                    <div class="info-row"><span class="info-label">Estado</span><span class="info-value">${data.estado}</span></div>
+                    <div class="info-row"><span class="info-label">Notas</span><span class="info-value">${data.notas || '—'}</span></div>
+                </div>
+                <hr>
+                <p class="form-label mb-3">Productos</p>`;
+
+            data.detalles.forEach(d => {
+                html += `
+                <div class="detalle-item">
+                    <div>
+                        <div style="font-weight:600;">${d.bebida}</div>
+                        <small class="text-muted">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
+                    </div>
+                    <span style="font-weight:700; color:#e8891a;">$${d.subtotal}</span>
+                </div>`;
+            });
+
+            html += `<div class="d-flex justify-content-between mt-3 pt-2" style="border-top:2px solid #f0ece6;">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total}</span>
+            </div>`;
+
+            document.getElementById('detalleContenido').innerHTML = html;
+        });
+    }
+
+    function abrirCambiarEstado(id, estadoActual) {
+        document.getElementById('selectEstado').value = estadoActual;
+        document.getElementById('formEstado').action = `/admin/pedidos/cambiar_estado/${id}`;
+        new bootstrap.Modal(document.getElementById('modalEstado')).show();
+    }
+
+    document.getElementById('searchPedidos').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#pedidosTable tbody tr').forEach(row => {
+            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+
+    document.getElementById('searchDetalle').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#detalleTable tbody tr').forEach(row => {
+            row.style.display = row.cells[2].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+</script>
+</body>
+</html>
