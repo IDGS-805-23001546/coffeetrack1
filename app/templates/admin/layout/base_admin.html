@@ -113,8 +113,13 @@
             <i class="bi bi-people"></i> Usuarios
         </a>
         <a href="{{ url_for('admin_pedidos.index') }}" class="{{ 'active' if request.endpoint == 'admin_pedidos.index' }}">
-            <i class="bi bi-bag"></i> Pedidos
-        </a>
+        <i class="bi bi-bag"></i> Pedidos
+        {% if g.get('pedidos_pendientes', 0) > 0 %}
+    <span style="margin-left:auto; background:#e74c3c; color:white; border-radius:20px; padding:2px 8px; font-size:0.7rem; font-weight:700;">
+        {{ g.pedidos_pendientes }}
+    </span>
+    {% endif %}
+</a>
         <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
             <i class="bi bi-currency-dollar"></i> Ventas
         </a>

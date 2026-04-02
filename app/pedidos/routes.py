@@ -79,8 +79,7 @@ def crear():
 
     db.session.commit()
     session.pop('cart', None)
-    flash(f'Pedido #{pedido.id} confirmado exitosamente.', 'success')
-    return redirect(url_for('pedidos.mis_pedidos'))
+    return redirect(url_for('pedidos.confirmacion', id=pedido.id))
 
 
 @pedidos_bp.route('/mis-pedidos')
@@ -278,4 +277,21 @@ def ticket(id):
         as_attachment=True,
         download_name=f'ticket_pedido_{pedido.id}.pdf',
         mimetype='application/pdf'
+    )
+    
+    #ruta para detalle del pedido y generar tiket
+@pedidos_bp.route('/confirmacion/<int:id>')
+@login_required
+def confirmacion(id):
+    pedido = Pedido.query.get_or_404(id)
+    if pedido.usuario_id != session['user_id']:
+        return redirect(url_for('pedidos.mis_pedidos'))
+    
+    ref = ''
+    if pedido.notas and 'REF:' in pedido.notas:
+        ref = pedido.notas.split('REF:')[-1].strip()
+    
+    return render_template('cliente/confirmacion_pedido.html', 
+        pedido=pedido, 
+        ref=ref
     )

@@ -4,6 +4,7 @@
 
 {% block body %}
 <style>
+    /* --- Estilos Generales --- */
     .hero-container {
         height: 100vh;
         width: 100%;
@@ -27,7 +28,48 @@
         display: inline-block;
         transition: 0.3s;
     }
+    .btn-custom-gold:hover {
+        background-color: #a66d22;
+    }
 
+    /* --- ESTILOS SECCIÓN PROMOCIONAL (CHOCOLATE BLANCO) --- */
+    .promo-section {
+        display: flex;
+        flex-wrap: wrap; /* Para responsividad en móviles */
+        align-items: center;
+        background-color: #fdf5e6;
+        min-height: 550px;
+        overflow: hidden;
+    }
+    .promo-image-container {
+        flex: 1 1 50%;
+        height: 550px;
+        /* RUTA CORREGIDA PARA LA IMAGEN GUARDADA */
+        background-image: url("{{ url_for('static', filename='images/CaffeChocolateBlanco.png') }}");
+        background-size: cover;
+        background-position: center;
+    }
+    .promo-content {
+        flex: 1 1 50%;
+        padding: 5% 8%;
+        text-align: center;
+    }
+    .btn-outline-promo {
+        border: 2px solid #c8842a;
+        color: #c8842a;
+        padding: 12px 45px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        transition: 0.3s;
+    }
+    .btn-outline-promo:hover {
+        background: #c8842a;
+        color: white !important;
+    }
+
+    /* --- Estilos de Componentes --- */
     .bottle-card {
         background: #ffffff;
         border-radius: 20px;
@@ -47,21 +89,22 @@
         margin-bottom: 15px;
     }
 
-    /* Estilos para la sección "Sobre Nosotros" integrada */
     .stat-card {
         transition: 0.3s;
         border: none;
     }
-    .stat-card:hover {
-        transform: translateY(-10px);
+    .stat-card:hover { transform: translateY(-10px); }
+
+    @media (max-width: 768px) {
+        .promo-image-container, .promo-content { flex: 1 1 100%; height: 400px; }
     }
 </style>
 
-{# --- SECCIÓN HERO (COMÚN PARA AMBOS) --- #}
+{# --- 1. SECCIÓN HERO --- #}
 <div class="hero-container">
     <div class="hero-text-box">
-        <h6 class="text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">Cold Brew & Embotellados</h6>
-        <h1 class="display-3 fw-bold mb-3">Frescura artesanal<br>en cada botella</h1>
+        <h6 class="text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">Cold Brew & Artesanales</h6>
+        <h1 class="display-3 fw-bold mb-3">Sabor artesanal<br>en cada cafe</h1>
         <p class="lead mb-4">Café de especialidad, reposado y embotellado para llevar.</p>
         
         {% if not session.get('user_id') %}
@@ -72,7 +115,22 @@
     </div>
 </div>
 
-{# --- LÓGICA DE CONTENIDO DINÁMICO --- #}
+{# --- 2. SECCIÓN PROMOCIONAL: INSERTADA ANTES DE "SOBRE NOSOTROS" --- #}
+<section class="promo-section">
+    <div class="promo-image-container"></div>
+    
+    <div class="promo-content">
+        <h6 class="text-uppercase" style="color: #c8842a; letter-spacing: 2px;">Nuevo Producto</h6>
+        <h2 class="display-5 fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #2c1810;">¡Chocolate Blanco !</h2>
+        <p class="text-muted mb-5 lead">
+            Descubre nuestra nueva creación: un Cafe artesanal y peculiar infusionado con chocolate blanco artesanal, 
+            listo para disfrutar. Cremoso, rico y perfecto para cualquier momento del día.
+        </p>
+        <a href="{{ url_for('auth.login') }}" class="btn-outline-promo">Probar</a>
+    </div>
+</section>
+
+{# --- 3. LÓGICA DE CONTENIDO DINÁMICO --- #}
 
 {% if session.get('user_id') %}
     {# CASO 1: USUARIO LOGUEADO -> MUESTRA BEBIDAS #}

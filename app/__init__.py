@@ -29,7 +29,7 @@ def create_app():
     from .admin.ventas import ventas_bp
 
     
-    
+    app.jinja_env.globals['enumerate'] = enumerate
     app.register_blueprint(auth_bp)
     app.register_blueprint(cliente_bp, url_prefix='/cliente')
     app.register_blueprint(carrito_bp, url_prefix='/carrito')
