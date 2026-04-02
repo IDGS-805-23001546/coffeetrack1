@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}CoffeeTrack Admin{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
+        .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
+        .brand-sub { font-size: 0.72rem; color: #888; display: block; }
+        .sidebar-section { padding: 18px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
+        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .sidebar nav a:hover { background: #252525; color: white; }
+        .sidebar nav a.active { background: #e8891a; color: white; }
+        .sidebar nav a i { font-size: 1rem; width: 18px; }
+        .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
+        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
+        .sidebar-logout a:hover { color: white; }
+
+        /* CONTENIDO */
+        .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
+        .page-body { padding: 30px; }
+        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+
+        /* TABLA */
+        .table-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 2px solid #f0ece6; font-weight: 600; }
+        .table tbody td { vertical-align: middle; font-size: 0.9rem; border-color: #f5f0eb; }
+        .table tbody tr:hover { background-color: #fdf8f3; }
+
+        .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
+        .btn-nueva:hover { background: #d47b15; }
+        .btn-accion { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+        .btn-accion:hover { background: #e8891a; color: white; }
+        .btn-cancelar { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+        .btn-cancelar:hover { background: #e74c3c; color: white; }
+
+        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 240px; }
+        .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+
+        .badge-cat { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-disponible { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-bajo { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-agotado { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+
+        /* MODAL */
+        .modal-content { border-radius: 16px; border: none; }
+        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        .modal-body { padding: 24px; }
+        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
+        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: #d47b15; }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
+        <div>
+            <span class="brand-name">CoffeeTrack</span>
+            <span class="brand-sub">Admin Panel</span>
+        </div>
+    </div>
+
+    <div class="sidebar-section">Principal</div>
+    <nav>
+        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+    </nav>
+
+    <div class="sidebar-section">Inventario</div>
+    <nav>
+        <a href="{{ url_for('admin_bebidas.index') }}" class="{{ 'active' if request.endpoint == 'admin_bebidas.index' }}">
+            <i class="bi bi-cup-straw"></i> Bebidas
+        </a>
+        <a href="{{ url_for('admin_recetas.index') }}" class="{{ 'active' if request.endpoint == 'admin_recetas.index' }}">
+            <i class="bi bi-journal-text"></i> Recetas
+        </a>
+        <a href="{{ url_for('admin_materias.index') }}" class="{{ 'active' if request.endpoint == 'admin_materias.index' }}">
+            <i class="bi bi-box-seam"></i> Materias Primas
+        </a>
+        <a href="{{ url_for('admin_produccion.index') }}" class="{{ 'active' if request.endpoint == 'admin_produccion.index' }}">
+            <i class="bi bi-gear"></i> Producción
+        </a>
+    </nav>
+
+    <div class="sidebar-section">Gestión</div>
+    <nav>
+        <a href="{{ url_for('admin_proveedores.index') }}" class="{{ 'active' if request.endpoint == 'admin_proveedores.index' }}">
+            <i class="bi bi-truck"></i> Proveedores
+        </a>
+        <a href="#" class="">
+    <i class="bi bi-cart"></i> Compras
+</a>
+        <a href="{{ url_for('admin_usuarios.index') }}" class="{{ 'active' if request.endpoint == 'admin_usuarios.index' }}">
+            <i class="bi bi-people"></i> Usuarios
+        </a>
+        <a href="{{ url_for('admin_pedidos.index') }}" class="{{ 'active' if request.endpoint == 'admin_pedidos.index' }}">
+            <i class="bi bi-bag"></i> Pedidos
+        </a>
+        <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
+            <i class="bi bi-currency-dollar"></i> Ventas
+        </a>
+    </nav>
+
+    <div class="sidebar-logout">
+        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
+    </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="main-content">
+    <div class="topbar">
+        <i class="bi bi-layout-sidebar"></i>
+        <span>Panel de Administración</span>
+    </div>
+    <div class="page-body">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'danger' else 'info' }} alert-dismissible fade show mb-3">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

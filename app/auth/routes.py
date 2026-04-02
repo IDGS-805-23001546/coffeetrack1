@@ -56,6 +56,8 @@ def login():
             session['user_nombre'] = f"{usuario.nombre} {usuario.apellidos}"
             session['user_rol'] = usuario.rol
             session['user_email'] = usuario.email
+            session['user_telefono'] = usuario.telefono or ''
+            session['user_direccion'] = usuario.direccion or ''
 
             flash(f'¡Bienvenido, {usuario.nombre}!', 'success')
 

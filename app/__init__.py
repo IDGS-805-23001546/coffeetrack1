@@ -25,6 +25,8 @@ def create_app():
     from .admin.proveedores import proveedores_bp
     from .admin.usuarios import usuarios_bp
     from .admin.pedidos import pedidos_admin_bp
+    from .admin.produccion import produccion_bp
+    from .admin.ventas import ventas_bp
 
     
     
@@ -40,6 +42,8 @@ def create_app():
     app.register_blueprint(proveedores_bp, url_prefix='/admin/proveedores')
     app.register_blueprint(usuarios_bp, url_prefix='/admin/usuarios')
     app.register_blueprint(pedidos_admin_bp, url_prefix='/admin/pedidos')
+    app.register_blueprint(produccion_bp, url_prefix='/admin/produccion')
+    app.register_blueprint(ventas_bp, url_prefix='/admin/ventas')
 
 
 

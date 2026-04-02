@@ -58,7 +58,9 @@
         <a href="#"><i class="bi bi-cart"></i> Compras</a>
         <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
         <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>
+        <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
+    <i class="bi bi-currency-dollar"></i> Ventas
+</a>
     </nav>
 
     <div style="margin-top:auto; padding: 20px; border-top: 1px solid #2a2a2a;">

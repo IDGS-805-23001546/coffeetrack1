@@ -10,3 +10,4 @@ from .proveedores import proveedores_bp
 from .usuarios import usuarios_bp
 from .pedidos import pedidos_admin_bp
 from .produccion import produccion_bp
+from .ventas import ventas_bp
