@@ -51,6 +51,10 @@
                         <button class="btn btn-sm btn-outline-light" onclick="verDetalle({{ pedido.id }})">
                             Ver detalles
                         </button>
+                        <a href="{{ url_for('pedidos.ticket', id=pedido.id) }}" 
+                            class="btn btn-sm btn-outline-warning mt-2">
+                            <i class="bi bi-file-earmark-pdf"></i> Descargar Ticket
+                        </a>
                         </div>
                     </div>
                 </div>

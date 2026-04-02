@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash, jsonify, session
 from . import pedidos_admin_bp
 from app.auth.routes import admin_required
-from app.models import Pedido, DetallePedido, Produccion
+from app.models import Pedido, DetallePedido, Produccion, Venta
 from app import db
 from datetime import date
 
@@ -50,6 +50,24 @@ def cambiar_estado(id):
                     estado='planificada'
                 )
                 db.session.add(produccion)
+
+        # Al marcar como entregado crear venta automaticamente
+        if nuevo_estado == 'entregado':
+            existe_venta = Venta.query.filter_by(pedido_id=pedido.id).first()
+            if not existe_venta:
+                # Extraer referencia del pedido
+                ref = None
+                if pedido.notas and 'REF:' in pedido.notas:
+                    ref = pedido.notas.split('REF:')[-1].strip()
+
+                venta = Venta(
+                    pedido_id=pedido.id,
+                    metodo_pago='efectivo',  # por defecto, el admin cambia despues
+                    total=pedido.total,
+                    estado_pago='pendiente',
+                    referencia_pago=ref
+                )
+                db.session.add(venta)
 
         db.session.commit()
         flash(f'Pedido #{id} actualizado a {nuevo_estado}.', 'success')

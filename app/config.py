@@ -15,6 +15,11 @@ class Config:
     f"{os.environ.get('DB_PORT', '3306')}/"
     f"{os.environ.get('DB_NAME', 'coffeetrack')}"
 )
+    SQLALCHEMY_ENGINE_OPTIONS = {
+    "connect_args": {
+        "init_command": "SET time_zone='-06:00'"
+    }
+}
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # True para debug SQL
