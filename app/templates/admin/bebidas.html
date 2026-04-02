@@ -1,175 +1,80 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>CoffeeTrack - Bebidas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
+{% extends 'admin/layout/base_admin.html' %}
 
-        .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
-        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
-        .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
-        .brand-sub { font-size: 0.72rem; color: #888; display: block; }
-        .sidebar-section { padding: 18px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
-        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
-        .sidebar nav a:hover { background: #252525; color: white; }
-        .sidebar nav a.active { background: #e8891a; color: white; }
-        .sidebar nav a i { font-size: 1rem; width: 18px; }
-        .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
-        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
-        .sidebar-logout a:hover { color: white; }
+{% block title %}Bebidas - CoffeeTrack Admin{% endblock %}
 
-        .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
-        .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
-        .page-body { padding: 30px; }
-        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+{% block extra_css %}
+<style>
+    /* Solo estilos específicos que no estén en el base */
+    .stock-ok { color: #27ae60; font-weight: 700; }
+    .stock-low { color: #e74c3c; font-weight: 700; }
 
-        .table-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 2px solid #f0ece6; font-weight: 600; }
-        .table tbody td { vertical-align: middle; font-size: 0.9rem; border-color: #f5f0eb; }
-        .table tbody tr:hover { background-color: #fdf8f3; }
+    .toggle-btn { width: 44px; height: 24px; border-radius: 12px; border: none; cursor: pointer; transition: 0.3s; font-size: 0.75rem; font-weight: 700; color: white; }
+    .toggle-on { background: #e8891a; }
+    .toggle-off { background: #ccc; }
 
-        .badge-cat { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
-        .stock-ok { color: #27ae60; font-weight: 700; }
-        .stock-low { color: #e74c3c; font-weight: 700; }
+    .ingrediente-row { background: #fdf8f3; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .btn-add-ing { background: transparent; border: 2px dashed #e8891a; color: #e8891a; border-radius: 10px; padding: 8px; width: 100%; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-add-ing:hover { background: #fdf3e7; }
+    .btn-remove-ing { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+</style>
+{% endblock %}
 
-        .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
-        .btn-nueva:hover { background: #d47b15; }
-
-        .toggle-btn { width: 44px; height: 24px; border-radius: 12px; border: none; cursor: pointer; transition: 0.3s; font-size: 0.75rem; font-weight: 700; color: white; }
-        .toggle-on { background: #e8891a; }
-        .toggle-off { background: #ccc; }
-
-        /* Modal */
-        .modal-content { border-radius: 16px; border: none; }
-        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
-        .modal-title { font-weight: 700; font-size: 1.1rem; }
-        .modal-body { padding: 24px; }
-        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
-        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
-
-        .ingrediente-row { background: #fdf8f3; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-        .btn-add-ing { background: transparent; border: 2px dashed #e8891a; color: #e8891a; border-radius: 10px; padding: 8px; width: 100%; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-add-ing:hover { background: #fdf3e7; }
-        .btn-remove-ing { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
-        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
-        .btn-submit:hover { background: #d47b15; }
-
-        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 240px; }
-        .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
-    </style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
-        <div>
-            <span class="brand-name">CoffeeTrack</span>
-            <span class="brand-sub">Admin Panel</span>
-        </div>
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="page-title">Bebidas</h1>
+        <p class="page-subtitle">Catálogo de bebidas — {{ bebidas|length }} registros</p>
     </div>
-    <div class="sidebar-section">Principal</div>
-    <nav>
-        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-    </nav>
-    <div class="sidebar-section">Inventario</div>
-    <nav>
-        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>        
-        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
-        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a> 
-        <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>
-
-    </nav>
-    <div class="sidebar-section">Gestión</div>
-    <nav>
-        <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
-        <a href="#"><i class="bi bi-cart"></i> Compras</a>
-        <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
-        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}"><i class="bi bi-currency-dollar"></i> Ventas</a>
-    </nav>
-    <div class="sidebar-logout">
-        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
-    </div>
+    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaBebida">
+        <i class="bi bi-plus-lg me-1"></i> Nueva Bebida
+    </button>
 </div>
 
-<!-- CONTENIDO -->
-<div class="main-content">
-    <div class="topbar">
-        <i class="bi bi-layout-sidebar"></i>
-        <span>Panel de Administración</span>
+<div class="table-card">
+    <div class="mb-3">
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Buscar bebida...">
+        </div>
     </div>
-    <div class="page-body">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for cat, msg in messages %}
-                <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show mb-3" role="alert">
-                    {{ msg }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+    
+    <div class="table-responsive">
+        <table class="table" id="bebidasTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Vol. (ml)</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Disponible</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bebidas %}
+                <tr>
+                    <td>{{ b.id }}</td>
+                    <td><strong>{{ b.nombre }}</strong></td>
+                    <td><span class="badge-cat">{{ b.categoria.nombre }}</span></td>
+                    <td>{{ b.volumen_ml }}</td>
+                    <td>${{ "%.2f"|format(b.precio) }}</td>
+                    <td class="{{ 'stock-low' if b.stock_actual <= b.stock_minimo else 'stock-ok' }}">
+                        {{ b.stock_actual }}
+                    </td>
+                    <td>
+                        <button class="toggle-btn {{ 'toggle-on' if b.disponible else 'toggle-off' }}"
+                                onclick="toggleDisponible({{ b.id }}, this)">
+                            {{ 'Si' if b.disponible else 'No' }}
+                        </button>
+                    </td>
+                </tr>
                 {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-                <div class="page-title">Bebidas</div>
-                <div class="page-subtitle">Catálogo de bebidas — {{ bebidas|length }} registros</div>
-            </div>
-            <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaBebida">
-                + Nueva Bebida
-            </button>
-        </div>
-
-        <div class="table-card">
-            <div class="mb-3">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar bebida...">
-            </div>
-            <table class="table" id="bebidasTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Vol. (ml)</th>
-                        <th>Precio</th>
-                        <th>Stock</th>
-                        <th>Disponible</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for b in bebidas %}
-                    <tr>
-                        <td>{{ b.id }}</td>
-                        <td>{{ b.nombre }}</td>
-                        <td><span class="badge-cat">{{ b.categoria.nombre }}</span></td>
-                        <td>{{ b.volumen_ml }}</td>
-                        <td>${{ "%.2f"|format(b.precio) }}</td>
-                        <td class="{{ 'stock-low' if b.stock_actual <= b.stock_minimo else 'stock-ok' }}">{{ b.stock_actual }}</td>
-                        <td>
-                            <button class="toggle-btn {{ 'toggle-on' if b.disponible else 'toggle-off' }}"
-                                    onclick="toggleDisponible({{ b.id }}, this)">
-                                {{ 'Si' if b.disponible else 'No' }}
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- MODAL NUEVA BEBIDA -->
 <div class="modal fade" id="modalNuevaBebida" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
@@ -180,11 +85,11 @@
             <div class="modal-body">
                 <form method="POST" action="{{ url_for('admin_bebidas.nueva') }}">
                     <div class="row g-3 mb-3">
-                        <div class="col-md-8">
+                        <div class="col-md-8 text-start">
                             <label class="form-label">Nombre</label>
                             <input type="text" name="nombre" class="form-control" required placeholder="Ej. Café Mocha">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 text-start">
                             <label class="form-label">Categoría</label>
                             <select name="categoria_id" class="form-select" required>
                                 {% for cat in categorias %}
@@ -194,12 +99,12 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 text-start">
                         <label class="form-label">Descripción</label>
                         <textarea name="descripcion" class="form-control" rows="2" placeholder="Descripción breve de la bebida"></textarea>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-3 mb-3 text-start">
                         <div class="col-md-4">
                             <label class="form-label">Volumen (ml)</label>
                             <input type="number" name="volumen_ml" class="form-control" value="355" required>
@@ -214,7 +119,7 @@
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
+                    <div class="row g-3 mb-3 text-start">
                         <div class="col-md-4">
                             <label class="form-label">Stock Inicial</label>
                             <input type="number" name="stock_actual" class="form-control" value="0">
@@ -231,12 +136,11 @@
                         </div>
                     </div>
 
-                    <!-- RECETA -->
                     <hr>
                     <label class="form-label mb-3">Ingredientes de la Receta</label>
                     <div id="ingredientes-container"></div>
                     <button type="button" class="btn-add-ing mb-4" onclick="agregarIngrediente()">
-                        + Agregar Ingrediente
+                        <i class="bi bi-plus-circle me-1"></i> Agregar Ingrediente
                     </button>
 
                     <button type="submit" class="btn-submit">Guardar Bebida</button>
@@ -245,10 +149,10 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
 <script>
-    // Materias primas disponibles desde Flask
     const materias = [
         {% for m in materias %}
         { id: {{ m.id }}, nombre: "{{ m.nombre }}", unidad: "{{ m.unidad_medida }}" },
@@ -269,7 +173,7 @@
                 <option value="">Seleccionar materia</option>
                 ${options}
             </select>
-            <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" step="0.01" min="0.01" required style="max-width:120px">
+            <input type="number" name="cantidad[]" class="form-control" placeholder="Cant." step="0.01" min="0.01" required style="max-width:100px">
             <select name="unidad_medida[]" class="form-select unidad-select" style="max-width:100px">
                 <option value="ml">ml</option>
                 <option value="gr">gr</option>
@@ -302,7 +206,6 @@
         });
     }
 
-    // Buscador
     document.getElementById('searchInput').addEventListener('input', function() {
         const val = this.value.toLowerCase();
         document.querySelectorAll('#bebidasTable tbody tr').forEach(row => {
@@ -310,5 +213,4 @@
         });
     });
 </script>
-</body>
-</html>
+{% endblock %}

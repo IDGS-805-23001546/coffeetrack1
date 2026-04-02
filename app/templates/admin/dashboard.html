@@ -1,366 +1,138 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoffeeTrack - Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+{% extends "admin/layout/base_admin.html" %}
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f5f0eb;
-            display: flex;
-            min-height: 100vh;
-        }
+{% block title %}CoffeeTrack - Dashboard{% endblock %}
 
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: 240px;
-            min-height: 100vh;
-            background-color: #1a1a1a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0; left: 0;
-            z-index: 100;
-        }
+{% block extra_css %}
+<style>
+    .kpi-card { background: white; border-radius: 14px; padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
+    .kpi-label { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+    .kpi-value { font-size: 2rem; font-weight: 700; color: #1a1a1a; line-height: 1; margin-bottom: 6px; }
+    .kpi-sub { font-size: 0.8rem; color: #27ae60; }
+    .kpi-icon { width: 44px; height: 44px; background: #fdf3e7; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #e8891a; font-size: 1.2rem; flex-shrink: 0; }
 
-        .sidebar-brand {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #2a2a2a;
-        }
+    .section-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
+    .section-title { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
 
-        .brand-icon {
-            width: 40px; height: 40px;
-            background-color: #e8891a;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-        }
+    .pedido-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0ece6; }
+    .pedido-item:last-child { border-bottom: none; }
+    .pedido-nombre { font-weight: 600; font-size: 0.9rem; color: #1a1a1a; }
+    .pedido-dir { font-size: 0.78rem; color: #999; margin-top: 2px; }
+    .pedido-total { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; text-align: right; }
 
-        .brand-text { line-height: 1.2; }
-        .brand-text span { display: block; }
-        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
-        .brand-sub { font-size: 0.72rem; color: #888; }
+    .badge-estado { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; margin-top: 5px; }
+    .badge-entregado { background: #e8891a; color: white; }
+    .badge-en-preparacion { background: #fff3cd; color: #856404; }
+    .badge-pendiente { background: #e9ecef; color: #495057; }
+    .badge-confirmado { background: #d1ecf1; color: #0c5460; }
+    .badge-cancelado { background: #f8d7da; color: #721c24; }
+    .badge-enviado { background: #cce5ff; color: #004085; }
 
-        .sidebar-section {
-            padding: 18px 20px 6px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #555;
-            font-weight: 600;
-        }
+    .alerta-item { padding: 14px 0; border-bottom: 1px solid #f0ece6; }
+    .alerta-item:last-child { border-bottom: none; }
+    .alerta-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .alerta-msg { font-size: 0.88rem; color: #333; font-weight: 500; line-height: 1.4; }
+    .alerta-fecha { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
+    .badge-alerta { flex-shrink: 0; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; background: #e74c3c; color: white; white-space: nowrap; }
+    .alerta-icon { color: #f39c12; margin-right: 6px; }
+</style>
+{% endblock %}
 
-        .sidebar nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 20px;
-            color: #aaa;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: 0.2s;
-            border-radius: 0;
-        }
+{% block content %}
+<div class="page-title">Dashboard</div>
+<div class="page-subtitle">Panel de administración — CoffeeTrack</div>
 
-        .sidebar nav a:hover { background: #252525; color: white; }
-        .sidebar nav a.active { background: #e8891a; color: white; border-radius: 0; }
-        .sidebar nav a i { font-size: 1rem; width: 18px; }
-
-        .sidebar-logout {
-            margin-top: auto;
-            border-top: 1px solid #2a2a2a;
-            padding: 15px 20px;
-        }
-
-        .sidebar-logout a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #888;
-            text-decoration: none;
-            font-size: 0.88rem;
-            transition: 0.2s;
-        }
-
-        .sidebar-logout a:hover { color: white; }
-
-        /* ── CONTENIDO ── */
-        .main-content {
-            margin-left: 240px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .topbar {
-            background: white;
-            padding: 14px 30px;
-            border-bottom: 1px solid #e8e0d8;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-        .page-body {
-            padding: 30px;
-        }
-
-        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
-
-        /* ── TARJETAS KPI ── */
-        .kpi-card {
-            background: white;
-            border-radius: 14px;
-            padding: 22px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            height: 100%;
-        }
-
-        .kpi-label { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
-        .kpi-value { font-size: 2rem; font-weight: 700; color: #1a1a1a; line-height: 1; margin-bottom: 6px; }
-        .kpi-sub { font-size: 0.8rem; color: #27ae60; }
-
-        .kpi-icon {
-            width: 44px; height: 44px;
-            background: #fdf3e7;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            color: #e8891a;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        /* ── SECCIÓN INFERIOR ── */
-        .section-card {
-            background: white;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            height: 100%;
-        }
-
-        .section-title { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
-
-        /* Pedidos */
-        .pedido-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid #f0ece6;
-        }
-        .pedido-item:last-child { border-bottom: none; }
-        .pedido-nombre { font-weight: 600; font-size: 0.9rem; color: #1a1a1a; }
-        .pedido-dir { font-size: 0.78rem; color: #999; margin-top: 2px; }
-        .pedido-total { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; text-align: right; }
-
-        /* Badges de estado */
-        .badge-estado {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            margin-top: 5px;
-        }
-        .badge-entregado { background: #e8891a; color: white; }
-        .badge-preparacion { background: #fff3cd; color: #856404; }
-        .badge-pendiente { background: #e9ecef; color: #495057; }
-        .badge-confirmado { background: #d1ecf1; color: #0c5460; }
-        .badge-cancelado { background: #f8d7da; color: #721c24; }
-
-        /* Alertas */
-        .alerta-item {
-            padding: 14px 0;
-            border-bottom: 1px solid #f0ece6;
-        }
-        .alerta-item:last-child { border-bottom: none; }
-        .alerta-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-        .alerta-msg { font-size: 0.88rem; color: #333; font-weight: 500; line-height: 1.4; }
-        .alerta-fecha { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
-        .badge-alerta {
-            flex-shrink: 0;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            background: #e74c3c;
-            color: white;
-            white-space: nowrap;
-        }
-        .alerta-icon { color: #f39c12; margin-right: 6px; }
-    </style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon">
-            <i class="bi bi-cup-hot-fill text-white"></i>
-        </div>
-        <div class="brand-text">
-            <span class="brand-name">CoffeeTrack</span>
-            <span class="brand-sub">Admin Panel</span>
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Bebidas en Catálogo</div>
+                <div class="kpi-value">{{ total_bebidas }}</div>
+                <div class="kpi-sub">{{ bebidas_disponibles }} disponibles</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-cup-hot"></i></div>
         </div>
     </div>
-
-    <div class="sidebar-section">Principal</div>
-    <nav>
-        <a href="{{ url_for('admin.dashboard') }}" class="active">
-            <i class="bi bi-grid-1x2"></i> Dashboard
-        </a>
-    </nav>
-
-    <div class="sidebar-section">Inventario</div>
-    <nav>
-        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>        
-        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
-        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a> 
-        <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>
-    </nav>
-
-    <div class="sidebar-section">Gestión</div>
-    <nav>
-        <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
-        <a href="#"><i class="bi bi-cart"></i> Compras</a>
-        <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
-        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>
-    </nav>
-
-    <div class="sidebar-logout">
-        <a href="{{ url_for('auth.logout') }}">
-            <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
-        </a>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Materias Primas</div>
+                <div class="kpi-value">{{ total_materias }}</div>
+                <div class="kpi-sub">{{ materias_ok }} con stock OK</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Ventas del Día</div>
+                <div class="kpi-value">${{ "%.2f"|format(total_ventas_hoy) }}</div>
+                <div class="kpi-sub">{{ transacciones_hoy }} transacciones</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-cart3"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Producción Activa</div>
+                <div class="kpi-value">{{ producciones }}</div>
+                <div class="kpi-sub">{{ producciones_completadas }} completadas</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-bar-chart"></i></div>
+        </div>
     </div>
 </div>
 
-<!-- CONTENIDO PRINCIPAL -->
-<div class="main-content">
-    <div class="topbar">
-        <i class="bi bi-layout-sidebar"></i>
-        <span>Panel de Administración</span>
+<!-- Pedidos Recientes + Alertas -->
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="section-card">
+            <div class="section-title">Pedidos Recientes</div>
+            {% if pedidos_recientes %}
+                {% for pedido in pedidos_recientes %}
+                <div class="pedido-item">
+                    <div>
+                        <div class="pedido-nombre">#{{ pedido.id }} — {{ pedido.usuario.nombre }} {{ pedido.usuario.apellidos }}</div>
+                        <div class="pedido-dir">{{ pedido.direccion_entrega }}</div>
+                    </div>
+                    <div class="pedido-total">
+                        ${{ "%.2f"|format(pedido.total) }}
+                        <br>
+                        <span class="badge-estado badge-{{ pedido.estado|replace('_','-') }}">
+                            {{ pedido.estado|replace('_',' ') }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center py-4">No hay pedidos recientes.</p>
+            {% endif %}
+        </div>
     </div>
-
-    <div class="page-body">
-        <div class="page-title">Dashboard</div>
-        <div class="page-subtitle">Panel de administración — CoffeeTrack</div>
-
-        <!-- KPIs -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="kpi-card">
-                    <div>
-                        <div class="kpi-label">Bebidas en Catálogo</div>
-                        <div class="kpi-value">{{ total_bebidas }}</div>
-                        <div class="kpi-sub">{{ bebidas_disponibles }} disponibles</div>
-                    </div>
-                    <div class="kpi-icon"><i class="bi bi-cup-hot"></i></div>
-                </div>
+    <div class="col-md-5">
+        <div class="section-card">
+            <div class="section-title">
+                <i class="alerta-icon bi bi-exclamation-triangle-fill"></i>
+                Alertas de Inventario
             </div>
-            <div class="col-md-3">
-                <div class="kpi-card">
-                    <div>
-                        <div class="kpi-label">Materias Primas</div>
-                        <div class="kpi-value">{{ total_materias }}</div>
-                        <div class="kpi-sub">{{ materias_ok }} con stock OK</div>
-                    </div>
-                    <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="kpi-card">
-                    <div>
-                        <div class="kpi-label">Ventas del Día</div>
-                        <div class="kpi-value">${{ "%.2f"|format(total_ventas_hoy) }}</div>
-                        <div class="kpi-sub">{{ transacciones_hoy }} transacciones</div>
-                    </div>
-                    <div class="kpi-icon"><i class="bi bi-cart3"></i></div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="kpi-card">
-                    <div>
-                        <div class="kpi-label">Producción Activa</div>
-                        <div class="kpi-value">{{ producciones }}</div>
-                        <div class="kpi-sub">{{ producciones_completadas }} completadas</div>
-                    </div>
-                    <div class="kpi-icon"><i class="bi bi-bar-chart"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pedidos Recientes + Alertas -->
-        <div class="row g-3">
-            <div class="col-md-7">
-                <div class="section-card">
-                    <div class="section-title">Pedidos Recientes</div>
-                    {% if pedidos_recientes %}
-                        {% for pedido in pedidos_recientes %}
-                        <div class="pedido-item">
-                            <div>
-                                <div class="pedido-nombre">#{{ pedido.id }} — {{ pedido.usuario.nombre }} {{ pedido.usuario.apellidos }}</div>
-                                <div class="pedido-dir">{{ pedido.direccion_entrega }}</div>
-                            </div>
-                            <div class="pedido-total">
-                                ${{ "%.2f"|format(pedido.total) }}
-                                <br>
-                                <span class="badge-estado badge-{{ pedido.estado|replace('_','-') }}">
-                                    {{ pedido.estado|replace('_',' ') }}
-                                </span>
-                            </div>
+            {% if alertas %}
+                {% for alerta in alertas %}
+                <div class="alerta-item">
+                    <div class="alerta-header">
+                        <div>
+                            <div class="alerta-msg">{{ alerta.mensaje }}</div>
+                            <div class="alerta-fecha">{{ alerta.fecha_alerta.strftime('%Y-%m-%d %H:%M:%S') }}</div>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted text-center py-4">No hay pedidos recientes.</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="col-md-5">
-                <div class="section-card">
-                    <div class="section-title">
-                        <i class="alerta-icon bi bi-exclamation-triangle-fill"></i>
-                        Alertas de Inventario
+                        <span class="badge-alerta">{{ alerta.tipo_alerta|replace('_',' ') }}</span>
                     </div>
-                    {% if alertas %}
-                        {% for alerta in alertas %}
-                        <div class="alerta-item">
-                            <div class="alerta-header">
-                                <div>
-                                    <div class="alerta-msg">{{ alerta.mensaje }}</div>
-                                    <div class="alerta-fecha">{{ alerta.fecha_alerta.strftime('%Y-%m-%d %H:%M:%S') }}</div>
-                                </div>
-                                <span class="badge-alerta">{{ alerta.tipo_alerta|replace('_',' ') }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted text-center py-4">Sin alertas activas.</p>
-                    {% endif %}
                 </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center py-4">Sin alertas activas.</p>
+            {% endif %}
         </div>
-
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}

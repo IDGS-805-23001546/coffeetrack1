@@ -1,197 +1,84 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>CoffeeTrack - Producción</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
+{% extends "admin/layout/base_admin.html" %}
 
-        /* SIDEBAR */
-        .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
-        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
-        .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
-        .brand-sub { font-size: 0.72rem; color: #888; display: block; }
-        .sidebar-section { padding: 18px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
-        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
-        .sidebar nav a:hover { background: #252525; color: white; }
-        .sidebar nav a.active { background: #e8891a; color: white; }
-        .sidebar nav a i { font-size: 1rem; width: 18px; }
-        .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
-        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
-        .sidebar-logout a:hover { color: white; }
+{% block title %}CoffeeTrack - Producción{% endblock %}
 
-        /* CONTENIDO */
-        .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
-        .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
-        .page-body { padding: 30px; }
-        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+{% block extra_css %}
+<style>
+    .badge-planificada { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-en-proceso { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-completada { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-cancelada { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .btn-cancelar { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+    .btn-cancelar:hover { background: #e74c3c; color: white; }
+</style>
+{% endblock %}
 
-        /* TABLA */
-        .table-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 2px solid #f0ece6; font-weight: 600; }
-        .table tbody td { vertical-align: middle; font-size: 0.9rem; border-color: #f5f0eb; }
-        .table tbody tr:hover { background-color: #fdf8f3; }
-
-        /* BADGES */
-        .badge-planificada { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .badge-en-proceso { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .badge-completada { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .badge-cancelada { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-
-        .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
-        .btn-nueva:hover { background: #d47b15; }
-        .btn-accion { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
-        .btn-accion:hover { background: #e8891a; color: white; }
-        .btn-cancelar { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
-        .btn-cancelar:hover { background: #e74c3c; color: white; }
-
-        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 240px; }
-        .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
-
-        /* MODAL */
-        .modal-content { border-radius: 16px; border: none; }
-        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
-        .modal-title { font-weight: 700; font-size: 1.1rem; }
-        .modal-body { padding: 24px; }
-        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
-        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
-        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
-        .btn-submit:hover { background: #d47b15; }
-
-        .costo-preview { background: #fdf3e7; border-radius: 10px; padding: 12px 16px; margin-top: 12px; display: none; }
-        .costo-label { font-size: 0.8rem; color: #888; }
-        .costo-valor { font-size: 1.2rem; font-weight: 700; color: #e8891a; }
-    </style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
-        <div>
-            <span class="brand-name">CoffeeTrack</span>
-            <span class="brand-sub">Admin Panel</span>
-        </div>
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <div class="page-title">Producción</div>
+        <div class="page-subtitle">Registro de producción de bebidas — {{ producciones|length }} registros</div>
     </div>
-    <div class="sidebar-section">Principal</div>
-    <nav>
-        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-    </nav>
-    <div class="sidebar-section">Inventario</div>
-    <nav>
-        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
-        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
-        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a>
-        <a href="{{ url_for('admin_produccion.index') }}" class="active"><i class="bi bi-gear"></i> Producción</a>
-    </nav>
-    <div class="sidebar-section">Gestión</div>
-    <nav>
-        <a href="#"><i class="bi bi-truck"></i> Proveedores</a>
-        <a href="#"><i class="bi bi-cart"></i> Compras</a>
-        <a href="#"><i class="bi bi-people"></i> Usuarios</a>
-        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
-    <i class="bi bi-currency-dollar"></i> Ventas
-</a>
-    </nav>
-    <div class="sidebar-logout">
-        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
-    </div>
+    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaProduccion">
+        + Nuevo Registro
+    </button>
 </div>
 
-<!-- CONTENIDO -->
-<div class="main-content">
-    <div class="topbar">
-        <i class="bi bi-layout-sidebar"></i>
-        <span>Panel de Administración</span>
+<div class="table-card">
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar producción...">
     </div>
-    <div class="page-body">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for cat, msg in messages %}
-                <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'danger' else 'info' }} alert-dismissible fade show mb-3">
-                    {{ msg }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-                <div class="page-title">Producción</div>
-                <div class="page-subtitle">Registro de producción de bebidas — {{ producciones|length }} registros</div>
-            </div>
-            <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaProduccion">
-                + Nuevo Registro
-            </button>
-        </div>
-
-        <div class="table-card">
-            <div class="mb-3">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar producción...">
-            </div>
-            <table class="table" id="produccionTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Bebida</th>
-                        <th>Cantidad</th>
-                        <th>Fecha</th>
-                        <th>Costo</th>
-                        <th>Registrado por</th>
-                        <th>Estado</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in producciones %}
-                    <tr>
-                        <td>{{ p.id }}</td>
-                        <td>{{ p.bebida.nombre }}</td>
-                        <td>{{ p.cantidad_producida }} unidades</td>
-                        <td>{{ p.fecha_produccion }}</td>
-                        <td>${{ "%.2f"|format(p.costo_produccion or 0) }}</td>
-                        <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
-                        <td>
-                            {% if p.estado == 'planificada' %}
-                                <span class="badge-planificada">Planificada</span>
-                            {% elif p.estado == 'en proceso' %}
-                                <span class="badge-en-proceso">En Proceso</span>
-                            {% elif p.estado == 'completada' %}
-                                <span class="badge-completada">Completada</span>
-                            {% else %}
-                                <span class="badge-cancelada">Cancelada</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if p.estado not in ['completada', 'cancelada'] %}
-                            <form method="POST" action="{{ url_for('admin_produccion.completar', id=p.id) }}" style="display:inline;">
-                                <button type="submit" class="btn-accion">
-                                    <i class="bi bi-check-circle"></i> Completar
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ url_for('admin_produccion.cancelar', id=p.id) }}" style="display:inline;">
-                                <button type="submit" class="btn-cancelar ms-1">
-                                    <i class="bi bi-x-circle"></i> Cancelar
-                                </button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <table class="table" id="produccionTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Bebida</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Costo</th>
+                <th>Registrado por</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in producciones %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.bebida.nombre }}</td>
+                <td>{{ p.cantidad_producida }} unidades</td>
+                <td>{{ p.fecha_produccion }}</td>
+                <td>${{ "%.2f"|format(p.costo_produccion or 0) }}</td>
+                <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
+                <td>
+                    {% if p.estado == 'planificada' %}
+                        <span class="badge-planificada">Planificada</span>
+                    {% elif p.estado == 'en proceso' %}
+                        <span class="badge-en-proceso">En Proceso</span>
+                    {% elif p.estado == 'completada' %}
+                        <span class="badge-completada">Completada</span>
+                    {% else %}
+                        <span class="badge-cancelada">Cancelada</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.estado not in ['completada', 'cancelada'] %}
+                    <form method="POST" action="{{ url_for('admin_produccion.completar', id=p.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-accion">
+                            <i class="bi bi-check-circle"></i> Completar
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_produccion.cancelar', id=p.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-cancelar ms-1">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <!-- MODAL NUEVA PRODUCCION -->
@@ -204,57 +91,37 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{ url_for('admin_produccion.nueva') }}">
-
                     <div class="mb-3">
                         <label class="form-label">Bebida</label>
-                        <select name="bebida_id" id="bebidaSelect" class="form-select" required onchange="calcularCosto()">
+                        <select name="bebida_id" class="form-select" required>
                             <option value="">Seleccionar bebida</option>
                             {% for b in bebidas %}
-                            <option value="{{ b.id }}"
-                                data-costo="{{ b.recetas.all()|sum(attribute='cantidad') }}"
-                                data-precio="{{ b.precio }}">
-                                {{ b.nombre }}
-                            </option>
+                            <option value="{{ b.id }}">{{ b.nombre }}</option>
                             {% endfor %}
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Cantidad a Producir (unidades)</label>
-                        <input type="number" name="cantidad_producida" id="cantidadInput" class="form-control" min="1" required onchange="calcularCosto()" placeholder="Ej. 50">
+                        <input type="number" name="cantidad_producida" class="form-control" min="1" required placeholder="Ej. 50">
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Fecha de Producción</label>
-                        <input type="date" name="fecha_produccion" class="form-control" required
-                            value="{{ now }}">
+                        <input type="date" name="fecha_produccion" class="form-control" required>
                     </div>
-
                     <div class="mb-4">
                         <label class="form-label">Notas</label>
                         <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
                     </div>
-
                     <button type="submit" class="btn-submit">Registrar Producción</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
 <script>
-    // Costos por bebida precalculados desde Flask
-    const costosPorBebida = {
-        {% for b in bebidas %}
-        {{ b.id }}: {{ b.recetas.all()|sum(attribute='cantidad') | float }},
-        {% endfor %}
-    };
-
-    function calcularCosto() {
-        // Solo referencial, el costo real se calcula en el backend
-    }
-
     document.getElementById('searchInput').addEventListener('input', function() {
         const val = this.value.toLowerCase();
         document.querySelectorAll('#produccionTable tbody tr').forEach(row => {
@@ -262,9 +129,7 @@
         });
     });
 
-    // Fecha de hoy por defecto
     const today = new Date().toISOString().split('T')[0];
     document.querySelector('input[name="fecha_produccion"]').value = today;
 </script>
-</body>
-</html>
+{% endblock %}

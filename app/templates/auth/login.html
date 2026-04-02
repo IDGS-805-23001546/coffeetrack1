@@ -17,7 +17,7 @@
     .login-image-side {
         width: 55%;
         background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), 
-                          url('https://images.pexels.com/photos/2615323/pexels-photo-2615323.jpeg?auto=compress&cs=tinysrgb&w=1600');
+                    url('https://images.pexels.com/photos/2615323/pexels-photo-2615323.jpeg?auto=compress&cs=tinysrgb&w=1600');
         background-size: cover;
         background-position: center;
         display: flex;
@@ -132,7 +132,7 @@
             </div>
 
             <h3 class="text-white fw-bold mb-1">Bienvenido de vuelta</h3>
-            <p class="text-muted mb-4">Ingresa tus credenciales para acceder a tu cuenta</p>
+            <p class="form-label" style="color: #c8842a; letter-spacing: 2px;">Ingresa tus credenciales para acceder a tu cuenta</p>
 
             <form method="POST" action="{{ url_for('auth.registro') if registro else url_for('auth.login') }}">
                 {{ form.hidden_tag() }}
@@ -168,7 +168,7 @@
                     {{ 'Crear Cuenta' if registro else 'Iniciar Sesión' }} <i class="bi bi-arrow-right"></i>
                 </button>
 
-                <div class="text-center text-muted small mb-3">o continúa con</div>
+                <div class="text-center text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">o continúa con</div>
 
                 <div class="d-flex justify-content-between mb-4">
                     <a href="#" class="social-btn"><i class="bi bi-google"></i> Google</a>
