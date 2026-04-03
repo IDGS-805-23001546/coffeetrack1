@@ -2,9 +2,7 @@ from app import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db 
-
 class Usuario(db.Model):
-  
     __tablename__ = 'usuarios'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -18,8 +16,8 @@ class Usuario(db.Model):
     activo = db.Column(db.Boolean, default=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     pedidos = db.relationship('Pedido', backref='usuario', lazy='dynamic')
+    verificado = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -251,3 +249,15 @@ class AlertaInventario(db.Model):
 
     materia_prima = db.relationship('MateriaPrima', backref='alertas')
     bebida = db.relationship('Bebida', backref='alertas')
+    
+class CodigoVerificacion(db.Model):
+    __tablename__ = 'codigos_verificacion'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='CASCADE'), nullable=False)
+    codigo = db.Column(db.String(6), nullable=False)
+    expira_en = db.Column(db.DateTime, nullable=False)
+    usado = db.Column(db.Boolean, default=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+
+    usuario = db.relationship('Usuario', backref='codigos')

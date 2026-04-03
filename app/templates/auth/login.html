@@ -4,16 +4,14 @@
 
 {% block body %}
 <style>
-    /* Estenedor principal sin scroll */
     .split-login {
         height: 100vh;
         width: 100%;
         display: flex;
         overflow: hidden;
-        background-color: #121212; /* Fondo oscuro base */
+        background-color: #121212;
     }
 
-    /* LADO IZQUIERDO: Imagen con Texto (Como el Hero) */
     .login-image-side {
         width: 55%;
         background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), 
@@ -38,21 +36,19 @@
         max-width: 400px;
     }
 
-    /* LADO DERECHO: Formulario */
     .login-form-side {
         width: 45%;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 40px;
-        background-color: #1a1a1a; /* Gris muy oscuro */
+        background-color: #1a1a1a;
     }
     .form-container {
         width: 100%;
         max-width: 400px;
     }
 
-    /* Estilos de Input estilo Moderno */
     .form-label {
         color: #888;
         font-size: 0.8rem;
@@ -67,14 +63,13 @@
         color: white !important;
         border-radius: 10px !important;
         padding: 12px 15px !important;
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
     .modern-input:focus {
         border-color: #c8842a !important;
         box-shadow: 0 0 0 2px rgba(200,132,42,0.2) !important;
     }
 
-    /* Botón Naranja de la imagen */
     .btn-login-gold {
         background-color: #c8842a;
         color: white;
@@ -94,7 +89,6 @@
         transform: translateY(-2px);
     }
 
-    /* Social Buttons (Decorativos) */
     .social-btn {
         background-color: #262626;
         border: 1px solid #333;
@@ -110,7 +104,29 @@
         text-decoration: none;
     }
 
-    /* Responsividad */
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #888;
+        transition: 0.2s;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    .toggle-password:hover { color: #c8842a; }
+
+    .simple-input-mb {
+        margin-bottom: 20px;
+    }
+
     @media (max-width: 992px) {
         .login-image-side { display: none; }
         .login-form-side { width: 100%; }
@@ -121,54 +137,78 @@
     <div class="login-image-side">
         <h6 class="text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">Gestión Inteligente</h6>
         <h2>Controla cada grano,<br>optimiza cada taza.</h2>
-       
     </div>
 
     <div class="login-form-side">
         <div class="form-container">
             <div class="mb-4">
-               
                 <span class="ms-2 fw-bold text-white fs-4">CoffeeTrack</span>
             </div>
 
-            <h3 class="text-white fw-bold mb-1">Bienvenido de vuelta</h3>
-            <p class="form-label" style="color: #c8842a; letter-spacing: 2px;">Ingresa tus credenciales para acceder a tu cuenta</p>
+            <h3 class="text-white fw-bold mb-1">
+                {{ 'Crear cuenta' if registro else 'Bienvenido de vuelta' }}
+            </h3>
+            <p class="form-label mb-4" style="color: #c8842a; letter-spacing: 2px;">
+                {{ 'Ingresa tus datos para registrarte' if registro else 'Ingresa tus credenciales para acceder a tu cuenta' }}
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for cat, msg in messages %}
+                    <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'danger' else 'warning' }} mb-3" style="border-radius:10px; font-size:0.88rem;">
+                        {{ msg }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
             <form method="POST" action="{{ url_for('auth.registro') if registro else url_for('auth.login') }}">
                 {{ form.hidden_tag() }}
 
                 {% if registro %}
-                <div class="row g-2">
+                <div class="row g-2 mb-0">
                     <div class="col-6">
                         <label class="form-label">Nombre</label>
-                        {{ form.nombre(class="form-control modern-input", placeholder="Ej. Eduardo") }}
+                        {{ form.nombre(class="form-control modern-input simple-input-mb", placeholder="Ej. Eduardo") }}
                     </div>
                     <div class="col-6">
                         <label class="form-label">Apellidos</label>
-                        {{ form.apellidos(class="form-control modern-input", placeholder="Luna") }}
+                        {{ form.apellidos(class="form-control modern-input simple-input-mb", placeholder="Luna") }}
                     </div>
                 </div>
                 {% endif %}
 
                 <label class="form-label">Correo Electrónico</label>
-                {{ form.email(class="form-control modern-input", placeholder="tu@correo.com") }}
+                {{ form.email(class="form-control modern-input simple-input-mb", placeholder="tu@correo.com") }}
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Contraseña</label>
+                    {% if not registro %}
                     <a href="#" class="text-warning text-decoration-none small">¿Olvidaste tu contraseña?</a>
+                    {% endif %}
                 </div>
-                {{ form.password(class="form-control modern-input", placeholder="••••••••") }}
+                <div class="input-wrapper">
+                    {{ form.password(class="form-control modern-input", placeholder="••••••••", id="password1") }}
+                    <button type="button" class="toggle-password" onclick="togglePass('password1', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
 
                 {% if registro %}
                 <label class="form-label">Confirmar Contraseña</label>
-                {{ form.confirm_password(class="form-control modern-input", placeholder="••••••••") }}
+                <div class="input-wrapper">
+                    {{ form.confirm_password(class="form-control modern-input", placeholder="••••••••", id="password2") }}
+                    <button type="button" class="toggle-password" onclick="togglePass('password2', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
                 {% endif %}
 
                 <button type="submit" class="btn btn-login-gold mb-3">
                     {{ 'Crear Cuenta' if registro else 'Iniciar Sesión' }} <i class="bi bi-arrow-right"></i>
                 </button>
 
-                <div class="text-center text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">o continúa con</div>
+                <div class="text-center text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px; font-size:0.8rem;">o continúa con</div>
 
                 <div class="d-flex justify-content-between mb-4">
                     <a href="#" class="social-btn"><i class="bi bi-google"></i> Google</a>
@@ -185,4 +225,18 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePass(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 {% endblock %}
