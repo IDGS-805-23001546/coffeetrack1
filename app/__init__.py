@@ -8,6 +8,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     db.init_app(app)
+    app.jinja_env.globals['enumerate'] = enumerate
 
     with app.app_context():
         from . import models
@@ -29,7 +30,6 @@ def create_app():
     from .admin.ventas import ventas_bp
 
     
-    app.jinja_env.globals['enumerate'] = enumerate
     app.register_blueprint(auth_bp)
     app.register_blueprint(cliente_bp, url_prefix='/cliente')
     app.register_blueprint(carrito_bp, url_prefix='/carrito')
