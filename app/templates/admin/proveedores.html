@@ -54,7 +54,7 @@
     <div class="sidebar-section">Gestión</div>
     <nav>
         <a href="{{ url_for('admin_proveedores.index') }}" class="active"><i class="bi bi-truck"></i> Proveedores</a>
-        <a href="#"><i class="bi bi-cart"></i> Compras</a>
+        <a href="{{ url_for('admin_compras.index') }}"><i class="bi bi-cart"></i> Compras</a>
         <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
         <a href="#"><i class="bi bi-bag"></i> Pedidos</a>
         <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>

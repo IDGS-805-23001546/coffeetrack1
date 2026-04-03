@@ -24,6 +24,7 @@ def create_app():
     from .admin.materias_primas import materias_bp
     from .admin.proveedores import proveedores_bp
     from .admin.usuarios import usuarios_bp
+    from .admin.compras import compras_bp
 
     
     
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(materias_bp, url_prefix='/admin/materias')
     app.register_blueprint(proveedores_bp, url_prefix='/admin/proveedores')
     app.register_blueprint(usuarios_bp, url_prefix='/admin/usuarios')
+    app.register_blueprint(compras_bp, url_prefix='/admin/compras')
 
 
 
