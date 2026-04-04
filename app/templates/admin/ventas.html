@@ -1,0 +1,244 @@
+{% extends "admin/layout/base_admin.html" %}
+
+{% block title %}CoffeeTrack - Ventas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kpi-card { background: white; border-radius: 14px; padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
+    .kpi-label { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+    .kpi-value { font-size: 2rem; font-weight: 700; color: #1a1a1a; line-height: 1; margin-bottom: 6px; }
+    .kpi-sub { font-size: 0.8rem; color: #27ae60; }
+    .kpi-sub-warning { font-size: 0.8rem; color: #e67e22; }
+    .kpi-icon { width: 44px; height: 44px; background: #fdf3e7; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #e8891a; font-size: 1.2rem; flex-shrink: 0; }
+
+    .badge-pagado { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-pendiente { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-reembolsado { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-metodo { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+
+    .chart-container { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
+    .chart-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 160px; padding-bottom: 8px; }
+    .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 6px; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; background: #e8891a; border-radius: 6px 6px 0 0; transition: 0.3s; min-height: 4px; }
+    .bar:hover { background: #d47b15; }
+    .bar-label { font-size: 0.75rem; color: #888; font-weight: 600; }
+    .bar-value { font-size: 0.7rem; color: #e8891a; font-weight: 700; }
+
+    .pendientes-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; border-left: 4px solid #e8891a; }
+    .pendientes-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .pendiente-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f0eb; }
+    .pendiente-item:last-child { border-bottom: none; }
+    .pendiente-info { font-size: 0.9rem; }
+    .pendiente-nombre { font-weight: 600; color: #1a1a1a; }
+    .pendiente-sub { font-size: 0.78rem; color: #888; margin-top: 2px; }
+    .pendiente-total { font-weight: 700; color: #e8891a; font-size: 1rem; }
+    .btn-confirmar { background: #e8891a; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-confirmar:hover { background: #d47b15; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-title">Ventas</div>
+<div class="page-subtitle">Gestión de ventas e ingresos — {{ ventas|length }} registros</div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Ingresos del Día</div>
+                <div class="kpi-value">${{ "%.2f"|format(total_hoy) }}</div>
+                <div class="kpi-sub">{{ transacciones_hoy }} transacciones pagadas hoy</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-currency-dollar"></i></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Total Ventas</div>
+                <div class="kpi-value">{{ ventas|length }}</div>
+                <div class="kpi-sub">{{ ventas|selectattr('estado_pago','eq','pagado')|list|length }} pagadas</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-receipt"></i></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Por Confirmar Pago</div>
+                <div class="kpi-value">{{ ventas_pendientes|length }}</div>
+                <div class="kpi-sub-warning">ventas esperando método de pago</div>
+            </div>
+            <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- VENTAS PENDIENTES DE CONFIRMAR -->
+{% if ventas_pendientes %}
+<div class="pendientes-card">
+    <div class="pendientes-title">
+        <i class="bi bi-exclamation-circle-fill" style="color:#e8891a;"></i>
+        Ventas Pendientes de Confirmar Pago
+    </div>
+    {% for v in ventas_pendientes %}
+    <div class="pendiente-item">
+        <div class="pendiente-info">
+            <div class="pendiente-nombre">Pedido #{{ v.pedido_id }} — {{ v.pedido.usuario.nombre }} {{ v.pedido.usuario.apellidos }}</div>
+            <div class="pendiente-sub">
+                Entregado: {{ v.fecha_venta.strftime('%d/%m/%Y %H:%M') }} |
+                Ref: {{ v.referencia_pago or 'N/A' }}
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="pendiente-total">${{ "%.2f"|format(v.total) }}</span>
+            <button class="btn-confirmar" onclick="abrirConfirmar({{ v.id }}, '{{ v.referencia_pago or '' }}')">
+                <i class="bi bi-check-circle"></i> Confirmar Pago
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- GRAFICA SEMANAL -->
+<div class="chart-container">
+    <div class="chart-title">Ingresos de la Semana Actual</div>
+    <div class="bar-chart">
+        {% set max_val = datos_semana | map(attribute='total') | max %}
+        {% for d in datos_semana %}
+        <div class="bar-group">
+            <div class="bar-value">{% if d.total > 0 %}${{ "%.0f"|format(d.total) }}{% endif %}</div>
+            <div class="bar" style="height: {{ ((d.total / max_val * 100) if max_val > 0 else 0)|int }}%;"></div>
+            <div class="bar-label">{{ d.dia }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- TABLA HISTORIAL -->
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div style="font-size:1.05rem; font-weight:700; color:#1a1a1a;">Historial de Transacciones</div>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar pedido...">
+    </div>
+    <table class="table" id="ventasTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pedido #</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Método Pago</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Referencia</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in ventas %}
+            <tr>
+                <td>{{ v.id }}</td>
+                <td>{{ v.pedido_id }}</td>
+                <td>{{ v.pedido.usuario.nombre }} {{ v.pedido.usuario.apellidos }}</td>
+                <td>{{ v.fecha_venta.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td><span class="badge-metodo">{{ v.metodo_pago }}</span></td>
+                <td style="font-weight:700; color:#e8891a;">${{ "%.2f"|format(v.total) }}</td>
+                <td><span class="badge-{{ v.estado_pago }}">{{ v.estado_pago }}</span></td>
+                <td>{{ v.referencia_pago or '—' }}</td>
+                <td>
+                    {% if v.estado_pago != 'reembolsado' %}
+                    <button class="btn-accion" onclick="abrirCambiarEstado({{ v.id }}, '{{ v.estado_pago }}')">
+                        <i class="bi bi-arrow-repeat"></i> Estado
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL CONFIRMAR PAGO -->
+<div class="modal fade" id="modalConfirmar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formConfirmar">
+                    <div class="mb-3">
+                        <label class="form-label">Método de Pago</label>
+                        <select name="metodo_pago" class="form-select" required>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="paypal">PayPal</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Referencia de Pago <span class="text-muted" style="text-transform:none; font-weight:400;">(opcional)</span></label>
+                        <input type="text" name="referencia_pago" id="inputReferencia" class="form-control" placeholder="Ej. TRX-20260401-001">
+                    </div>
+                    <button type="submit" class="btn-submit">Confirmar Pago</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CAMBIAR ESTADO -->
+<div class="modal fade" id="modalEstado" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado de Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formEstado">
+                    <div class="mb-4">
+                        <label class="form-label">Estado de Pago</label>
+                        <select name="estado_pago" id="selectEstado" class="form-select">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="pagado">Pagado</option>
+                            <option value="reembolsado">Reembolsado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function abrirConfirmar(id, referencia) {
+        document.getElementById('inputReferencia').value = referencia;
+        document.getElementById('formConfirmar').action = `/admin/ventas/confirmar/${id}`;
+        new bootstrap.Modal(document.getElementById('modalConfirmar')).show();
+    }
+
+    function abrirCambiarEstado(id, estadoActual) {
+        document.getElementById('selectEstado').value = estadoActual;
+        document.getElementById('formEstado').action = `/admin/ventas/cambiar_estado/${id}`;
+        new bootstrap.Modal(document.getElementById('modalEstado')).show();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#ventasTable tbody tr').forEach(row => {
+            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

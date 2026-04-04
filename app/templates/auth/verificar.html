@@ -1,0 +1,88 @@
+{% extends "layout/base.html" %}
+
+{% block title %}CoffeeTrack - Verificar Cuenta{% endblock %}
+
+{% block body %}
+<style>
+    .split-login { height: 100vh; width: 100%; display: flex; overflow: hidden; background-color: #121212; }
+    .login-form-side { width: 100%; display: flex; align-items: center; justify-content: center; padding: 40px; background-color: #1a1a1a; }
+    .form-container { width: 100%; max-width: 420px; }
+    .modern-input { background-color: #262626 !important; border: 1px solid #333 !important; color: white !important; border-radius: 10px !important; padding: 12px 15px !important; margin-bottom: 20px; font-size: 1.5rem !important; letter-spacing: 8px; text-align: center; }
+    .modern-input:focus { border-color: #c8842a !important; box-shadow: 0 0 0 2px rgba(200,132,42,0.2) !important; }
+    .btn-login-gold { background-color: #c8842a; color: white; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; border: none; transition: 0.3s; }
+    .btn-login-gold:hover { background-color: #e09431; }
+    .codigo-box { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .codigo-digit { width: 50px; height: 60px; background: #262626; border: 1px solid #333; border-radius: 10px; color: white; font-size: 1.5rem; font-weight: 700; text-align: center; transition: 0.2s; }
+    .codigo-digit:focus { border-color: #c8842a; box-shadow: 0 0 0 2px rgba(200,132,42,0.2); outline: none; }
+</style>
+
+<div class="split-login">
+    <div class="login-form-side">
+        <div class="form-container">
+            <div class="mb-4 text-center">
+                <span class="fw-bold text-white fs-4">☕ CoffeeTrack</span>
+            </div>
+
+            <h3 class="text-white fw-bold mb-1 text-center">Verifica tu cuenta</h3>
+            <p class="text-muted mb-4 text-center">
+                Ingresa el código de 6 dígitos que enviamos a<br>
+                <span style="color:#c8842a;">{{ email }}</span>
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for cat, msg in messages %}
+                    <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'danger' else 'warning' }} mb-3">
+                        {{ msg }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('auth.verificar') }}">
+                <input type="hidden" name="email" value="{{ email }}">
+
+                <!-- Inputs de 6 digitos -->
+                <div class="codigo-box">
+                    <input type="text" class="codigo-digit" maxlength="1" id="d1" oninput="mover(this, null, 'd2')">
+                    <input type="text" class="codigo-digit" maxlength="1" id="d2" oninput="mover(this, 'd1', 'd3')">
+                    <input type="text" class="codigo-digit" maxlength="1" id="d3" oninput="mover(this, 'd2', 'd4')">
+                    <input type="text" class="codigo-digit" maxlength="1" id="d4" oninput="mover(this, 'd3', 'd5')">
+                    <input type="text" class="codigo-digit" maxlength="1" id="d5" oninput="mover(this, 'd4', 'd6')">
+                    <input type="text" class="codigo-digit" maxlength="1" id="d6" oninput="mover(this, 'd5', null)">
+                </div>
+                <input type="hidden" name="codigo" id="codigoFinal">
+
+                <button type="submit" class="btn btn-login-gold mb-3" onclick="unirCodigo()">
+                    Verificar Cuenta
+                </button>
+
+                <p class="text-center text-muted small">
+                    ¿No recibiste el código?
+                    <a href="{{ url_for('auth.reenviar_codigo', email=email) }}" class="text-warning text-decoration-none fw-bold">
+                        Reenviar código
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function mover(actual, anteriorId, siguienteId) {
+    if (actual.value.length === 1 && siguienteId) {
+        document.getElementById(siguienteId).focus();
+    }
+    if (actual.value.length === 0 && anteriorId) {
+        document.getElementById(anteriorId).focus();
+    }
+}
+
+function unirCodigo() {
+    const codigo = ['d1','d2','d3','d4','d5','d6']
+        .map(id => document.getElementById(id).value)
+        .join('');
+    document.getElementById('codigoFinal').value = codigo;
+}
+</script>
+{% endblock %}

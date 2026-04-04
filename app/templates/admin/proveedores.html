@@ -1,0 +1,201 @@
+{% extends 'admin/layout/base_admin.html' %}
+
+{% block title %}Proveedores - CoffeeTrack Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-activo { background: #27ae60; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-inactivo { background: #e74c3c; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .required:after { content: "*"; color: #e74c3c; margin-left: 4px; }
+    .rfc-text { color: #333; font-family: inherit; font-weight: 500; }
+    .modal-footer { border-top: none; padding-top: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h1 class="page-title">Proveedores</h1>
+        <p class="page-subtitle">Directorio logístico de CoffeeTrack en León.</p>
+    </div>
+    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevo">
+        <i class="bi bi-plus-lg me-2"></i> Nuevo Proveedor
+    </button>
+</div>
+
+<div class="table-card">
+    <div class="mb-4">
+        <div class="input-group" style="width: 350px;">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input type="text" id="busquedaProveedor" class="form-control border-start-0 ps-0" placeholder="Buscar empresa o contacto...">
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle" id="tablaProveedores">
+            <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>Contacto</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>RFC</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in proveedores %}
+                <tr>
+                    <td><strong>{{ p.nombre_empresa }}</strong></td>
+                    <td>{{ p.contacto_nombre or '-' }}</td>
+                    <td>{{ p.contacto_telefono or '-' }}</td>
+                    <td>{{ p.contacto_email or '-' }}</td>
+                    <td class="rfc-text">{{ p.rfc or '-' }}</td>
+                    <td>
+                        <span class="{{ 'badge-activo' if p.activo else 'badge-inactivo' }}">
+                            {{ 'Activo' if p.activo else 'Inactivo' }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn-accion me-1" data-bs-toggle="modal" data-bs-target="#modalEdit{{ p.id }}" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <a href="{{ url_for('admin_proveedores.delete', id=p.id) }}" class="btn-cancelar" onclick="return confirm('¿Estás seguro de eliminar este proveedor?')" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="modalEdit{{ p.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ url_for('admin_proveedores.edit', id=p.id) }}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Editar Proveedor</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row g-3 text-start">
+                                        <div class="col-md-8">
+                                            <label class="form-label required">Nombre de la Empresa</label>
+                                            <input type="text" name="nombre_empresa" class="form-control" value="{{ p.nombre_empresa }}" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Estado</label>
+                                            <select name="activo" class="form-select">
+                                                <option value="True" {{ 'selected' if p.activo }}>Activo</option>
+                                                <option value="False" {{ 'selected' if not p.activo }}>Inactivo</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Nombre del Contacto</label>
+                                            <input type="text" name="contacto_nombre" class="form-control" value="{{ p.contacto_nombre or '' }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">RFC</label>
+                                            <input type="text" name="rfc" class="form-control" value="{{ p.rfc or '' }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="text" name="contacto_telefono" class="form-control" value="{{ p.contacto_telefono or '' }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" name="contacto_email" class="form-control" value="{{ p.contacto_email or '' }}">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Dirección</label>
+                                            <textarea name="direccion" class="form-control" rows="2">{{ p.direccion or '' }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin_proveedores.add') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar Nuevo Proveedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label required">Nombre de la Empresa</label>
+                            <input type="text" name="nombre_empresa" class="form-control" placeholder="Ej. Distribuidora de Café del Bajío" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre del Contacto</label>
+                            <input type="text" name="contacto_nombre" class="form-control" placeholder="Nombre de la persona">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">RFC</label>
+                            <input type="text" name="rfc" class="form-control" placeholder="Opcional">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="contacto_telefono" class="form-control" placeholder="477 000 0000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="contacto_email" class="form-control" placeholder="contacto@empresa.com">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea name="direccion" class="form-control" rows="2" placeholder="Dirección fiscal o de entrega"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-submit">Registrar Proveedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Lógica de Búsqueda en Tiempo Real
+    const inputBusqueda = document.getElementById('busquedaProveedor');
+    const tabla = document.getElementById('tablaProveedores');
+    
+    if (inputBusqueda && tabla) {
+        const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        inputBusqueda.addEventListener('input', function() {
+            const textoBusqueda = this.value.toLowerCase();
+
+            Array.from(filas).forEach(fila => {
+                const contenidoFila = fila.textContent.toLowerCase();
+                fila.style.display = contenidoFila.includes(textoBusqueda) ? '' : 'none';
+            });
+        });
+    }
+
+    // Auto-cierre de alertas después de 3 segundos
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bAlert = new bootstrap.Alert(alert);
+            bAlert.close();
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

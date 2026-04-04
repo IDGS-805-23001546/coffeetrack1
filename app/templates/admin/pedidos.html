@@ -1,0 +1,220 @@
+{% extends "admin/layout/base_admin.html" %}
+
+{% block title %}CoffeeTrack - Pedidos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table-card-title { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
+    .badge-estado { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-pendiente { background: #e9ecef; color: #495057; }
+    .badge-confirmado { background: #d1ecf1; color: #0c5460; }
+    .badge-en-preparacion { background: #fff3cd; color: #856404; }
+    .badge-enviado { background: #cce5ff; color: #004085; }
+    .badge-entregado { background: #e8891a; color: white; }
+    .badge-cancelado { background: #f8d7da; color: #721c24; }
+    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #888; }
+    .info-value { color: #1a1a1a; font-weight: 600; }
+    .detalle-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
+    .detalle-item:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Pedidos</div>
+<div class="page-subtitle">Gestión de pedidos — {{ pedidos|length }} registros</div>
+
+<!-- TABLA PEDIDOS -->
+<div class="table-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="table-card-title mb-0">Lista de Pedidos</div>
+        <input type="text" id="searchPedidos" class="search-input" placeholder="Buscar cliente...">
+    </div>
+    <table class="table" id="pedidosTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Subtotal</th>
+                <th>Descuento</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Entrega Est.</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
+                <td>{{ p.fecha_pedido.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>${{ "%.2f"|format(p.subtotal) }}</td>
+                <td>${{ "%.2f"|format(p.descuento) }}</td>
+                <td>${{ "%.2f"|format(p.total) }}</td>
+                <td>
+                    <span class="badge-estado badge-{{ p.estado|replace('_','-') if p.estado else 'pendiente' }}">
+                        {{ p.estado|replace('_',' ')|upper if p.estado else 'PENDIENTE' }}
+                    </span>
+                </td>
+                <td>{{ p.fecha_entrega_estimada or '—' }}</td>
+                <td>
+                    <button class="btn-accion" onclick="verDetalle({{ p.id }})">
+                        <i class="bi bi-eye"></i> Ver
+                    </button>
+                    <button class="btn-accion ms-1" onclick="abrirCambiarEstado({{ p.id }}, '{{ p.estado }}')">
+                        <i class="bi bi-arrow-repeat"></i> Estado
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- TABLA DETALLE PEDIDOS -->
+<div class="table-card">
+    <div class="table-card-title">Detalle de Pedidos</div>
+    <p class="text-muted small mb-3">Productos incluidos en los pedidos — {{ detalles|length }} registros</p>
+    <input type="text" id="searchDetalle" class="search-input mb-3" placeholder="Buscar detalle...">
+    <table class="table" id="detalleTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pedido #</th>
+                <th>Bebida</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in detalles %}
+            <tr>
+                <td>{{ d.id }}</td>
+                <td>{{ d.pedido_id }}</td>
+                <td>{{ d.bebida.nombre }}</td>
+                <td>{{ d.cantidad }}</td>
+                <td>${{ "%.2f"|format(d.precio_unitario) }}</td>
+                <td>${{ "%.2f"|format(d.subtotal) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL VER DETALLE -->
+<div class="modal fade" id="modalDetalle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalleContenido">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-warning" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CAMBIAR ESTADO -->
+<div class="modal fade" id="modalEstado" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formEstado">
+                    <div class="mb-4">
+                        <label class="form-label">Nuevo Estado</label>
+                        <select name="estado" id="selectEstado" class="form-select">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="confirmado">Confirmado</option>
+                            <option value="en_preparacion">En Preparación</option>
+                            <option value="enviado">Enviado</option>
+                            <option value="entregado">Entregado</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Estado</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function verDetalle(id) {
+        document.getElementById('detalleContenido').innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-warning" role="status"></div>
+            </div>`;
+        new bootstrap.Modal(document.getElementById('modalDetalle')).show();
+
+        fetch(`/admin/pedidos/detalle/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            let html = `
+                <div class="mb-3">
+                    <div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">${data.id}</span></div>
+                    <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">${data.cliente}</span></div>
+                    <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">${data.direccion}</span></div>
+                    <div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">${data.telefono}</span></div>
+                    <div class="info-row"><span class="info-label">Estado</span><span class="info-value">${data.estado}</span></div>
+                    <div class="info-row"><span class="info-label">Notas</span><span class="info-value">${data.notas || '—'}</span></div>
+                </div>
+                <hr>
+                <p class="form-label mb-3">Productos</p>`;
+
+            data.detalles.forEach(d => {
+                html += `
+                <div class="detalle-item">
+                    <div>
+                        <div style="font-weight:600;">${d.bebida}</div>
+                        <small class="text-muted">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
+                    </div>
+                    <span style="font-weight:700; color:#e8891a;">$${d.subtotal}</span>
+                </div>`;
+            });
+
+            html += `<div class="d-flex justify-content-between mt-3 pt-2" style="border-top:2px solid #f0ece6;">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total}</span>
+            </div>`;
+
+            document.getElementById('detalleContenido').innerHTML = html;
+        });
+    }
+
+    function abrirCambiarEstado(id, estadoActual) {
+        document.getElementById('selectEstado').value = estadoActual;
+        document.getElementById('formEstado').action = `/admin/pedidos/cambiar_estado/${id}`;
+        new bootstrap.Modal(document.getElementById('modalEstado')).show();
+    }
+
+    document.getElementById('searchPedidos').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#pedidosTable tbody tr').forEach(row => {
+            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+
+    document.getElementById('searchDetalle').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#detalleTable tbody tr').forEach(row => {
+            row.style.display = row.cells[2].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

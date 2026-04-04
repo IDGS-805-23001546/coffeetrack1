@@ -1,0 +1,135 @@
+{% extends "admin/layout/base_admin.html" %}
+
+{% block title %}CoffeeTrack - Producción{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-planificada { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-en-proceso { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-completada { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-cancelada { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .btn-cancelar { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+    .btn-cancelar:hover { background: #e74c3c; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <div class="page-title">Producción</div>
+        <div class="page-subtitle">Registro de producción de bebidas — {{ producciones|length }} registros</div>
+    </div>
+    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaProduccion">
+        + Nuevo Registro
+    </button>
+</div>
+
+<div class="table-card">
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar producción...">
+    </div>
+    <table class="table" id="produccionTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Bebida</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Costo</th>
+                <th>Registrado por</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in producciones %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.bebida.nombre }}</td>
+                <td>{{ p.cantidad_producida }} unidades</td>
+                <td>{{ p.fecha_produccion }}</td>
+                <td>${{ "%.2f"|format(p.costo_produccion or 0) }}</td>
+                <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
+                <td>
+                    {% if p.estado == 'planificada' %}
+                        <span class="badge-planificada">Planificada</span>
+                    {% elif p.estado == 'en proceso' %}
+                        <span class="badge-en-proceso">En Proceso</span>
+                    {% elif p.estado == 'completada' %}
+                        <span class="badge-completada">Completada</span>
+                    {% else %}
+                        <span class="badge-cancelada">Cancelada</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.estado not in ['completada', 'cancelada'] %}
+                    <form method="POST" action="{{ url_for('admin_produccion.completar', id=p.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-accion">
+                            <i class="bi bi-check-circle"></i> Completar
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_produccion.cancelar', id=p.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-cancelar ms-1">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL NUEVA PRODUCCION -->
+<div class="modal fade" id="modalNuevaProduccion" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Registro de Producción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin_produccion.nueva') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Bebida</label>
+                        <select name="bebida_id" class="form-select" required>
+                            <option value="">Seleccionar bebida</option>
+                            {% for b in bebidas %}
+                            <option value="{{ b.id }}">{{ b.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad a Producir (unidades)</label>
+                        <input type="number" name="cantidad_producida" class="form-control" min="1" required placeholder="Ej. 50">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Producción</label>
+                        <input type="date" name="fecha_produccion" class="form-control" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Notas</label>
+                        <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Registrar Producción</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#produccionTable tbody tr').forEach(row => {
+            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelector('input[name="fecha_produccion"]').value = today;
+</script>
+{% endblock %}

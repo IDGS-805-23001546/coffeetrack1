@@ -1,0 +1,285 @@
+{% extends "admin/layout/base_admin.html" %}
+
+{% block title %}CoffeeTrack - Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kpi-card {
+        background: white;
+        border-radius: 14px;
+        padding: 22px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        height: 100%;
+        transition: transform 0.15s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); }
+    .kpi-label { font-size: 0.78rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
+    .kpi-value { font-size: 2rem; font-weight: 800; color: #1a1a1a; line-height: 1; }
+    .kpi-sub { font-size: 0.78rem; color: #aaa; margin-top: 4px; }
+    .kpi-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+
+    .section-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
+    .section-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    .badge-estado { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; margin-top: 5px; }
+    .badge-pendiente { background: #fff3cd; color: #856404; }
+    .badge-confirmado { background: #cfe2ff; color: #084298; }
+    .badge-en-preparacion { background: #fff3cd; color: #664d03; }
+    .badge-enviado { background: #d1ecf1; color: #0c5460; }
+    .badge-entregado { background: #d4edda; color: #155724; }
+    .badge-cancelado { background: #f8d7da; color: #721c24; }
+
+    .pedido-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0ece6; }
+    .pedido-item:last-child { border-bottom: none; }
+    .pedido-nombre { font-weight: 600; font-size: 0.9rem; color: #1a1a1a; }
+    .pedido-dir { font-size: 0.78rem; color: #999; margin-top: 2px; }
+    .pedido-total { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; text-align: right; }
+
+    .alerta-item { padding: 12px 0; border-bottom: 1px solid #f0ece6; display: flex; align-items: flex-start; gap: 10px; }
+    .alerta-item:last-child { border-bottom: none; }
+    .alerta-dot { width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; margin-top: 5px; flex-shrink: 0; }
+    .alerta-msg { font-size: 0.85rem; color: #333; font-weight: 500; line-height: 1.4; }
+    .alerta-fecha { font-size: 0.72rem; color: #bbb; margin-top: 2px; }
+
+    .variacion-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .variacion-pos { background: #d4edda; color: #155724; }
+    .variacion-neg { background: #f8d7da; color: #721c24; }
+    .variacion-neu { background: #f0f0f0; color: #555; }
+
+    .top-bebida-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid #f5f0eb; }
+    .top-bebida-row:last-child { border-bottom: none; }
+    .top-num { width: 28px; height: 28px; border-radius: 8px; background: #fdf3e7; color: #e8891a; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .top-num.gold { background: #e8891a; color: white; }
+    .top-bar-wrap { flex: 1; }
+    .top-bar-label { font-size: 0.88rem; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .top-bar { height: 6px; border-radius: 4px; background: #f0ece6; overflow: hidden; }
+    .top-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #e8891a, #f5a623); }
+    .top-count { font-size: 0.85rem; font-weight: 700; color: #e8891a; flex-shrink: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Panel de administración — CoffeeTrack</div>
+    </div>
+    <span style="font-size:0.82rem; color:#aaa;">
+        <i class="bi bi-clock"></i>
+        <span id="reloj"></span>
+    </span>
+</div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Ingresos Hoy</div>
+                <div class="kpi-value">${{ "%.2f"|format(total_ventas_hoy) }}</div>
+                <div class="kpi-sub">{{ transacciones_hoy }} transacciones</div>
+            </div>
+            <div class="kpi-icon" style="background:#fdf3e7; color:#e8891a;">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Bebidas</div>
+                <div class="kpi-value">{{ bebidas_disponibles }}</div>
+                <div class="kpi-sub">de {{ total_bebidas }} activas disponibles</div>
+            </div>
+            <div class="kpi-icon" style="background:#e8f4fd; color:#3498db;">
+                <i class="bi bi-cup-straw"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Materias Primas</div>
+                <div class="kpi-value">{{ materias_ok }}</div>
+                <div class="kpi-sub">de {{ total_materias }} sobre el mínimo</div>
+            </div>
+            <div class="kpi-icon" style="background:#eafaf1; color:#27ae60;">
+                <i class="bi bi-box-seam"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div>
+                <div class="kpi-label">Producciones</div>
+                <div class="kpi-value">{{ producciones_completadas }}</div>
+                <div class="kpi-sub">lotes completados</div>
+            </div>
+            <div class="kpi-icon" style="background:#f5eafb; color:#9b59b6;">
+                <i class="bi bi-gear"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILA 2: COMPARATIVA + TOP BEBIDAS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="section-card">
+            <div class="section-title">
+                <i class="bi bi-graph-up" style="color:#e8891a;"></i>
+                Comparativa Semanal
+            </div>
+            <div class="d-flex gap-4 mb-3">
+                <div>
+                    <div style="font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Esta semana</div>
+                    <div style="font-size:1.6rem; font-weight:800; color:#1a1a1a;">${{ "%.2f"|format(ventas_esta_semana) }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Semana anterior</div>
+                    <div style="font-size:1.6rem; font-weight:800; color:#aaa;">${{ "%.2f"|format(ventas_semana_anterior) }}</div>
+                </div>
+                <div style="margin-left:auto; display:flex; align-items:center;">
+                    {% if variacion > 0 %}
+                    <span class="variacion-badge variacion-pos">
+                        <i class="bi bi-arrow-up"></i> {{ "%.1f"|format(variacion) }}%
+                    </span>
+                    {% elif variacion < 0 %}
+                    <span class="variacion-badge variacion-neg">
+                        <i class="bi bi-arrow-down"></i> {{ "%.1f"|format(variacion|abs) }}%
+                    </span>
+                    {% else %}
+                    <span class="variacion-badge variacion-neu">
+                        <i class="bi bi-dash"></i> Sin datos
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="font-size:0.82rem; color:#aaa;">
+                {% if variacion > 0 %}
+                    Las ventas de esta semana superan a la semana anterior.
+                {% elif variacion < 0 %}
+                    Las ventas están por debajo de la semana anterior.
+                {% else %}
+                    No hay ventas anteriores para comparar.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="section-card">
+            <div class="section-title">
+                <i class="bi bi-trophy" style="color:#e8891a;"></i>
+                Top Bebidas Más Vendidas
+            </div>
+            {% if top_bebidas %}
+                {% set max_vendido = top_bebidas[0].total_vendido %}
+                {% for b in top_bebidas %}
+                {% set i = loop.index0 %}
+                <div class="top-bebida-row">
+                    <div class="top-num {{ 'gold' if i == 0 else '' }}">{{ loop.index }}</div>
+                    <div class="top-bar-wrap">
+                        <div class="top-bar-label">{{ b.nombre }}</div>
+                        <div class="top-bar">
+                            <div class="top-bar-fill" style="width:{{ ((b.total_vendido / max_vendido) * 100)|int }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="top-count">{{ b.total_vendido }} uds.</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align:center; padding:30px 0; color:#aaa;">
+                    <i class="bi bi-bar-chart" style="font-size:2rem;"></i>
+                    <p class="mt-2 mb-0" style="font-size:0.88rem;">Sin ventas registradas aún</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- FILA 3: PEDIDOS + ALERTAS -->
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">
+                    <i class="bi bi-bag" style="color:#e8891a;"></i>
+                    Pedidos Recientes
+                </div>
+                <a href="{{ url_for('admin_pedidos.index') }}" style="font-size:0.82rem; color:#e8891a; text-decoration:none;">
+                    Ver todos <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            {% if pedidos_recientes %}
+                {% for pedido in pedidos_recientes %}
+                <div class="pedido-item">
+                    <div>
+                        <div class="pedido-nombre">#{{ pedido.id }} — {{ pedido.usuario.nombre }} {{ pedido.usuario.apellidos }}</div>
+                        <div class="pedido-dir">{{ pedido.direccion_entrega }}</div>
+                    </div>
+                    <div class="pedido-total">
+                        ${{ "%.2f"|format(pedido.total) }}
+                        <br>
+                        <span class="badge-estado badge-{{ pedido.estado|replace('_','-') }}">
+                            {{ pedido.estado|replace('_',' ') }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center py-4">No hay pedidos recientes.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">
+                    <i class="bi bi-exclamation-triangle" style="color:#e74c3c;"></i>
+                    Alertas de Stock
+                </div>
+                {% if alertas %}
+                <span style="background:#fee2e2; color:#e74c3c; border-radius:20px; padding:2px 10px; font-size:0.72rem; font-weight:700;">
+                    {{ alertas|length }}
+                </span>
+                {% endif %}
+            </div>
+            {% if alertas %}
+                {% for alerta in alertas %}
+                <div class="alerta-item">
+                    <div class="alerta-dot"></div>
+                    <div>
+                        <div class="alerta-msg">{{ alerta.mensaje }}</div>
+                        <div class="alerta-fecha">{{ alerta.fecha_alerta.strftime('%d/%m %H:%M') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align:center; padding:20px 0; color:#aaa;">
+                    <i class="bi bi-check-circle" style="font-size:2rem; color:#27ae60;"></i>
+                    <p class="mt-2 mb-0" style="font-size:0.85rem;">Todo el inventario en orden</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function actualizarReloj() {
+    const ahora = new Date();
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('reloj').textContent = ahora.toLocaleDateString('es-MX', opciones);
+}
+actualizarReloj();
+setInterval(actualizarReloj, 60000);
+</script>
+{% endblock %}
