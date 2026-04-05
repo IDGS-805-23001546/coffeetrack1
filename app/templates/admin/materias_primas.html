@@ -50,13 +50,35 @@
                 <td>{{ m.id }}</td>
                 <td>{{ m.nombre }}</td>
                 <td><span class="badge-cat">{{ m.categoria.nombre }}</span></td>
-                <td class="{% if m.stock_actual == 0 %}stock-empty{% elif m.stock_actual <= m.stock_minimo %}stock-low{% else %}stock-ok{% endif %}">
-                    {{ m.stock_actual }} {{ m.unidad_medida }}
+                <td class="{% if m.stock_actual <= 0 %}stock-empty{% elif m.stock_actual <= m.stock_minimo %}stock-low{% else %}stock-ok{% endif %}">
+                    {% if m.unidad_medida == 'ml' and m.stock_actual >= 1000 %}
+                        {{ "%.2f"|format(m.stock_actual / 1000) }} L
+                    {% elif m.unidad_medida == 'gr' and m.stock_actual >= 1000 %}
+                        {{ "%.2f"|format(m.stock_actual / 1000) }} kg
+                    {% else %}
+                        {{ m.stock_actual|int }} {{ m.unidad_medida }}
+                    {% endif %}
                 </td>
-                <td>{{ m.stock_minimo }} {{ m.unidad_medida }}</td>
-                <td>${{ "%.2f"|format(m.precio_unitario) }}</td>
                 <td>
-                    {% if m.stock_actual == 0 %}
+                    {% if m.unidad_medida == 'ml' and m.stock_minimo >= 1000 %}
+                        {{ "%.2f"|format(m.stock_minimo / 1000) }} L
+                    {% elif m.unidad_medida == 'gr' and m.stock_minimo >= 1000 %}
+                        {{ "%.2f"|format(m.stock_minimo / 1000) }} kg
+                    {% else %}
+                        {{ m.stock_minimo|int }} {{ m.unidad_medida }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if m.unidad_medida == 'ml' %}
+                        ${{ "%.2f"|format(m.precio_unitario * 1000) }}/L
+                    {% elif m.unidad_medida == 'gr' %}
+                        ${{ "%.2f"|format(m.precio_unitario * 1000) }}/kg
+                    {% else %}
+                        ${{ "%.2f"|format(m.precio_unitario) }}/{{ m.unidad_medida }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if m.stock_actual <= 0 %}
                         <span class="badge-agotado">Agotado</span>
                     {% elif m.stock_actual <= m.stock_minimo %}
                         <span class="badge-bajo">Bajo</span>

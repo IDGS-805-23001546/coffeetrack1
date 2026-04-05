@@ -50,26 +50,27 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in items %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="ms-3">
-                                                <p class="mb-0 fw-bold">{{ item.bebida.nombre }}</p>
-                                                <small class="text-secondary">${{ item.bebida.precio }} c/u</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ item.cantidad }}</td>
-                                    <td>${{ item.subtotal }}</td>
-                                    <td>
-                                        <form action="{{ url_for('carrito.eliminar_carrito', bebida_id=item.bebida.id) }}" method="POST" style="display:inline;">
-                                            <button type="submit" class="btn btn-link btn-remove"><i class="bi bi-trash"></i></button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
+    {% for item in items %}
+    <tr>
+        <td>
+            <p class="mb-0 fw-bold">{{ item.bebida.nombre }}</p>
+            <small class="text-secondary">${{ item.bebida.precio }} c/u</small><br>
+            {% if item.temperatura == 'frio' %}
+                <span style="font-size:0.75rem; background:#1a3a4a; color:#5dade2; padding:2px 8px; border-radius:20px; font-weight:600;">🧊 Frío</span>
+            {% else %}
+                <span style="font-size:0.75rem; background:#3a2a1a; color:#e8891a; padding:2px 8px; border-radius:20px; font-weight:600;">☕ Caliente</span>
+            {% endif %}
+        </td>
+        <td>{{ item.cantidad }}</td>
+        <td>${{ item.subtotal }}</td>
+        <td>
+            <form action="{{ url_for('carrito.eliminar_carrito', bebida_id=item.bebida.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-link btn-remove"><i class="bi bi-trash"></i></button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
                         </table>
                     </div>
                     {% else %}

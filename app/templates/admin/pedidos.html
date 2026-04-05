@@ -178,15 +178,19 @@
                 <p class="form-label mb-3">Productos</p>`;
 
             data.detalles.forEach(d => {
-                html += `
-                <div class="detalle-item">
-                    <div>
-                        <div style="font-weight:600;">${d.bebida}</div>
-                        <small class="text-muted">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
-                    </div>
-                    <span style="font-weight:700; color:#e8891a;">$${d.subtotal}</span>
-                </div>`;
-            });
+    const tempIcon = d.temperatura === 'frio' ? ' Frío' : ' Caliente';
+    const tempColor = d.temperatura === 'frio' ? '#3498db' : '#e8891a';
+    html += `
+    <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+        <div>
+            <div style="font-weight:600;">${d.bebida}</div>
+            <small style="color:#888;">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
+            <br>
+            <span style="font-size:0.75rem; color:${tempColor}; font-weight:600;">${tempIcon}</span>
+        </div>
+        <span style="color:#e8891a; font-weight:700;">$${d.subtotal}</span>
+    </div>`;
+});
 
             html += `<div class="d-flex justify-content-between mt-3 pt-2" style="border-top:2px solid #f0ece6;">
                 <span style="font-weight:700;">Total</span>

@@ -161,6 +161,7 @@ class Produccion(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     bebida_id = db.Column(db.Integer, db.ForeignKey('bebidas.id'), nullable=False, index=True)
     cantidad_producida = db.Column(db.Integer, nullable=False)
+    es_frio = db.Column(db.Boolean, default=False)
     fecha_produccion = db.Column(db.Date, nullable=False)
     costo_produccion = db.Column(db.Numeric(10, 2))
     usuario_registrado_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
@@ -199,6 +200,7 @@ class DetallePedido(db.Model):
     pedido_id = db.Column(db.Integer, db.ForeignKey('pedidos.id', ondelete='CASCADE'), nullable=False, index=True)
     bebida_id = db.Column(db.Integer, db.ForeignKey('bebidas.id'), nullable=False, index=True)
     cantidad = db.Column(db.Integer, nullable=False)
+    temperatura = db.Column(db.Enum('caliente', 'frio'), default='caliente')
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
 

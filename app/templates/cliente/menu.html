@@ -38,22 +38,20 @@
                     <div class="card-body p-0">
                         <h5 class="fw-bold mb-2" style="color: var(--coffee-brown);">{{ bebida.nombre }}</h5>
                         <p class="text-muted small mb-4" style="min-height: 45px;">{{ bebida.descripcion }}</p>
-                        
+
                         <div class="d-flex align-items-center mb-4 text-muted small">
-                            <i class="bi bi-snow2 me-2 text-info"></i>
-                            <span class="me-3">Servido Frío</span>
+                            <i class="bi bi-thermometer-half me-2" style="color:#e8891a;"></i>
+                            <span class="me-3">Caliente o Frío</span>
                             <i class="bi bi-water me-2"></i>
                             <span>{{ bebida.volumen_ml if bebida.volumen_ml else '355' }} ml</span>
                         </div>
                     </div>
 
                     <div class="card-footer bg-transparent border-0 p-0">
-                        <form action="{{ url_for('carrito.agregar', bebida_id=bebida.id) }}" method="POST">
-                            <input type="hidden" name="cantidad" value="1">
-                            <button type="submit" class="btn btn-add-cart py-3 fw-bold">
-                                <i class="bi bi-cart-plus me-2"></i>Añadir al pedido
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-add-cart py-3 fw-bold w-100"
+                            onclick="abrirModalTemp({{ bebida.id }}, '{{ bebida.nombre }}')">
+                            <i class="bi bi-cart-plus me-2"></i>Añadir al pedido
+                        </button>
                     </div>
                 </div>
             </div>
@@ -67,22 +65,84 @@
     </div>
 </section>
 
-<script>
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const filter = btn.getAttribute('data-filter');
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+<!-- MODAL TEMPERATURA -->
+<div class="modal fade" id="modalTemperatura" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-body p-4 text-center">
+                <h5 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">¿Cómo lo quieres?</h5>
+                <p class="text-muted small mb-4" id="modalBebidaNombre"></p>
 
-            document.querySelectorAll('.menu-item').forEach(item => {
-                if (filter === 'all' || item.classList.contains(filter)) {
-                    item.style.display = 'block';
-                    item.classList.add('animate-fade-in');
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+                <form id="formTemperatura" action="" method="POST">
+                    <input type="hidden" name="cantidad" value="1">
+                    <input type="hidden" name="temperatura" id="inputTemperatura" value="caliente">
+
+                    <div class="d-flex gap-3 justify-content-center mb-4">
+                        <div class="temp-option" id="optCaliente" onclick="seleccionarTemp('caliente')"
+                            style="cursor:pointer; border:2px solid #e8891a; border-radius:16px; padding:20px 28px; transition:0.2s; background:#fdf3e7;">
+                            <div style="font-size:2rem;">☕</div>
+                            <div class="fw-bold mt-2" style="color:#e8891a;">Caliente</div>
+                        </div>
+                        <div class="temp-option" id="optFrio" onclick="seleccionarTemp('frio')"
+                            style="cursor:pointer; border:2px solid #dee2e6; border-radius:16px; padding:20px 28px; transition:0.2s;">
+                            <div style="font-size:2rem;">🧊</div>
+                            <div class="fw-bold mt-2" style="color:#aaa;">Frío</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn fw-bold w-100 py-3"
+                        style="background:#e8891a; color:white; border-radius:12px; border:none;">
+                        <i class="bi bi-cart-plus me-2"></i>Agregar al carrito
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter');
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (filter === 'all' || item.classList.contains(filter)) {
+                item.style.display = 'block';
+                item.classList.add('animate-fade-in');
+            } else {
+                item.style.display = 'none';
+            }
         });
     });
+});
+
+function abrirModalTemp(bebidaId, nombre) {
+    document.getElementById('modalBebidaNombre').textContent = nombre;
+    document.getElementById('formTemperatura').action = `/carrito/agregar/${bebidaId}`;
+    seleccionarTemp('caliente');
+    new bootstrap.Modal(document.getElementById('modalTemperatura')).show();
+}
+
+function seleccionarTemp(temp) {
+    document.getElementById('inputTemperatura').value = temp;
+    const caliente = document.getElementById('optCaliente');
+    const frio = document.getElementById('optFrio');
+    if (temp === 'caliente') {
+        caliente.style.border = '2px solid #e8891a';
+        caliente.style.background = '#fdf3e7';
+        caliente.querySelector('.fw-bold').style.color = '#e8891a';
+        frio.style.border = '2px solid #dee2e6';
+        frio.style.background = 'white';
+        frio.querySelector('.fw-bold').style.color = '#aaa';
+    } else {
+        frio.style.border = '2px solid #3498db';
+        frio.style.background = '#e8f4fd';
+        frio.querySelector('.fw-bold').style.color = '#3498db';
+        caliente.style.border = '2px solid #dee2e6';
+        caliente.style.background = 'white';
+        caliente.querySelector('.fw-bold').style.color = '#aaa';
+    }
+}
 </script>
 {% endblock %}

@@ -29,17 +29,24 @@ def crear():
 
     subtotal = Decimal('0')
     detalles = []
-    for bebida_id, cantidad in cart.items():
+    for bebida_id, datos in cart.items():
         bebida = Bebida.query.get(int(bebida_id))
-        if bebida and bebida.disponible:
-            item_subtotal = bebida.precio * cantidad
-            subtotal += Decimal(str(item_subtotal))
-            detalles.append({
-                'bebida_id': bebida.id,
-                'cantidad': cantidad,
-                'precio_unitario': bebida.precio,
-                'subtotal': item_subtotal
-            })
+    if bebida and bebida.disponible:
+        if isinstance(datos, dict):
+            cantidad = datos['cantidad']
+            temperatura = datos.get('temperatura', 'caliente')
+        else:
+            cantidad = datos
+            temperatura = 'caliente'
+        item_subtotal = bebida.precio * cantidad
+        subtotal += Decimal(str(item_subtotal))
+        detalles.append({
+            'bebida_id': bebida.id,
+            'cantidad': cantidad,
+            'temperatura': temperatura,
+            'precio_unitario': bebida.precio,
+            'subtotal': item_subtotal
+        })
 
     if not detalles:
         flash('No hay bebidas disponibles en tu carrito.', 'warning')
@@ -69,13 +76,14 @@ def crear():
 
     for d in detalles:
         detalle = DetallePedido(
-            pedido_id=pedido.id,
-            bebida_id=d['bebida_id'],
-            cantidad=d['cantidad'],
-            precio_unitario=d['precio_unitario'],
-            subtotal=d['subtotal']
-        )
-        db.session.add(detalle)
+        pedido_id=pedido.id,
+        bebida_id=d['bebida_id'],
+        cantidad=d['cantidad'],
+        temperatura=d['temperatura'],
+        precio_unitario=d['precio_unitario'],
+        subtotal=d['subtotal']
+    )
+    db.session.add(detalle)
 
     db.session.commit()
     session.pop('cart', None)
@@ -213,16 +221,18 @@ def ticket(id):
     elementos.append(Paragraph('Detalle del Pedido', estilo_bold))
     elementos.append(Spacer(1, 0.1*inch))
 
-    detalle_data = [['Bebida', 'Cantidad', 'Precio Unit.', 'Subtotal']]
+    detalle_data = [['Bebida', 'Temp.', 'Cantidad', 'Precio Unit.', 'Subtotal']]
     for d in pedido.detalles.all():
+        temp = '🧊 Frío' if d.temperatura == 'frio' else '☕ Caliente'
         detalle_data.append([
-            d.bebida.nombre,
-            str(d.cantidad),
-            f'${float(d.precio_unitario):.2f}',
-            f'${float(d.subtotal):.2f}'
-        ])
+        d.bebida.nombre,
+        temp,
+        str(d.cantidad),
+        f'${float(d.precio_unitario):.2f}',
+        f'${float(d.subtotal):.2f}'
+    ])
 
-    tabla_detalle = Table(detalle_data, colWidths=[3*inch, 1*inch, 1.5*inch, 1*inch])
+    tabla_detalle = Table(detalle_data, colWidths=[2.5*inch, 1*inch, 0.8*inch, 1.2*inch, 1*inch])
     tabla_detalle.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#e8891a')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),

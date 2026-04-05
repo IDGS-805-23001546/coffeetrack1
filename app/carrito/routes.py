@@ -10,12 +10,23 @@ def ver_carrito():
     cart = session.get('cart', {})
     items = []
     total = 0
-    for bebida_id, cantidad in cart.items():
+    for bebida_id, datos in cart.items():
         bebida = Bebida.query.get(int(bebida_id))
         if bebida:
+            if isinstance(datos, dict):
+                cantidad = datos['cantidad']
+                temperatura = datos.get('temperatura', 'caliente')
+            else:
+                cantidad = datos
+                temperatura = 'caliente'
             subtotal = bebida.precio * cantidad
             total += subtotal
-            items.append({'bebida': bebida, 'cantidad': cantidad, 'subtotal': subtotal})
+            items.append({
+                'bebida': bebida,
+                'cantidad': cantidad,
+                'temperatura': temperatura,
+                'subtotal': subtotal
+            })
     return render_template('cliente/carrito.html', items=items, total=total)
 
 @carrito_bp.route('/agregar/<int:bebida_id>', methods=['POST'])
@@ -24,13 +35,16 @@ def agregar(bebida_id):
     cart = session.get('cart', {})
     str_id = str(bebida_id)
     cantidad = int(request.form.get('cantidad', 1))
+    temperatura = request.form.get('temperatura', 'cliente')
     
-    cart[str_id] = cart.get(str_id, 0) + cantidad
+    if str_id in cart:
+        cart[str_id]['cantidad']+= cantidad
+    else:
+        cart[str_id] = {'cantidad': cantidad, 'temperatura': temperatura}
+        
     session['cart'] = cart
-    session.modified = True
-    
+    session.modified  = True    
     flash('Producto añadido al carrito.', 'success')
-    
     return redirect(url_for('carrito.ver_carrito'))
 
 @carrito_bp.route('/eliminar/<int:bebida_id>', methods=['POST'])

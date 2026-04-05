@@ -37,6 +37,7 @@
                 <th>Fecha</th>
                 <th>Costo</th>
                 <th>Registrado por</th>
+                <th>Temp.</th>
                 <th>Estado</th>
                 <th></th>
             </tr>
@@ -51,7 +52,14 @@
                 <td>${{ "%.2f"|format(p.costo_produccion or 0) }}</td>
                 <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
                 <td>
-                    {% if p.estado == 'planificada' %}
+                    {% if p.es_frio %}
+                        <span style="background:#e8f4fd; color:#3498db; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">🧊 Frío</span>
+                    {% else %}
+                        <span style="background:#fdf3e7; color:#e8891a; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">☕ Caliente</span>
+                    {% endif %}
+                </td>
+                <td>
+    {% if p.estado == 'planificada' %}
                         <span class="badge-planificada">Planificada</span>
                     {% elif p.estado == 'en proceso' %}
                         <span class="badge-en-proceso">En Proceso</span>
@@ -108,10 +116,21 @@
                         <label class="form-label">Fecha de Producción</label>
                         <input type="date" name="fecha_produccion" class="form-control" required>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label">Notas</label>
-                        <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
-                    </div>
+                    <div class="mb-3">
+    <label class="form-label">Temperatura de Producción</label>
+    <div class="d-flex gap-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="es_frio" id="esFrio">
+            <label class="form-check-label" for="esFrio">
+                🧊 Producción fría (descuenta 100gr de hielo por unidad)
+            </label>
+        </div>
+    </div>
+</div>
+<div class="mb-4">
+    <label class="form-label">Notas</label>
+    <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
+</div>
                     <button type="submit" class="btn-submit">Registrar Producción</button>
                 </form>
             </div>

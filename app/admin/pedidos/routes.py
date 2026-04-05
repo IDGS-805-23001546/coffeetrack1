@@ -32,13 +32,17 @@ def cambiar_estado(id):
         # Al pasar a en_preparacion crear produccion automaticamente
         if nuevo_estado == 'en_preparacion':
             for detalle in pedido.detalles.all():
-                # Calcular costo
                 bebida = detalle.bebida
+                es_frio = detalle.temperatura == 'frio'
                 costo = sum(
                     float(r.cantidad) * float(r.materia_prima.precio_unitario)
                     for r in bebida.recetas.all()
                 )
                 costo_total = costo * detalle.cantidad
+
+                # Si es frio agregar costo de hielo
+                if es_frio:
+                    costo_total += 100 * 0.015 * detalle.cantidad
 
                 produccion = Produccion(
                     bebida_id=detalle.bebida_id,
@@ -47,7 +51,8 @@ def cambiar_estado(id):
                     costo_produccion=costo_total,
                     usuario_registrado_id=session['user_id'],
                     notas=f'Generado automáticamente por Pedido #{pedido.id}',
-                    estado='planificada'
+                    estado='planificada',
+                    es_frio=es_frio
                 )
                 db.session.add(produccion)
 
@@ -93,6 +98,7 @@ def detalle(id):
         'detalles': [{
             'bebida': d.bebida.nombre,
             'cantidad': d.cantidad,
+            'temperatura': d.temperatura,
             'precio_unitario': str(d.precio_unitario),
             'subtotal': str(d.subtotal)
         } for d in pedido.detalles.all()]

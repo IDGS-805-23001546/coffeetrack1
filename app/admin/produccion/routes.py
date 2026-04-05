@@ -31,6 +31,11 @@ def nueva():
         for r in bebida.recetas.all():
             costo += float(r.cantidad) * float(r.materia_prima.precio_unitario)
         costo_total = costo * cantidad
+        
+        es_frio = True if request.form.get('es_frio') == 'on' else False
+        
+        if es_frio:
+            costo_total +=100 * 0.015 * cantidad
 
         produccion = Produccion(
             bebida_id=bebida_id,
