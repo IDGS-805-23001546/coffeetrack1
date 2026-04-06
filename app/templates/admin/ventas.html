@@ -35,6 +35,11 @@
     .pendiente-total { font-weight: 700; color: #e8891a; font-size: 1rem; }
     .btn-confirmar { background: #e8891a; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-confirmar:hover { background: #d47b15; }
+
+    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #888; }
+    .info-value { color: #1a1a1a; font-weight: 600; }
 </style>
 {% endblock %}
 
@@ -84,18 +89,18 @@
         <i class="bi bi-exclamation-circle-fill" style="color:#e8891a;"></i>
         Ventas Pendientes de Confirmar Pago
     </div>
-    {% for v in ventas_pendientes %}
+    {% for venta in ventas_pendientes %}
     <div class="pendiente-item">
         <div class="pendiente-info">
-            <div class="pendiente-nombre">Pedido #{{ v.pedido_id }} — {{ v.pedido.usuario.nombre }} {{ v.pedido.usuario.apellidos }}</div>
+            <div class="pendiente-nombre">Pedido #{{ venta.pedido_id }} — {{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</div>
             <div class="pendiente-sub">
-                Entregado: {{ v.fecha_venta.strftime('%d/%m/%Y %H:%M') }} |
-                Ref: {{ v.referencia_pago or 'N/A' }}
+                Entregado: {{ (venta.fecha_venta - timedelta(hours=6)).strftime('%d/%m/%Y %H:%M') }} |
+                Ref: {{ venta.referencia_pago or 'N/A' }}
             </div>
         </div>
         <div class="d-flex align-items-center gap-3">
-            <span class="pendiente-total">${{ "%.2f"|format(v.total) }}</span>
-            <button class="btn-confirmar" onclick="abrirConfirmar({{ v.id }}, '{{ v.referencia_pago or '' }}')">
+            <span class="pendiente-total">${{ "%.2f"|format(venta.total) }}</span>
+            <button class="btn-confirmar" onclick="abrirConfirmar({{ venta.id }}, '{{ venta.referencia_pago or '' }}')">
                 <i class="bi bi-check-circle"></i> Confirmar Pago
             </button>
         </div>
@@ -140,19 +145,22 @@
             </tr>
         </thead>
         <tbody>
-            {% for v in ventas %}
+            {% for venta in ventas %}
             <tr>
-                <td>{{ v.id }}</td>
-                <td>{{ v.pedido_id }}</td>
-                <td>{{ v.pedido.usuario.nombre }} {{ v.pedido.usuario.apellidos }}</td>
-                <td>{{ v.fecha_venta.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td><span class="badge-metodo">{{ v.metodo_pago }}</span></td>
-                <td style="font-weight:700; color:#e8891a;">${{ "%.2f"|format(v.total) }}</td>
-                <td><span class="badge-{{ v.estado_pago }}">{{ v.estado_pago }}</span></td>
-                <td>{{ v.referencia_pago or '—' }}</td>
+                <td>{{ venta.id }}</td>
+                <td>{{ venta.pedido_id }}</td>
+                <td>{{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</td>
+                <td>{{ (venta.fecha_venta - timedelta(hours=6)).strftime('%Y-%m-%d %H:%M') }}</td>
+                <td><span class="badge-metodo">{{ venta.metodo_pago }}</span></td>
+                <td style="font-weight:700; color:#e8891a;">${{ "%.2f"|format(venta.total) }}</td>
+                <td><span class="badge-{{ venta.estado_pago }}">{{ venta.estado_pago }}</span></td>
+                <td>{{ venta.referencia_pago or '—' }}</td>
                 <td>
-                    {% if v.estado_pago != 'reembolsado' %}
-                    <button class="btn-accion" onclick="abrirCambiarEstado({{ v.id }}, '{{ v.estado_pago }}')">
+                    <button class="btn-accion me-1" onclick="verDetalleVenta({{ venta.id }})">
+                        <i class="bi bi-eye"></i> Ver
+                    </button>
+                    {% if venta.estado_pago != 'reembolsado' %}
+                    <button class="btn-accion" onclick="abrirCambiarEstado({{ venta.id }}, '{{ venta.estado_pago }}')">
                         <i class="bi bi-arrow-repeat"></i> Estado
                     </button>
                     {% endif %}
@@ -161,6 +169,23 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<!-- MODAL VER DETALLE VENTA -->
+<div class="modal fade" id="modalDetalleVenta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detalleVentaContenido">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-warning" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- MODAL CONFIRMAR PAGO -->
@@ -222,6 +247,51 @@
 
 {% block extra_js %}
 <script>
+    function verDetalleVenta(id) {
+        document.getElementById('detalleVentaContenido').innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-warning" role="status"></div>
+            </div>`;
+        new bootstrap.Modal(document.getElementById('modalDetalleVenta')).show();
+
+        fetch(`/admin/ventas/detalle/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            let html = `
+                <div class="mb-3">
+                    <div class="info-row"><span class="info-label">Venta #</span><span class="info-value">${data.id}</span></div>
+                    <div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">${data.pedido_id}</span></div>
+                    <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">${data.cliente}</span></div>
+                    <div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">${data.telefono}</span></div>
+                    <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">${data.direccion}</span></div>
+                    <div class="info-row"><span class="info-label">Método Pago</span><span class="info-value">${data.metodo_pago}</span></div>
+                    <div class="info-row"><span class="info-label">Referencia</span><span class="info-value">${data.referencia}</span></div>
+                    <div class="info-row"><span class="info-label">Estado</span><span class="info-value">${data.estado_pago}</span></div>
+                </div>
+                <hr>
+                <p style="font-size:0.8rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px;" class="mb-3">Productos</p>`;
+
+            data.detalles.forEach(d => {
+                html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f5f0eb;">
+                    <div>
+                        <div style="font-weight:600; font-size:0.9rem;">${d.bebida}</div>
+                        <small style="color:#888;">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
+                    </div>
+                    <span style="font-weight:700; color:#e8891a;">$${d.subtotal}</span>
+                </div>`;
+            });
+
+            html += `
+                <div style="display:flex; justify-content:space-between; margin-top:16px; padding-top:12px; border-top:2px solid #f0ece6;">
+                    <span style="font-weight:700;">Total</span>
+                    <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total}</span>
+                </div>`;
+
+            document.getElementById('detalleVentaContenido').innerHTML = html;
+        });
+    }
+
     function abrirConfirmar(id, referencia) {
         document.getElementById('inputReferencia').value = referencia;
         document.getElementById('formConfirmar').action = `/admin/ventas/confirmar/${id}`;

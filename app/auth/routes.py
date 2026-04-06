@@ -43,7 +43,7 @@ def enviar_codigo(email, nombre, codigo):
     )
     msg.html = f'''
     <div style="font-family: Segoe UI, sans-serif; max-width: 500px; margin: auto; padding: 30px; background: #fdf8f3; border-radius: 16px;">
-        <h2 style="color: #e8891a;">☕ CoffeeTrack</h2>
+        <h2 style="color: #e8891a;">CoffeeTrack</h2>
         <p>Hola <strong>{nombre}</strong>,</p>
         <p>Tu código de verificación es:</p>
         <div style="font-size: 2.5rem; font-weight: 700; color: #e8891a; background: white; padding: 20px; border-radius: 12px; text-align: center; letter-spacing: 8px; margin: 20px 0;">
@@ -70,7 +70,6 @@ def login():
     if 'user_id' in session:
         return redirect(url_for('auth.index'))
 
-    # Limite de intentos
     intentos = session.get('login_intentos', 0)
     bloqueado_hasta = session.get('login_bloqueado_hasta')
 
@@ -95,10 +94,9 @@ def login():
                 return render_template('auth/login.html', form=form)
 
             if not usuario.verificado:
-                flash('Tu cuenta no está verificada. Revisa tu correo.', 'warning')
-                return render_template('auth/login.html', form=form)
+                flash('Tu cuenta no está verificada. Revisa tu correo o reenvía el código.', 'warning')
+                return redirect(url_for('auth.verificar', email=usuario.email))
 
-            # Login exitoso, resetear intentos
             session.pop('login_intentos', None)
             session.pop('login_bloqueado_hasta', None)
 
@@ -136,9 +134,15 @@ def registro():
     form = RegistroForm()
     if form.validate_on_submit():
         existe = Usuario.query.filter_by(email=form.email.data).first()
-        if existe:
-            flash('Ya existe una cuenta con ese correo.', 'warning')
+        if existe and existe.verificado:
+            flash('Ya existe una cuenta verificada con ese correo.', 'warning')
             return render_template('auth/login.html', form=form, registro=True)
+
+        # Si existe pero no verificado, eliminarlo para re-registrar
+        if existe and not existe.verificado:
+            CodigoVerificacion.query.filter_by(usuario_id=existe.id).delete()
+            db.session.delete(existe)
+            db.session.commit()
 
         nuevo = Usuario(
             nombre=form.nombre.data,
@@ -153,7 +157,6 @@ def registro():
         db.session.add(nuevo)
         db.session.flush()
 
-        # Generar y guardar codigo
         codigo = generar_codigo()
         expira = datetime.now() + timedelta(minutes=10)
         cv = CodigoVerificacion(
@@ -162,16 +165,17 @@ def registro():
             expira_en=expira
         )
         db.session.add(cv)
-        db.session.commit()
 
-        # Enviar correo
+        # Intentar enviar correo ANTES de confirmar el registro
         try:
-            enviar_codigo(nuevo.email, nuevo.nombre, codigo)
+            enviar_codigo(form.email.data, form.nombre.data, codigo)
+            db.session.commit()
             flash('Cuenta creada. Revisa tu correo para verificar tu cuenta.', 'success')
+            return redirect(url_for('auth.verificar', email=nuevo.email))
         except Exception as e:
-            flash(f'Error: {str(e)}', 'danger')
-
-        return redirect(url_for('auth.verificar', email=nuevo.email))
+            db.session.rollback()
+            flash('No se pudo enviar el correo de verificación. Verifica tu conexión e intenta de nuevo.', 'danger')
+            return render_template('auth/login.html', form=form, registro=True)
 
     return render_template('auth/login.html', form=form, registro=True)
 
@@ -196,23 +200,22 @@ def verificar():
         ).order_by(CodigoVerificacion.fecha_creacion.desc()).first()
 
         if not cv:
-            flash('No hay código de verificación activo.', 'danger')
-            return redirect(url_for('auth.login'))
+            flash('No hay código de verificación activo. Solicita uno nuevo.', 'danger')
+            return render_template('auth/verificar.html', email=email)
 
         if datetime.now() > cv.expira_en:
-            flash('El código expiró. Regístrate de nuevo.', 'danger')
-            return redirect(url_for('auth.registro'))
+            flash('El código expiró. Solicita uno nuevo.', 'warning')
+            return render_template('auth/verificar.html', email=email, expirado=True)
 
         if cv.codigo != codigo_ingresado:
             flash('Código incorrecto. Intenta de nuevo.', 'danger')
             return render_template('auth/verificar.html', email=email)
 
-        # Verificar cuenta
         usuario.verificado = True
         cv.usado = True
         db.session.commit()
 
-        flash('¡Cuenta verificada! Ya puedes iniciar sesión.', 'success')
+        flash('¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.', 'success')
         return redirect(url_for('auth.login'))
 
     return render_template('auth/verificar.html', email=email)
@@ -221,7 +224,12 @@ def verificar():
 @auth_bp.route('/reenviar/<email>')
 def reenviar_codigo(email):
     usuario = Usuario.query.filter_by(email=email).first()
-    if not usuario or usuario.verificado:
+    if not usuario:
+        flash('Usuario no encontrado.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    if usuario.verificado:
+        flash('Esta cuenta ya está verificada.', 'info')
         return redirect(url_for('auth.login'))
 
     codigo = generar_codigo()
@@ -232,13 +240,14 @@ def reenviar_codigo(email):
         expira_en=expira
     )
     db.session.add(cv)
-    db.session.commit()
 
     try:
         enviar_codigo(usuario.email, usuario.nombre, codigo)
-        flash('Código reenviado a tu correo.', 'success')
-    except:
-        flash('No se pudo reenviar el código.', 'danger')
+        db.session.commit()
+        flash('Código reenviado exitosamente. Revisa tu correo.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('No se pudo reenviar el código. Intenta de nuevo.', 'danger')
 
     return redirect(url_for('auth.verificar', email=email))
 

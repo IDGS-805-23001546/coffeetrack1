@@ -40,18 +40,21 @@ def dashboard():
     producciones_completadas = Produccion.query.filter_by(estado='completada').count()
 
     pedidos_recientes = Pedido.query.order_by(Pedido.fecha_pedido.desc()).limit(5).all()
-    alertas = AlertaInventario.query.filter_by(activa=True).order_by(
-        AlertaInventario.fecha_alerta.desc()
-    ).limit(5).all()
+    
+    
+    alertas = AlertaInventario.query.filter(
+        AlertaInventario.activa == True,
+        AlertaInventario.tipo_alerta.in_(['stock_bajo_materia', 'materia_agotada'])
+    ).order_by(AlertaInventario.fecha_alerta.desc()).limit(5).all()
 
     # Top 3 bebidas mas vendidas
     top_bebidas = db.session.query(
         Bebida.nombre,
         func.sum(DetallePedido.cantidad).label('total_vendido')
     ).join(DetallePedido, Bebida.id == DetallePedido.bebida_id)\
-     .group_by(Bebida.id)\
-     .order_by(func.sum(DetallePedido.cantidad).desc())\
-     .limit(3).all()
+    .group_by(Bebida.id)\
+    .order_by(func.sum(DetallePedido.cantidad).desc())\
+    .limit(3).all()
 
     # Comparativa semana actual vs anterior
     ventas_esta_semana = sum(

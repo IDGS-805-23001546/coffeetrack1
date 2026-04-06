@@ -35,7 +35,7 @@ def agregar(bebida_id):
     cart = session.get('cart', {})
     str_id = str(bebida_id)
     cantidad = int(request.form.get('cantidad', 1))
-    temperatura = request.form.get('temperatura', 'cliente')
+    temperatura = request.form.get('temperatura', 'caliente')
     
     if str_id in cart:
         cart[str_id]['cantidad']+= cantidad
@@ -57,4 +57,36 @@ def eliminar_carrito(bebida_id):
         session['cart'] = cart
         session.modified = True
         flash('Producto eliminado.', 'info')
+    return redirect(url_for('carrito.ver_carrito'))
+
+@carrito_bp.route('/aumentar/<int:bebida_id>', methods=['POST'])
+@login_required
+def aumentar(bebida_id):
+    cart = session.get('cart', {})
+    str_id = str(bebida_id)
+    if str_id in cart:
+        if isinstance(cart[str_id], dict):
+            cart[str_id]['cantidad'] += 1
+        else:
+            cart[str_id] = {'cantidad': cart[str_id] + 1, 'temperatura': 'caliente'}
+    session['cart'] = cart
+    session.modified = True
+    return redirect(url_for('carrito.ver_carrito'))
+
+@carrito_bp.route('/reducir/<int:bebida_id>', methods=['POST'])
+@login_required
+def reducir(bebida_id):
+    cart = session.get('cart', {})
+    str_id = str(bebida_id)
+    if str_id in cart:
+        if isinstance(cart[str_id], dict):
+            cart[str_id]['cantidad'] -= 1
+            if cart[str_id]['cantidad'] <= 0:
+                del cart[str_id]
+        else:
+            cart[str_id] -= 1
+            if cart[str_id] <= 0:
+                del cart[str_id]
+    session['cart'] = cart
+    session.modified = True
     return redirect(url_for('carrito.ver_carrito'))

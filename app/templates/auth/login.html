@@ -59,7 +59,7 @@
     }
     .modern-input {
         background-color: #262626 !important;
-        border: 1px solid #333 !important;
+        border: 1px solid #888 !important;
         color: white !important;
         border-radius: 10px !important;
         padding: 12px 15px !important;
@@ -183,15 +183,16 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Contraseña</label>
-                    {% if not registro %}
-                    <a href="#" class="text-warning text-decoration-none small">¿Olvidaste tu contraseña?</a>
-                    {% endif %}
+                    
                 </div>
                 <div class="input-wrapper">
                     {{ form.password(class="form-control modern-input", placeholder="••••••••", id="password1") }}
                     <button type="button" class="toggle-password" onclick="togglePass('password1', this)">
                         <i class="bi bi-eye"></i>
                     </button>
+                    {% if not registro %}
+                    <a href="#" class="text-warning text-decoration-none small">¿Olvidaste tu contraseña?</a>
+                    {% endif %}
                 </div>
 
                 {% if registro %}
@@ -209,11 +210,6 @@
                 </button>
 
                 <div class="text-center text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px; font-size:0.8rem;">o continúa con</div>
-
-                <div class="d-flex justify-content-between mb-4">
-                    <a href="#" class="social-btn"><i class="bi bi-google"></i> Google</a>
-                    <a href="#" class="social-btn"><i class="bi bi-apple"></i> Apple</a>
-                </div>
 
                 <p class="text-center text-muted small">
                     {{ '¿Ya tienes cuenta?' if registro else '¿No tienes cuenta?' }}

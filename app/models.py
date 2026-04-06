@@ -17,6 +17,7 @@ class Usuario(db.Model):
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     pedidos = db.relationship('Pedido', backref='usuario', lazy='dynamic')
+    codigos = db.relationship('CodigoVerificacion', backref='usuario', cascade='all, delete-orphan')
     verificado = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
@@ -153,6 +154,7 @@ class DetalleCompraMateriaPrima(db.Model):
     cantidad = db.Column(db.Numeric(10, 2), nullable=False)
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    materia_prima = db.relationship('MateriaPrima', backref='compras_detalle')
 
 
 class Produccion(db.Model):
@@ -261,5 +263,3 @@ class CodigoVerificacion(db.Model):
     expira_en = db.Column(db.DateTime, nullable=False)
     usado = db.Column(db.Boolean, default=False)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-
-    usuario = db.relationship('Usuario', backref='codigos')

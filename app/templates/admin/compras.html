@@ -1,0 +1,280 @@
+{% extends "admin/layout/base_admin.html" %}
+
+{% block title %}CoffeeTrack - Compras{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-pendiente { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-recibida { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-cancelada { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .btn-edit { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+    .btn-edit:hover { background: #e8891a; color: white; }
+    .detalle-compra { font-size: 0.78rem; color: #888; }
+    .detalle-item { display: inline-block; background: #f5f0eb; border-radius: 6px; padding: 2px 8px; margin: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <div class="page-title">Compras</div>
+        <div class="page-subtitle">Registro de compras de materia prima — {{ compras|length }} registros</div>
+    </div>
+    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra">
+        + Nueva Compra
+    </button>
+</div>
+
+<div class="table-card">
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar compra...">
+    </div>
+    <table class="table" id="comprasTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Proveedor</th>
+                <th>Fecha</th>
+                <th>Materias Compradas</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Notas</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in compras %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td><strong>{{ c.proveedor.nombre_empresa }}</strong></td>
+                <td>{{ c.fecha_compra }}</td>
+                <td>
+                    {% for d in c.detalles %}
+                        <span class="detalle-item">
+                            {{ d.materia_prima.nombre }}
+                            {% if d.materia_prima.unidad_medida == 'ml' and d.cantidad >= 1000 %}
+                                {{ "%.1f"|format(d.cantidad / 1000) }}L
+                            {% elif d.materia_prima.unidad_medida == 'gr' and d.cantidad >= 1000 %}
+                                {{ "%.1f"|format(d.cantidad / 1000) }}kg
+                            {% else %}
+                                {{ d.cantidad|int }}{{ d.materia_prima.unidad_medida }}
+                            {% endif %}
+                        </span>
+                    {% endfor %}
+                </td>
+                <td><strong>${{ "%.2f"|format(c.total) }}</strong></td>
+                <td>
+                    {% if c.estado == 'pendiente' %}
+                        <span class="badge-pendiente">Pendiente</span>
+                    {% elif c.estado == 'recibida' %}
+                        <span class="badge-recibida">Recibida</span>
+                    {% else %}
+                        <span class="badge-cancelada">Cancelada</span>
+                    {% endif %}
+                </td>
+                <td style="font-size:0.82rem; color:#888;">{{ c.notas or '—' }}</td>
+                <td>
+                    {% if c.estado == 'pendiente' %}
+                    <button class="btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ c.id }}">
+                        <i class="bi bi-pencil"></i> Estado
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- MODALES EDITAR ESTADO -->
+{% for c in compras %}
+{% if c.estado == 'pendiente' %}
+<div class="modal fade" id="modalEdit{{ c.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin_compras.edit', id=c.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Actualizar Estado — Compra #{{ c.id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Proveedor</label>
+                        <p class="fw-bold">{{ c.proveedor.nombre_empresa }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Materias Primas</label>
+                        {% for d in c.detalles %}
+                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0ece6; font-size:0.88rem;">
+                            <span>{{ d.materia_prima.nombre }}</span>
+                            <span style="color:#e8891a; font-weight:600;">
+                                {% if d.materia_prima.unidad_medida == 'ml' and d.cantidad >= 1000 %}
+                                    {{ "%.1f"|format(d.cantidad / 1000) }} L
+                                {% elif d.materia_prima.unidad_medida == 'gr' and d.cantidad >= 1000 %}
+                                    {{ "%.1f"|format(d.cantidad / 1000) }} kg
+                                {% else %}
+                                    {{ d.cantidad|int }} {{ d.materia_prima.unidad_medida }}
+                                {% endif %}
+                                — ${{ "%.2f"|format(d.subtotal) }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                        <div style="text-align:right; margin-top:8px; font-weight:700;">
+                            Total: ${{ "%.2f"|format(c.total) }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nuevo Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="pendiente" {{ 'selected' if c.estado == 'pendiente' }}>Pendiente</option>
+                            <option value="recibida" {{ 'selected' if c.estado == 'recibida' }}>Recibida — suma stock automáticamente</option>
+                            <option value="cancelada" {{ 'selected' if c.estado == 'cancelada' }}>Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-warning" style="font-size:0.82rem;">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Al marcar como <strong>Recibida</strong> el stock de cada materia prima se actualizará automáticamente.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- MODAL NUEVA COMPRA -->
+<div class="modal fade" id="modalNuevaCompra" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Compra de Materia Prima</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin_compras.add') }}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Proveedor</label>
+                            <select name="proveedor_id" class="form-select" required>
+                                <option value="">Seleccionar proveedor</option>
+                                {% for p in proveedores %}
+                                <option value="{{ p.id }}">{{ p.nombre_empresa }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" name="fecha_compra" class="form-control" id="fechaCompra" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Estado</label>
+                            <select name="estado" class="form-select">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="recibida">Recibida</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notas</label>
+                            <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
+                        </div>
+                    </div>
+
+                    <label class="form-label fw-bold">Materias Primas</label>
+                    <div id="detalles-container">
+                        <div class="row g-2 mb-2 detalle-fila">
+                            <div class="col-md-5">
+                                <select name="materia_prima_id[]" class="form-select" required onchange="actualizarPrecio(this)">
+                                    <option value="">Seleccionar materia prima</option>
+                                    {% for m in materias_primas %}
+                                    <option value="{{ m.id }}" data-precio="{{ m.precio_unitario }}">
+                                        {{ m.nombre }} ({{ m.unidad_medida }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.01" name="cantidad[]" class="form-control" placeholder="Cantidad" required oninput="calcularSubtotal(this)">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.001" name="precio_unitario[]" class="form-control" placeholder="Precio unit." oninput="calcularSubtotal(this)">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarFila(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-accion mt-2 mb-3" onclick="agregarFila()">
+                        <i class="bi bi-plus"></i> Agregar Materia Prima
+                    </button>
+
+                    <div style="text-align:right; font-size:1rem; font-weight:700; color:#1a1a1a;">
+                        Total estimado: <span id="totalEstimado" style="color:#e8891a;">$0.00</span>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn-submit">Registrar Compra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Fecha de hoy por defecto
+    document.getElementById('fechaCompra').value = new Date().toISOString().split('T')[0];
+
+    // Busqueda
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('#comprasTable tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+
+    function actualizarPrecio(select) {
+        const precio = select.options[select.selectedIndex].dataset.precio;
+        const fila = select.closest('.detalle-fila');
+        const inputPrecio = fila.querySelector('input[name="precio_unitario[]"]');
+        if (precio) inputPrecio.value = precio;
+        calcularSubtotal(inputPrecio);
+    }
+
+    function calcularSubtotal(input) {
+        let total = 0;
+        document.querySelectorAll('.detalle-fila').forEach(fila => {
+            const cantidad = parseFloat(fila.querySelector('input[name="cantidad[]"]').value) || 0;
+            const precio = parseFloat(fila.querySelector('input[name="precio_unitario[]"]').value) || 0;
+            total += cantidad * precio;
+        });
+        document.getElementById('totalEstimado').textContent = '$' + total.toFixed(2);
+    }
+
+    function agregarFila() {
+        const container = document.getElementById('detalles-container');
+        const primera = container.querySelector('.detalle-fila');
+        const nueva = primera.cloneNode(true);
+        nueva.querySelectorAll('input').forEach(i => i.value = '');
+        nueva.querySelector('select').selectedIndex = 0;
+        container.appendChild(nueva);
+    }
+
+    function eliminarFila(btn) {
+        const filas = document.querySelectorAll('.detalle-fila');
+        if (filas.length > 1) {
+            btn.closest('.detalle-fila').remove();
+            calcularSubtotal(null);
+        }
+    }
+</script>
+{% endblock %}

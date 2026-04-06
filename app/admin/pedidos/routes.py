@@ -3,7 +3,7 @@ from . import pedidos_admin_bp
 from app.auth.routes import admin_required
 from app.models import Pedido, DetallePedido, Produccion, Venta
 from app import db
-from datetime import date
+from datetime import date, timedelta
 
 @pedidos_admin_bp.route('/')
 @admin_required
@@ -12,7 +12,8 @@ def index():
     detalles = DetallePedido.query.all()
     return render_template('admin/pedidos.html',
         pedidos=pedidos,
-        detalles=detalles
+        detalles=detalles,
+        timedelta=timedelta
     )
 
 @pedidos_admin_bp.route('/cambiar_estado/<int:id>', methods=['POST'])

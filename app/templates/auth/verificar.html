@@ -7,54 +7,67 @@
     .split-login { height: 100vh; width: 100%; display: flex; overflow: hidden; background-color: #121212; }
     .login-form-side { width: 100%; display: flex; align-items: center; justify-content: center; padding: 40px; background-color: #1a1a1a; }
     .form-container { width: 100%; max-width: 420px; }
-    .modern-input { background-color: #262626 !important; border: 1px solid #333 !important; color: white !important; border-radius: 10px !important; padding: 12px 15px !important; margin-bottom: 20px; font-size: 1.5rem !important; letter-spacing: 8px; text-align: center; }
-    .modern-input:focus { border-color: #c8842a !important; box-shadow: 0 0 0 2px rgba(200,132,42,0.2) !important; }
+    .codigo-box { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
+    .codigo-digit {
+        width: 52px; height: 64px;
+        background: #262626;
+        border: 2px solid #333;
+        border-radius: 12px;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-align: center;
+        transition: 0.2s;
+        outline: none;
+    }
+    .codigo-digit:focus { border-color: #c8842a; box-shadow: 0 0 0 2px rgba(200,132,42,0.2); }
+    .codigo-digit.filled { border-color: #e8891a; }
     .btn-login-gold { background-color: #c8842a; color: white; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; border: none; transition: 0.3s; }
     .btn-login-gold:hover { background-color: #e09431; }
-    .codigo-box { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    .codigo-digit { width: 50px; height: 60px; background: #262626; border: 1px solid #333; border-radius: 10px; color: white; font-size: 1.5rem; font-weight: 700; text-align: center; transition: 0.2s; }
-    .codigo-digit:focus { border-color: #c8842a; box-shadow: 0 0 0 2px rgba(200,132,42,0.2); outline: none; }
+    .spinner-verificando { display: none; text-align: center; padding: 20px; }
 </style>
 
 <div class="split-login">
     <div class="login-form-side">
         <div class="form-container">
             <div class="mb-4 text-center">
-                <span class="fw-bold text-white fs-4">☕ CoffeeTrack</span>
+                <span class="fw-bold text-white fs-4">CoffeeTrack</span>
             </div>
 
-            <h3 class="text-white fw-bold mb-1 text-center">Verifica tu cuenta</h3>
-            <p class="text-muted mb-4 text-center">
-                Ingresa el código de 6 dígitos que enviamos a<br>
-                <span style="color:#c8842a;">{{ email }}</span>
-            </p>
+            <h3 class="text-white fw-bold mb-2 text-center">Verifica tu cuenta</h3>
+            <p class="text-muted mb-1 text-center">Ingresa el código de 6 dígitos enviado a</p>
+            <p class="text-center mb-4" style="color:#c8842a; font-weight:600;">{{ email }}</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for cat, msg in messages %}
-                    <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'danger' else 'warning' }} mb-3">
+                    <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'danger' else 'warning' }} mb-3" style="border-radius:10px; font-size:0.88rem;">
                         {{ msg }}
                     </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
-            <form method="POST" action="{{ url_for('auth.verificar') }}">
+            <form method="POST" action="{{ url_for('auth.verificar') }}" id="formVerificar">
                 <input type="hidden" name="email" value="{{ email }}">
-
-                <!-- Inputs de 6 digitos -->
-                <div class="codigo-box">
-                    <input type="text" class="codigo-digit" maxlength="1" id="d1" oninput="mover(this, null, 'd2')">
-                    <input type="text" class="codigo-digit" maxlength="1" id="d2" oninput="mover(this, 'd1', 'd3')">
-                    <input type="text" class="codigo-digit" maxlength="1" id="d3" oninput="mover(this, 'd2', 'd4')">
-                    <input type="text" class="codigo-digit" maxlength="1" id="d4" oninput="mover(this, 'd3', 'd5')">
-                    <input type="text" class="codigo-digit" maxlength="1" id="d5" oninput="mover(this, 'd4', 'd6')">
-                    <input type="text" class="codigo-digit" maxlength="1" id="d6" oninput="mover(this, 'd5', null)">
-                </div>
                 <input type="hidden" name="codigo" id="codigoFinal">
 
-                <button type="submit" class="btn btn-login-gold mb-3" onclick="unirCodigo()">
-                    Verificar Cuenta
+                <div class="codigo-box">
+                    <input type="text" inputmode="numeric" class="codigo-digit" maxlength="1" id="d1">
+                    <input type="text" inputmode="numeric" class="codigo-digit" maxlength="1" id="d2">
+                    <input type="text" inputmode="numeric" class="codigo-digit" maxlength="1" id="d3">
+                    <input type="text" inputmode="numeric" class="codigo-digit" maxlength="1" id="d4">
+                    <input type="text" inputmode="numeric" class="codigo-digit" maxlength="1" id="d5">
+                    <input type="text" inputmode="numeric" class="codigo-digit" maxlength="1" id="d6">
+                </div>
+
+                <div class="spinner-verificando" id="spinnerVerificando">
+                    <div class="spinner-border text-warning mb-2" role="status"></div>
+                    <p class="text-muted small">Verificando código...</p>
+                </div>
+
+                <button type="submit" class="btn btn-login-gold mb-3" id="btnVerificar">
+                    Verificar Cuenta <i class="bi bi-check-circle"></i>
                 </button>
 
                 <p class="text-center text-muted small">
@@ -63,26 +76,77 @@
                         Reenviar código
                     </a>
                 </p>
+
+                <p class="text-center text-muted small mt-2">
+                    <a href="{{ url_for('auth.login') }}" class="text-secondary text-decoration-none">
+                        Volver al inicio de sesión
+                    </a>
+                </p>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-function mover(actual, anteriorId, siguienteId) {
-    if (actual.value.length === 1 && siguienteId) {
-        document.getElementById(siguienteId).focus();
-    }
-    if (actual.value.length === 0 && anteriorId) {
-        document.getElementById(anteriorId).focus();
-    }
-}
+    const digits = ['d1','d2','d3','d4','d5','d6'];
 
-function unirCodigo() {
-    const codigo = ['d1','d2','d3','d4','d5','d6']
-        .map(id => document.getElementById(id).value)
-        .join('');
-    document.getElementById('codigoFinal').value = codigo;
-}
+    digits.forEach((id, index) => {
+        const input = document.getElementById(id);
+
+        input.addEventListener('input', function() {
+            // Solo permitir numeros
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            if (this.value) {
+                this.classList.add('filled');
+                // Mover al siguiente
+                if (index < digits.length - 1) {
+                    document.getElementById(digits[index + 1]).focus();
+                }
+            } else {
+                this.classList.remove('filled');
+            }
+
+            verificarCompleto();
+        });
+
+        input.addEventListener('keydown', function(e) {
+            // Retroceso
+            if (e.key === 'Backspace' && !this.value && index > 0) {
+                document.getElementById(digits[index - 1]).focus();
+            }
+            // Pegar
+            if (e.key === 'v' && (e.ctrlKey || e.metaKey)) return;
+        });
+
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pegado = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+            digits.forEach((did, i) => {
+                if (pegado[i]) {
+                    document.getElementById(did).value = pegado[i];
+                    document.getElementById(did).classList.add('filled');
+                }
+            });
+            verificarCompleto();
+        });
+    });
+
+    function verificarCompleto() {
+        const codigo = digits.map(id => document.getElementById(id).value).join('');
+        document.getElementById('codigoFinal').value = codigo;
+
+        if (codigo.length === 6) {
+            // Auto submit
+            document.getElementById('btnVerificar').style.display = 'none';
+            document.getElementById('spinnerVerificando').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('formVerificar').submit();
+            }, 600);
+        }
+    }
+
+    // Foco en el primer campo al cargar
+    document.getElementById('d1').focus();
 </script>
 {% endblock %}

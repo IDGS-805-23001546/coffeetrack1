@@ -31,6 +31,7 @@ def create_app():
     from .admin.pedidos import pedidos_admin_bp
     from .admin.produccion import produccion_bp
     from .admin.ventas import ventas_bp
+    from .admin.compras import compras_bp
 
     
     app.register_blueprint(auth_bp)
@@ -47,6 +48,7 @@ def create_app():
     app.register_blueprint(pedidos_admin_bp, url_prefix='/admin/pedidos')
     app.register_blueprint(produccion_bp, url_prefix='/admin/produccion')
     app.register_blueprint(ventas_bp, url_prefix='/admin/ventas')
+    app.register_blueprint(compras_bp, url_prefix='/admin/compras')
 
 
 

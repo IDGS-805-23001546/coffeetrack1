@@ -47,7 +47,7 @@
                     <th>Categoría</th>
                     <th>Vol. (ml)</th>
                     <th>Precio</th>
-                    <th>Stock</th>
+                    <th>Vendidas</th>
                     <th>Disponible</th>
                 </tr>
             </thead>
@@ -59,8 +59,8 @@
                     <td><span class="badge-cat">{{ b.categoria.nombre }}</span></td>
                     <td>{{ b.volumen_ml }}</td>
                     <td>${{ "%.2f"|format(b.precio) }}</td>
-                    <td class="{{ 'stock-low' if b.stock_actual <= b.stock_minimo else 'stock-ok' }}">
-                        {{ b.stock_actual }}
+                    <td style="font-weight:700; color:#e8891a;">
+                        {{ vendidas.get(b.id, 0) }} uds.
                     </td>
                     <td>
                         <button class="toggle-btn {{ 'toggle-on' if b.disponible else 'toggle-off' }}"

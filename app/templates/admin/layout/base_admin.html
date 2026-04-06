@@ -106,14 +106,17 @@
         <a href="{{ url_for('admin_proveedores.index') }}" class="{{ 'active' if request.endpoint == 'admin_proveedores.index' }}">
             <i class="bi bi-truck"></i> Proveedores
         </a>
-        <a href="#" class="">
-    <i class="bi bi-cart"></i> Compras
-</a>
+        <a href="{{ url_for('admin_compras.index') }}" class="{{ 'active' if request.endpoint == 'admin_compras.index' }}">
+            <i class="bi bi-cart"></i> Compras
+        </a>
+        
         <a href="{{ url_for('admin_usuarios.index') }}" class="{{ 'active' if request.endpoint == 'admin_usuarios.index' }}">
             <i class="bi bi-people"></i> Usuarios
         </a>
         <a href="{{ url_for('admin_pedidos.index') }}" class="{{ 'active' if request.endpoint == 'admin_pedidos.index' }}">
         <i class="bi bi-bag"></i> Pedidos
+
+        
         {% if g.get('pedidos_pendientes', 0) > 0 %}
     <span style="margin-left:auto; background:#e74c3c; color:white; border-radius:20px; padding:2px 8px; font-size:0.7rem; font-weight:700;">
         {{ g.pedidos_pendientes }}

@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, request, flash, jsonify
 from . import bebidas_bp
+from sqlalchemy import func as sa_func
 from app.auth.routes import admin_required
-from app.models import Bebida, CategoriaBebida, MateriaPrima, Receta
+from app.models import Bebida, CategoriaBebida, MateriaPrima, Receta, DetallePedido
 from app import db
 
 @bebidas_bp.route('/')
@@ -10,10 +11,17 @@ def index():
     bebidas = Bebida.query.filter_by(activo=True).all()
     categorias = CategoriaBebida.query.all()
     materias = MateriaPrima.query.filter_by(activo=True).all()
+    
+    vendidas = dict(db.session.query(
+        DetallePedido.bebida_id,
+        sa_func.sum(DetallePedido.bebida_id)
+    ).group_by(DetallePedido.bebida_id).all())
+    
     return render_template('admin/bebidas.html',
         bebidas=bebidas,
         categorias=categorias,
-        materias=materias
+        materias=materias,
+        vendidas=vendidas
     )
 
 @bebidas_bp.route('/nueva', methods=['POST'])
