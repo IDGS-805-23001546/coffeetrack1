@@ -19,27 +19,65 @@
     .chart-container { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
     .chart-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
     .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 160px; padding-bottom: 8px; }
-    .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 6px; height: 100%; justify-content: flex-end; }
+    .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; height: 100%; justify-content: flex-end; }
     .bar { width: 100%; background: #e8891a; border-radius: 6px 6px 0 0; transition: 0.3s; min-height: 4px; }
     .bar:hover { background: #d47b15; }
-    .bar-label { font-size: 0.75rem; color: #888; font-weight: 600; }
+    .bar-label { font-size: 0.7rem; color: #888; font-weight: 600; text-align: center; line-height: 1.2; }
     .bar-value { font-size: 0.7rem; color: #e8891a; font-weight: 700; }
 
     .pendientes-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; border-left: 4px solid #e8891a; }
     .pendientes-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .pendiente-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f0eb; }
     .pendiente-item:last-child { border-bottom: none; }
-    .pendiente-info { font-size: 0.9rem; }
-    .pendiente-nombre { font-weight: 600; color: #1a1a1a; }
+    .pendiente-nombre { font-weight: 600; color: #1a1a1a; font-size: 0.9rem; }
     .pendiente-sub { font-size: 0.78rem; color: #888; margin-top: 2px; }
     .pendiente-total { font-weight: 700; color: #e8891a; font-size: 1rem; }
     .btn-confirmar { background: #e8891a; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-confirmar:hover { background: #d47b15; }
 
+    /* HISTORIAL POR DIA */
+    .historial-dia { background: white; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 12px; overflow: hidden; }
+    .historial-dia-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        cursor: pointer;
+        transition: 0.2s;
+        user-select: none;
+    }
+    .historial-dia-header:hover { background: #fdf8f3; }
+    .historial-dia-header.activo { background: #fdf3e7; }
+    .dia-fecha { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; }
+    .dia-resumen { display: flex; align-items: center; gap: 16px; }
+    .dia-total { font-weight: 700; color: #e8891a; font-size: 1rem; }
+    .dia-count { font-size: 0.8rem; color: #888; }
+    .dia-chevron { color: #888; transition: 0.2s; font-size: 0.9rem; }
+    .dia-chevron.rotado { transform: rotate(180deg); }
+    .historial-dia-body { display: none; border-top: 1px solid #f0ece6; }
+    .historial-dia-body.abierto { display: block; }
+
+    .venta-fila { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid #f5f0eb; }
+    .venta-fila:last-child { border-bottom: none; }
+    .venta-info { flex: 1; }
+    .venta-cliente { font-weight: 600; font-size: 0.88rem; color: #1a1a1a; }
+    .venta-hora { font-size: 0.75rem; color: #aaa; }
+    .venta-bebidas { font-size: 0.78rem; color: #666; margin-top: 4px; }
+    .venta-metodo { flex-shrink: 0; margin: 0 16px; }
+    .venta-total { font-weight: 700; color: #e8891a; font-size: 0.95rem; flex-shrink: 0; min-width: 80px; text-align: right; }
+    .venta-acciones { flex-shrink: 0; margin-left: 12px; }
+
     .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
     .info-row:last-child { border-bottom: none; }
     .info-label { color: #888; }
     .info-value { color: #1a1a1a; font-weight: 600; }
+
+    .filtro-fecha { background: white; border-radius: 14px; padding: 16px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .filtro-fecha label { font-size: 0.82rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .filtro-fecha input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 8px 14px; font-size: 0.88rem; }
+    .filtro-fecha input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+    .btn-filtrar { background: #e8891a; color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+    .btn-limpiar { background: #f0ece6; color: #555; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
 </style>
 {% endblock %}
 
@@ -82,7 +120,7 @@
     </div>
 </div>
 
-<!-- VENTAS PENDIENTES DE CONFIRMAR -->
+<!-- VENTAS PENDIENTES -->
 {% if ventas_pendientes %}
 <div class="pendientes-card">
     <div class="pendientes-title">
@@ -91,10 +129,9 @@
     </div>
     {% for venta in ventas_pendientes %}
     <div class="pendiente-item">
-        <div class="pendiente-info">
+        <div>
             <div class="pendiente-nombre">Pedido #{{ venta.pedido_id }} — {{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</div>
             <div class="pendiente-sub">
-                Entregado: {{ (venta.fecha_venta - timedelta(hours=6)).strftime('%d/%m/%Y %H:%M') }} |
                 Ref: {{ venta.referencia_pago or 'N/A' }}
             </div>
         </div>
@@ -109,9 +146,9 @@
 </div>
 {% endif %}
 
-<!-- GRAFICA SEMANAL -->
+<!-- GRAFICA ULTIMOS 7 DIAS -->
 <div class="chart-container">
-    <div class="chart-title">Ingresos de la Semana Actual</div>
+    <div class="chart-title">Ingresos — Últimos 7 Días</div>
     <div class="bar-chart">
         {% set max_val = datos_semana | map(attribute='total') | max %}
         {% for d in datos_semana %}
@@ -124,51 +161,71 @@
     </div>
 </div>
 
-<!-- TABLA HISTORIAL -->
-<div class="table-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div style="font-size:1.05rem; font-weight:700; color:#1a1a1a;">Historial de Transacciones</div>
-        <input type="text" id="searchInput" class="search-input" placeholder="Buscar pedido...">
+<!-- HISTORIAL POR DIA -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div style="font-size:1.05rem; font-weight:700; color:#1a1a1a;">Historial por Día</div>
+    <div class="d-flex gap-2 align-items-center">
+        <input type="date" id="filtroFecha" class="form-control" style="width:180px; border-radius:10px; border:1px solid #e0d8d0; padding:8px 14px; font-size:0.88rem;">
+        <button class="btn-filtrar" onclick="filtrarPorFecha()">Filtrar</button>
+        <button class="btn-limpiar" onclick="limpiarFiltro()">Limpiar</button>
     </div>
-    <table class="table" id="ventasTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Pedido #</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Método Pago</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Referencia</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for venta in ventas %}
-            <tr>
-                <td>{{ venta.id }}</td>
-                <td>{{ venta.pedido_id }}</td>
-                <td>{{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</td>
-                <td>{{ (venta.fecha_venta - timedelta(hours=6)).strftime('%Y-%m-%d %H:%M') }}</td>
-                <td><span class="badge-metodo">{{ venta.metodo_pago }}</span></td>
-                <td style="font-weight:700; color:#e8891a;">${{ "%.2f"|format(venta.total) }}</td>
-                <td><span class="badge-{{ venta.estado_pago }}">{{ venta.estado_pago }}</span></td>
-                <td>{{ venta.referencia_pago or '—' }}</td>
-                <td>
-                    <button class="btn-accion me-1" onclick="verDetalleVenta({{ venta.id }})">
+</div>
+
+<div id="historialContainer">
+    {% for fecha_key, dia_data in ventas_por_dia.items() %}
+    <div class="historial-dia" data-fecha="{{ fecha_key }}">
+        <div class="historial-dia-header" onclick="toggleDia(this)">
+            <div class="dia-fecha">
+                <i class="bi bi-calendar3 me-2" style="color:#e8891a;"></i>
+                {{ dia_data.label }}
+            </div>
+            <div class="dia-resumen">
+                <span class="dia-count">{{ dia_data.ventas|length }} venta(s)</span>
+                <span class="dia-total">${{ "%.2f"|format(dia_data.total_dia) }}</span>
+                <i class="bi bi-chevron-down dia-chevron"></i>
+            </div>
+        </div>
+        <div class="historial-dia-body">
+            {% for venta in dia_data.ventas %}
+            <div class="venta-fila">
+                <div class="venta-info">
+                    <div class="venta-cliente">{{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</div>
+                    <div class="venta-hora">
+                        Pedido #{{ venta.pedido_id }} · 
+                        {{ (venta.fecha_venta - timedelta(hours=6)).strftime('%H:%M') }} hrs ·
+                        Ref: {{ venta.referencia_pago or '—' }}
+                    </div>
+                    <div class="venta-bebidas">
+                        {% for d in venta.pedido.detalles.all() %}
+                            {{ d.bebida.nombre }} (×{{ d.cantidad }}){% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="venta-metodo">
+                    <span class="badge-metodo">{{ venta.metodo_pago }}</span>
+                </div>
+                <div class="venta-total">${{ "%.2f"|format(venta.total) }}</div>
+                <div class="venta-acciones">
+                    <button class="btn-accion" onclick="verDetalleVenta({{ venta.id }})">
                         <i class="bi bi-eye"></i> Ver
                     </button>
-                    {% if venta.estado_pago != 'reembolsado' %}
-                    <button class="btn-accion" onclick="abrirCambiarEstado({{ venta.id }}, '{{ venta.estado_pago }}')">
-                        <i class="bi bi-arrow-repeat"></i> Estado
-                    </button>
-                    {% endif %}
-                </td>
-            </tr>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
+
+            <!-- Subtotal del dia -->
+            <div style="display:flex; justify-content:flex-end; padding:12px 24px; background:#fdf8f3; border-top:1px solid #f0ece6;">
+                <span style="font-size:0.85rem; color:#888; margin-right:12px;">Total del día:</span>
+                <span style="font-weight:700; color:#e8891a;">${{ "%.2f"|format(dia_data.total_dia) }}</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="table-card text-center py-5 text-muted">
+        <i class="bi bi-receipt" style="font-size:2.5rem; opacity:0.3;"></i>
+        <p class="mt-3">No hay ventas registradas aún.</p>
+    </div>
+    {% endfor %}
 </div>
 
 <!-- MODAL VER DETALLE VENTA -->
@@ -218,35 +275,36 @@
     </div>
 </div>
 
-<!-- MODAL CAMBIAR ESTADO -->
-<div class="modal fade" id="modalEstado" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cambiar Estado de Pago</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" id="formEstado">
-                    <div class="mb-4">
-                        <label class="form-label">Estado de Pago</label>
-                        <select name="estado_pago" id="selectEstado" class="form-select">
-                            <option value="pendiente">Pendiente</option>
-                            <option value="pagado">Pagado</option>
-                            <option value="reembolsado">Reembolsado</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit">Guardar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    function toggleDia(header) {
+        const body = header.nextElementSibling;
+        const chevron = header.querySelector('.dia-chevron');
+        const abierto = body.classList.contains('abierto');
+
+        body.classList.toggle('abierto', !abierto);
+        chevron.classList.toggle('rotado', !abierto);
+        header.classList.toggle('activo', !abierto);
+    }
+
+    function filtrarPorFecha() {
+        const fecha = document.getElementById('filtroFecha').value;
+        if (!fecha) return;
+
+        document.querySelectorAll('.historial-dia').forEach(dia => {
+            dia.style.display = dia.getAttribute('data-fecha') === fecha ? '' : 'none';
+        });
+    }
+
+    function limpiarFiltro() {
+        document.getElementById('filtroFecha').value = '';
+        document.querySelectorAll('.historial-dia').forEach(dia => {
+            dia.style.display = '';
+        });
+    }
+
     function verDetalleVenta(id) {
         document.getElementById('detalleVentaContenido').innerHTML = `
             <div class="text-center py-4">
@@ -298,17 +356,12 @@
         new bootstrap.Modal(document.getElementById('modalConfirmar')).show();
     }
 
-    function abrirCambiarEstado(id, estadoActual) {
-        document.getElementById('selectEstado').value = estadoActual;
-        document.getElementById('formEstado').action = `/admin/ventas/cambiar_estado/${id}`;
-        new bootstrap.Modal(document.getElementById('modalEstado')).show();
+    // Abrir automaticamente el dia de hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    const diaHoy = document.querySelector(`.historial-dia[data-fecha="${hoy}"]`);
+    if (diaHoy) {
+        const header = diaHoy.querySelector('.historial-dia-header');
+        toggleDia(header);
     }
-
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('#ventasTable tbody tr').forEach(row => {
-            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
-        });
-    });
 </script>
 {% endblock %}

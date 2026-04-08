@@ -8,8 +8,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
-
-        /* SIDEBAR */
         .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
         .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
         .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
@@ -23,56 +21,27 @@
         .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
         .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
         .sidebar-logout a:hover { color: white; }
-
-        /* CONTENIDO */
         .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
         .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
         .page-body { padding: 30px; }
         .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
         .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
-
-        /* CARDS DE RECETAS */
-        .receta-card {
-            background: white;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            height: 100%;
-        }
-        .receta-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
+        .receta-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
+        .receta-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .receta-nombre { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; }
         .receta-descripcion { font-size: 0.82rem; color: #999; margin-bottom: 16px; }
-        .receta-precio {
-            background: #fdf3e7;
-            color: #e8891a;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-        .ingrediente-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f5f0eb;
-            font-size: 0.88rem;
-        }
+        .receta-precio { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
+        .ingrediente-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
         .ingrediente-row:last-child { border-bottom: none; }
         .ing-nombre { color: #333; }
         .ing-cantidad { color: #888; font-size: 0.82rem; }
-
-        /* BOTONES */
+        .ing-actions { display: flex; gap: 6px; }
+        .btn-ing-edit { background: #f0ece6; border: none; color: #555; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 0.78rem; transition: 0.2s; }
+        .btn-ing-edit:hover { background: #e8891a; color: white; }
+        .btn-ing-del { background: #fee2e2; border: none; color: #e74c3c; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 0.78rem; transition: 0.2s; }
+        .btn-ing-del:hover { background: #e74c3c; color: white; }
         .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
         .btn-nueva:hover { background: #d47b15; }
-
-        /* MODAL */
         .modal-content { border-radius: 16px; border: none; }
         .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
         .modal-title { font-weight: 700; font-size: 1.1rem; }
@@ -80,21 +49,18 @@
         .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
         .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
-
         .ingrediente-row-form { background: #fdf8f3; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
         .btn-add-ing { background: transparent; border: 2px dashed #e8891a; color: #e8891a; border-radius: 10px; padding: 8px; width: 100%; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-add-ing:hover { background: #fdf3e7; }
         .btn-remove-ing { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 6px 10px; cursor: pointer; flex-shrink: 0; }
         .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
         .btn-submit:hover { background: #d47b15; }
-
         .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
         .empty-state i { font-size: 3rem; margin-bottom: 16px; display: block; }
     </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <div class="sidebar-brand">
         <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
@@ -105,13 +71,13 @@
     </div>
     <div class="sidebar-section">Principal</div>
     <nav>
-        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Administración General</a>
     </nav>
     <div class="sidebar-section">Inventario</div>
     <nav>
-        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>        
-        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
-        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a> 
+        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
+        <a href="{{ url_for('admin_recetas.index') }}" class="active"><i class="bi bi-journal-text"></i> Recetas</a>
+        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a>
         <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>
     </nav>
     <div class="sidebar-section">Gestión</div>
@@ -120,16 +86,13 @@
         <a href="#"><i class="bi bi-cart"></i> Compras</a>
         <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
         <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
-    <i class="bi bi-currency-dollar"></i> Ventas
-</a>
+        <a href="{{ url_for('admin_ventas.index') }}"><i class="bi bi-currency-dollar"></i> Ventas</a>
     </nav>
     <div class="sidebar-logout">
         <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
     </div>
 </div>
 
-<!-- CONTENIDO -->
 <div class="main-content">
     <div class="topbar">
         <i class="bi bi-layout-sidebar"></i>
@@ -159,7 +122,6 @@
         </div>
 
         {% set bebidas_con_receta = bebidas | selectattr('recetas') | list %}
-
         {% if bebidas_con_receta %}
         <div class="row g-3">
             {% for bebida in bebidas %}
@@ -175,9 +137,25 @@
                             <span class="receta-precio">${{ "%.2f"|format(bebida.precio) }}</span>
                         </div>
                         {% for r in recetas_list %}
-                        <div class="ingrediente-row">
+                        <div class="ingrediente-row" id="ing-row-{{ r.id }}">
                             <span class="ing-nombre">{{ r.materia_prima.nombre }}</span>
-                            <span class="ing-cantidad">{{ r.cantidad }} {{ r.unidad_medida }}</span>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="ing-cantidad">{{ r.cantidad }} {{ r.unidad_medida }}</span>
+                                <div class="ing-actions">
+                                    <button class="btn-ing-edit" onclick="abrirEditarIngrediente(
+                                        {{ r.id }},
+                                        {{ r.materia_prima_id }},
+                                        '{{ r.materia_prima.nombre }}',
+                                        {{ r.cantidad }},
+                                        '{{ r.unidad_medida }}'
+                                    )">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn-ing-del" onclick="eliminarIngrediente({{ r.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
@@ -191,7 +169,6 @@
             No hay recetas registradas aún.
         </div>
         {% endif %}
-
     </div>
 </div>
 
@@ -205,7 +182,6 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{ url_for('admin_recetas.nueva') }}">
-
                     <div class="mb-3">
                         <label class="form-label">Bebida</label>
                         <select name="bebida_id" class="form-select" required>
@@ -215,16 +191,49 @@
                             {% endfor %}
                         </select>
                     </div>
-
                     <hr>
                     <label class="form-label mb-3">Ingredientes</label>
                     <div id="ingredientes-container"></div>
                     <button type="button" class="btn-add-ing mb-4" onclick="agregarIngrediente()">
                         + Agregar Ingrediente
                     </button>
-
                     <button type="submit" class="btn-submit">Guardar Receta</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR INGREDIENTE -->
+<div class="modal fade" id="modalEditarIngrediente" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Ingrediente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Materia Prima</label>
+                    <select id="edit_materia" class="form-select">
+                        {% for m in materias %}
+                        <option value="{{ m.id }}" data-unidad="{{ m.unidad_medida }}">{{ m.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" id="edit_cantidad" class="form-control" step="0.01" min="0.01">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Unidad</label>
+                    <select id="edit_unidad_ing" class="form-select">
+                        <option value="ml">ml</option>
+                        <option value="gr">gr</option>
+                        <option value="unidad">unidad</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="guardarIngrediente()">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -238,15 +247,15 @@
         {% endfor %}
     ];
 
+    let editandoRecetaId = null;
+
     function agregarIngrediente() {
         const container = document.getElementById('ingredientes-container');
         const div = document.createElement('div');
         div.className = 'ingrediente-row-form';
-
         let options = materias.map(m =>
             `<option value="${m.id}" data-unidad="${m.unidad}">${m.nombre}</option>`
         ).join('');
-
         div.innerHTML = `
             <select name="materia_prima_id[]" class="form-select materia-select" onchange="actualizarUnidad(this)" required>
                 <option value="">Seleccionar materia</option>
@@ -274,6 +283,61 @@
                 if (o.value === unidad) { o.selected = true; break; }
             }
         }
+    }
+
+    // Editar ingrediente individual
+    function abrirEditarIngrediente(recetaId, materiaId, materiaNombre, cantidad, unidad) {
+        editandoRecetaId = recetaId;
+        document.getElementById('edit_materia').value = materiaId;
+        document.getElementById('edit_cantidad').value = cantidad;
+        document.getElementById('edit_unidad_ing').value = unidad;
+        new bootstrap.Modal(document.getElementById('modalEditarIngrediente')).show();
+    }
+
+    function guardarIngrediente() {
+        const materiaId = document.getElementById('edit_materia').value;
+        const cantidad = document.getElementById('edit_cantidad').value;
+        const unidad = document.getElementById('edit_unidad_ing').value;
+
+        const form = new FormData();
+        form.append('materia_prima_id', materiaId);
+        form.append('cantidad', cantidad);
+        form.append('unidad_medida', unidad);
+
+        fetch(`/admin/recetas/editar/${editandoRecetaId}`, {
+            method: 'POST',
+            body: form
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                // Actualiza el texto en la card sin recargar
+                const row = document.getElementById(`ing-row-${editandoRecetaId}`);
+                if (row) {
+                    const materia = materias.find(m => m.id == materiaId);
+                    row.querySelector('.ing-nombre').textContent = materia ? materia.nombre : '';
+                    row.querySelector('.ing-cantidad').textContent = `${cantidad} ${unidad}`;
+                }
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarIngrediente')).hide();
+            } else {
+                alert('Error al guardar: ' + (data.error || 'desconocido'));
+            }
+        });
+    }
+
+    // Eliminar ingrediente individual
+    function eliminarIngrediente(recetaId) {
+        if (!confirm('¿Eliminar este ingrediente de la receta?')) return;
+        fetch(`/admin/recetas/eliminar/${recetaId}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                const row = document.getElementById(`ing-row-${recetaId}`);
+                if (row) row.remove();
+            } else {
+                alert('Error al eliminar.');
+            }
+        });
     }
 </script>
 </body>

@@ -1,3 +1,4 @@
+# app/admin/recetas/routes.py
 from flask import render_template, redirect, url_for, request, flash, jsonify
 from . import recetas_bp
 from app.auth.routes import admin_required
@@ -22,7 +23,6 @@ def nueva():
         materia_ids = request.form.getlist('materia_prima_id[]')
         cantidades = request.form.getlist('cantidad[]')
         unidades = request.form.getlist('unidad_medida[]')
-
         bebida = Bebida.query.get(bebida_id)
 
         for i in range(len(materia_ids)):
@@ -31,7 +31,6 @@ def nueva():
                     bebida_id=bebida_id,
                     materia_prima_id=int(materia_ids[i])
                 ).first()
-
                 if existe:
                     existe.cantidad = float(cantidades[i])
                     existe.unidad_medida = unidades[i]
@@ -50,8 +49,21 @@ def nueva():
     except Exception as e:
         db.session.rollback()
         flash(f'Error al guardar receta: {str(e)}', 'danger')
-
     return redirect(url_for('admin_recetas.index'))
+
+@recetas_bp.route('/editar/<int:id>', methods=['POST'])
+@admin_required
+def editar(id):
+    receta = Receta.query.get_or_404(id)
+    try:
+        receta.materia_prima_id = int(request.form.get('materia_prima_id'))
+        receta.cantidad = float(request.form.get('cantidad'))
+        receta.unidad_medida = request.form.get('unidad_medida')
+        db.session.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 @recetas_bp.route('/eliminar/<int:id>', methods=['POST'])
 @admin_required
@@ -60,3 +72,4 @@ def eliminar(id):
     db.session.delete(receta)
     db.session.commit()
     return jsonify({'ok': True})
+

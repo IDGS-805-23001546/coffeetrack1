@@ -86,8 +86,12 @@
                         <span class="badge-disponible">Disponible</span>
                     {% endif %}
                 </td>
+                <!-- En la tabla, columna acciones — reemplaza el td del botón editar -->
                 <td>
-                    <button class="btn-edit" onclick="abrirEditar({{ m.id }}, '{{ m.nombre }}', {{ m.categoria_id }}, '{{ m.unidad_medida }}', {{ m.stock_actual }}, {{ m.stock_minimo }}, {{ m.precio_unitario }})">
+                    <button class="btn-edit" onclick="abrirEditar(
+                        {{ m.id }}, '{{ m.nombre }}', {{ m.categoria_id }},
+                        '{{ m.unidad_medida }}', {{ m.stock_minimo }}, {{ m.precio_unitario }}
+                    )">
                         <i class="bi bi-pencil"></i> Editar
                     </button>
                 </td>
@@ -152,6 +156,7 @@
 </div>
 
 <!-- MODAL EDITAR MATERIA -->
+<!-- Modal editar — reemplaza el modal completo #modalEditarMateria -->
 <div class="modal fade" id="modalEditarMateria" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
@@ -183,15 +188,10 @@
                             <option value="unidad">Unidad</option>
                         </select>
                     </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Stock Actual</label>
-                            <input type="number" step="0.01" name="stock_actual" id="edit_stock_actual" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Stock Mínimo</label>
-                            <input type="number" step="0.01" name="stock_minimo" id="edit_stock_minimo" class="form-control">
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock Mínimo</label>
+                        <input type="number" step="0.01" name="stock_minimo" id="edit_stock_minimo" class="form-control">
+                        <small class="text-muted">El stock actual se actualiza automáticamente desde el módulo de Compras.</small>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Precio Unitario ($)</label>
@@ -207,16 +207,15 @@
 
 {% block extra_js %}
 <script>
-    function abrirEditar(id, nombre, categoria_id, unidad, stock_actual, stock_minimo, precio) {
-        document.getElementById('edit_nombre').value = nombre;
-        document.getElementById('edit_categoria').value = categoria_id;
-        document.getElementById('edit_unidad').value = unidad;
-        document.getElementById('edit_stock_actual').value = stock_actual;
-        document.getElementById('edit_stock_minimo').value = stock_minimo;
-        document.getElementById('edit_precio').value = precio;
-        document.getElementById('formEditar').action = `/admin/materias/editar/${id}`;
-        new bootstrap.Modal(document.getElementById('modalEditarMateria')).show();
-    }
+    function abrirEditar(id, nombre, categoria_id, unidad, stock_minimo, precio) {
+    document.getElementById('edit_nombre').value = nombre;
+    document.getElementById('edit_categoria').value = categoria_id;
+    document.getElementById('edit_unidad').value = unidad;
+    document.getElementById('edit_stock_minimo').value = stock_minimo;
+    document.getElementById('edit_precio').value = precio;
+    document.getElementById('formEditar').action = `/admin/materias/editar/${id}`;
+    new bootstrap.Modal(document.getElementById('modalEditarMateria')).show();
+}
 
     document.getElementById('searchInput').addEventListener('input', function() {
         const val = this.value.toLowerCase();

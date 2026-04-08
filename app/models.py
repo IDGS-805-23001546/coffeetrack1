@@ -1,5 +1,5 @@
 from app import db 
-from datetime import datetime
+from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db 
 class Usuario(db.Model):
@@ -180,7 +180,7 @@ class Pedido(db.Model):
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False, index=True)
-    fecha_pedido = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    fecha_pedido = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
     descuento = db.Column(db.Numeric(10, 2), default=0)
     total = db.Column(db.Numeric(10, 2), nullable=False)

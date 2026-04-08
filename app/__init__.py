@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from .config import Config
+from datetime import timezone, timedelta
 
 db = SQLAlchemy()
 mail = Mail()
@@ -12,14 +13,24 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     app.jinja_env.globals['enumerate'] = enumerate
+    
+    # Filtro de zona horaria México (CST = UTC-6)
+    @app.template_filter('hora_mx')
+    def hora_mx(dt):
+        if dt is None:
+            return ''
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        mx = dt.astimezone(timezone(timedelta(hours=-6)))
+        return mx.strftime('%d/%m/%Y %H:%M')
 
     with app.app_context():
         from . import models
-        db.create_all() 
+        db.create_all()
 
     from .auth import auth_bp
     from .clientes import cliente_bp
-    from .carrito import carrito_bp  
+    from .carrito import carrito_bp
     from .pedidos import pedidos_bp
     from .about import about_bp
     from .admin import admin_bp
@@ -33,7 +44,6 @@ def create_app():
     from .admin.ventas import ventas_bp
     from .admin.compras import compras_bp
 
-    
     app.register_blueprint(auth_bp)
     app.register_blueprint(cliente_bp, url_prefix='/cliente')
     app.register_blueprint(carrito_bp, url_prefix='/carrito')
@@ -50,6 +60,6 @@ def create_app():
     app.register_blueprint(ventas_bp, url_prefix='/admin/ventas')
     app.register_blueprint(compras_bp, url_prefix='/admin/compras')
 
-
+    
 
     return app

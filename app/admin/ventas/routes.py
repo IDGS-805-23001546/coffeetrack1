@@ -12,12 +12,14 @@ def index():
     tz_mexico = pytz.timezone('America/Mexico_City')
     ahora = datetime.now(tz_mexico)
     hoy = ahora.date()
-    inicio_semana = (ahora - timedelta(days=ahora.weekday())).date()
+
+    # Semana actual: los ultimos 7 dias desde hoy
+    inicio_semana = hoy - timedelta(days=6)
 
     ventas = Venta.query.order_by(Venta.fecha_venta.desc()).all()
     ventas_pendientes = Venta.query.filter_by(estado_pago='pendiente').all()
 
-    # Total del dia en hora Mexico
+    # Total del dia
     ventas_hoy = []
     for v in ventas:
         fecha_mx = v.fecha_venta.replace(tzinfo=pytz.utc).astimezone(tz_mexico).date()
@@ -25,8 +27,7 @@ def index():
             ventas_hoy.append(v)
     total_hoy = sum(float(v.total) for v in ventas_hoy)
 
-    # Grafica semanal
-    dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    # Grafica: ultimos 7 dias
     datos_semana = []
     for i in range(7):
         dia = inicio_semana + timedelta(days=i)
@@ -35,7 +36,31 @@ def index():
             fecha_mx = v.fecha_venta.replace(tzinfo=pytz.utc).astimezone(tz_mexico).date()
             if fecha_mx == dia and v.estado_pago == 'pagado':
                 total_dia += float(v.total)
-        datos_semana.append({'dia': dias[i], 'total': total_dia})
+        nombre_dia = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][dia.weekday()]
+        datos_semana.append({
+            'dia': f"{nombre_dia}\n{dia.strftime('%d/%m')}",
+            'total': total_dia,
+            'fecha': dia.strftime('%d/%m')
+        })
+
+    # Agrupar ventas por dia para el historial
+    ventas_por_dia = {}
+    for v in ventas:
+        if v.estado_pago == 'pagado':
+            fecha_mx = v.fecha_venta.replace(tzinfo=pytz.utc).astimezone(tz_mexico).date()
+            key = fecha_mx.strftime('%Y-%m-%d')
+            label = fecha_mx.strftime('%d/%m/%Y')
+            if key not in ventas_por_dia:
+                ventas_por_dia[key] = {
+                    'label': label,
+                    'ventas': [],
+                    'total_dia': 0
+                }
+            ventas_por_dia[key]['ventas'].append(v)
+            ventas_por_dia[key]['total_dia'] += float(v.total)
+
+    # Ordenar por fecha descendente
+    ventas_por_dia = dict(sorted(ventas_por_dia.items(), reverse=True))
 
     return render_template('admin/ventas.html',
         ventas=ventas,
@@ -43,8 +68,10 @@ def index():
         total_hoy=total_hoy,
         transacciones_hoy=len(ventas_hoy),
         datos_semana=datos_semana,
+        ventas_por_dia=ventas_por_dia,
         tz_mexico=tz_mexico,
-        timedelta=timedelta
+        timedelta=timedelta,
+        pytz=pytz
     )
 
 @ventas_bp.route('/confirmar/<int:id>', methods=['POST'])

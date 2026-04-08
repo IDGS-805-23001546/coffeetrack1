@@ -1,7 +1,7 @@
 {% extends "admin/layout/base_admin.html" %}
- 
+
 {% block title %}CoffeeTrack - Usuarios{% endblock %}
- 
+
 {% block extra_css %}
 <style>
     .badge-admin { background: #6366f1; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
@@ -9,18 +9,16 @@
     .btn-promote { background: #dcfce7; color: #166534; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; text-decoration: none; font-weight: 600; }
     .btn-demote { background: #fef9c3; color: #854d0e; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; text-decoration: none; font-weight: 600; }
     .btn-delete { background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; text-decoration: none; font-weight: 600; margin-left: 8px; }
-    .btn-promote:hover { background: #bbf7d0; }
-    .btn-demote:hover { background: #fef08a; }
-    .btn-delete:hover { background: #fecaca; }
-    .btn-add { background: #e8891a; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-add:hover { background: #e8891a; color: white; }
+    .btn-promote:hover { background: #bbf7d0; color: #166534; }
+    .btn-demote:hover { background: #fef08a; color: #854d0e; }
+    .btn-delete:hover { background: #fecaca; color: #991b1b; }
+    .btn-add { background: #e8891a; color: white; border: none; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-add:hover { background: #d67d15; color: white; }
     .user-email { font-size: 0.75rem; color: #888; }
-    .modal-header { background: #f8f9fa; border-bottom: 2px solid #e5e7eb; }
-    .modal-footer { background: #f8f9fa; border-top: 2px solid #e5e7eb; }
     .required-field::after { content: "*"; color: red; margin-left: 4px; }
 </style>
 {% endblock %}
- 
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
@@ -29,20 +27,20 @@
     </div>
     <div>
         <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#addUserModal">
-        + Nuevo Usuario
+            <i class="bi bi-person-plus"></i> Nuevo Usuario
         </button>
     </div>
 </div>
- 
+
 <div class="table-card">
     <div class="d-flex gap-2 mb-4">
-        <select id="roleFilter" class="form-select" style="width: 150px;">
-            <option value="todos">Todos</option>
+        <select id="roleFilter" class="form-select" style="width: 200px;">
+            <option value="todos">Todos los roles</option>
             <option value="admin">Administradores</option>
             <option value="cliente">Clientes</option>
         </select>
     </div>
- 
+
     <div class="table-responsive">
         <table class="table align-middle" id="usuariosTable">
             <thead>
@@ -82,7 +80,7 @@
                             </a>
                         {% endif %}
                         <a href="{{ url_for('admin_usuarios.delete', id=u.id) }}"
-                           class="btn-delete" onclick="return confirm('¿Eliminar permanentemente a {{ u.nombre }}? Esta acción no se puede deshacer.')">
+                           class="btn-delete" onclick="return confirm('¿Estás seguro? El usuario ya no podrá acceder al sistema.')">
                             <i class="bi bi-trash"></i> Eliminar
                         </a>
                     </td>
@@ -92,41 +90,39 @@
         </table>
     </div>
 </div>
- 
-<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addUserModalLabel">
-                    <i class="bi bi-person-plus"></i> Agregar Nuevo Usuario
-                </h5>
+                <h5 class="modal-title"><i class="bi bi-person-plus"></i> Agregar Nuevo Usuario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url_for('admin_usuarios.add') }}" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nombre" class="form-label required-field">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        <label class="form-label required-field">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" required>
                     </div>
                     <div class="mb-3">
-                        <label for="apellidos" class="form-label required-field">Apellidos</label>
-                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                        <label class="form-label required-field">Apellidos</label>
+                        <input type="text" class="form-control" name="apellidos" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label required-field">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label class="form-label required-field">Email</label>
+                        <input type="email" class="form-control" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="telefono" class="form-label">Teléfono</label>
-                        <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Ej: 47712345678">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" name="telefono" placeholder="Ej: 4771234567">
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label required-field">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label class="form-label required-field">Contraseña</label>
+                        <input type="password" class="form-control" name="password" required>
                     </div>
                     <div class="mb-3">
-                        <label for="rol" class="form-label required-field">Rol</label>
-                        <select class="form-select" id="rol" name="rol" required>
+                        <label class="form-label required-field">Rol</label>
+                        <select class="form-select" name="rol" required>
                             <option value="cliente">Cliente</option>
                             <option value="admin">Administrador</option>
                         </select>
@@ -134,7 +130,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-add" style="background: #10b981;">
+                    <button type="submit" class="btn-add" style="background: #10b981; border: none;">
                         <i class="bi bi-save"></i> Guardar Usuario
                     </button>
                 </div>
@@ -143,19 +139,18 @@
     </div>
 </div>
 {% endblock %}
-    {% block extra_js %}
+
+{% block extra_js %}
 <script>
-    const select = document.getElementById('roleFilter');
-    const rows = document.querySelectorAll('#usuariosTable tbody tr');
+    const filterSelect = document.getElementById('roleFilter');
+    const tableRows = document.querySelectorAll('#usuariosTable tbody tr');
 
-    function filtrar() {
-        const role = select.value;
-        rows.forEach(row => {
+    filterSelect.addEventListener('change', () => {
+        const selectedRole = filterSelect.value;
+        tableRows.forEach(row => {
             const rowRole = row.getAttribute('data-role');
-            row.style.display = (role === 'todos' || rowRole === role) ? '' : 'none';
+            row.style.display = (selectedRole === 'todos' || rowRole === selectedRole) ? '' : 'none';
         });
-    }
-
-    select.addEventListener('change', filtrar);
+    });
 </script>
 {% endblock %}

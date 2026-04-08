@@ -43,7 +43,6 @@ def editar(id):
         materia.nombre = request.form.get('nombre')
         materia.categoria_id = int(request.form.get('categoria_id'))
         materia.unidad_medida = request.form.get('unidad_medida')
-        materia.stock_actual = float(request.form.get('stock_actual', 0))
         materia.stock_minimo = float(request.form.get('stock_minimo', 0))
         materia.precio_unitario = float(request.form.get('precio_unitario', 0))
         db.session.commit()

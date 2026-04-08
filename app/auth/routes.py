@@ -7,8 +7,17 @@ from datetime import datetime, timedelta
 import random
 import string
 from flask_mail import Message
-
 from . import auth_bp
+
+
+@auth_bp.after_app_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+
 
 
 def login_required(f):

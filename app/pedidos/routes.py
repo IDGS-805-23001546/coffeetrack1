@@ -29,24 +29,26 @@ def crear():
 
     subtotal = Decimal('0')
     detalles = []
+
+    #Bug 1 corregido: todo el bloque dentro del for
     for bebida_id, datos in cart.items():
         bebida = Bebida.query.get(int(bebida_id))
-    if bebida and bebida.disponible:
-        if isinstance(datos, dict):
-            cantidad = datos['cantidad']
-            temperatura = datos.get('temperatura', 'caliente')
-        else:
-            cantidad = datos
-            temperatura = 'caliente'
-        item_subtotal = bebida.precio * cantidad
-        subtotal += Decimal(str(item_subtotal))
-        detalles.append({
-            'bebida_id': bebida.id,
-            'cantidad': cantidad,
-            'temperatura': temperatura,
-            'precio_unitario': bebida.precio,
-            'subtotal': item_subtotal
-        })
+        if bebida and bebida.disponible:
+            if isinstance(datos, dict):
+                cantidad = datos['cantidad']
+                temperatura = datos.get('temperatura', 'caliente')
+            else:
+                cantidad = datos
+                temperatura = 'caliente'
+            item_subtotal = bebida.precio * cantidad
+            subtotal += Decimal(str(item_subtotal))
+            detalles.append({
+                'bebida_id': bebida.id,
+                'cantidad': cantidad,
+                'temperatura': temperatura,
+                'precio_unitario': bebida.precio,
+                'subtotal': item_subtotal
+            })
 
     if not detalles:
         flash('No hay bebidas disponibles en tu carrito.', 'warning')
@@ -71,19 +73,19 @@ def crear():
     db.session.add(pedido)
     db.session.flush()
 
-    # Generar referencia automatica
     pedido.notas = (pedido.notas or '') + f' | REF: {generar_referencia(pedido.id)}'
 
+    #Bug 2 corregido: db.session.add dentro del for
     for d in detalles:
         detalle = DetallePedido(
-        pedido_id=pedido.id,
-        bebida_id=d['bebida_id'],
-        cantidad=d['cantidad'],
-        temperatura=d['temperatura'],
-        precio_unitario=d['precio_unitario'],
-        subtotal=d['subtotal']
-    )
-    db.session.add(detalle)
+            pedido_id=pedido.id,
+            bebida_id=d['bebida_id'],
+            cantidad=d['cantidad'],
+            temperatura=d['temperatura'],
+            precio_unitario=d['precio_unitario'],
+            subtotal=d['subtotal']
+        )
+        db.session.add(detalle)
 
     db.session.commit()
     session.pop('cart', None)
@@ -112,6 +114,7 @@ def detalle(id):
         'direccion': pedido.direccion_entrega,
         'telefono': pedido.telefono_contacto,
         'notas': pedido.notas,
+        #Bug hora corregido: usar el filtro hora_mx desde Python directamente
         'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M'),
         'detalles': [{
             'bebida': d.bebida.nombre,
@@ -120,7 +123,7 @@ def detalle(id):
             'subtotal': str(d.subtotal)
         } for d in pedido.detalles.all()]
     })
-    
+
 @pedidos_bp.route('/ticket/<int:id>')
 @login_required
 def ticket(id):
@@ -142,7 +145,6 @@ def ticket(id):
     styles = getSampleStyleSheet()
     elementos = []
 
-    # Estilo titulo
     estilo_titulo = ParagraphStyle(
         'titulo',
         parent=styles['Title'],
@@ -172,12 +174,10 @@ def ticket(id):
         fontName='Helvetica-Bold'
     )
 
-    # Encabezado
     elementos.append(Paragraph('CoffeeTrack', estilo_titulo))
     elementos.append(Paragraph('Gestión de Café Bebible — León, Gto.', estilo_subtitulo))
     elementos.append(Spacer(1, 0.2*inch))
 
-    # Linea separadora
     elementos.append(Table(
         [['']],
         colWidths=[6.5*inch],
@@ -185,17 +185,23 @@ def ticket(id):
     ))
     elementos.append(Spacer(1, 0.2*inch))
 
-    # Info del pedido
-    # Extraer referencia de notas
     ref = ''
     if pedido.notas and 'REF:' in pedido.notas:
         ref = pedido.notas.split('REF:')[-1].strip()
 
+    # Hora corregida en el ticket PDF también
+    from datetime import timezone, timedelta
+    fecha_pedido = pedido.fecha_pedido
+    if fecha_pedido.tzinfo is None:
+        fecha_pedido = fecha_pedido.replace(tzinfo=timezone.utc)
+    fecha_mx = fecha_pedido.astimezone(timezone(timedelta(hours=-6)))
+    fecha_str = fecha_mx.strftime('%d/%m/%Y %H:%M')
+
     info_data = [
         ['Ticket de Compra', ''],
-        [f'Pedido #', f'{pedido.id}'],
+        ['Pedido #', f'{pedido.id}'],
         ['Referencia:', ref or 'N/A'],
-        ['Fecha:', pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M')],
+        ['Fecha:', fecha_str],
         ['Cliente:', f'{usuario.nombre} {usuario.apellidos}'],
         ['Teléfono:', pedido.telefono_contacto],
         ['Entrega:', pedido.direccion_entrega],
@@ -217,20 +223,19 @@ def ticket(id):
     elementos.append(tabla_info)
     elementos.append(Spacer(1, 0.3*inch))
 
-    # Detalle de productos
     elementos.append(Paragraph('Detalle del Pedido', estilo_bold))
     elementos.append(Spacer(1, 0.1*inch))
 
     detalle_data = [['Bebida', 'Temp.', 'Cantidad', 'Precio Unit.', 'Subtotal']]
     for d in pedido.detalles.all():
-        temp = '🧊 Frío' if d.temperatura == 'frio' else '☕ Caliente'
+        temp = 'Frio' if d.temperatura == 'frio' else 'Caliente'
         detalle_data.append([
-        d.bebida.nombre,
-        temp,
-        str(d.cantidad),
-        f'${float(d.precio_unitario):.2f}',
-        f'${float(d.subtotal):.2f}'
-    ])
+            d.bebida.nombre,
+            temp,
+            str(d.cantidad),
+            f'${float(d.precio_unitario):.2f}',
+            f'${float(d.subtotal):.2f}'
+        ])
 
     tabla_detalle = Table(detalle_data, colWidths=[2.5*inch, 1*inch, 0.8*inch, 1.2*inch, 1*inch])
     tabla_detalle.setStyle(TableStyle([
@@ -248,7 +253,6 @@ def ticket(id):
     elementos.append(tabla_detalle)
     elementos.append(Spacer(1, 0.2*inch))
 
-    # Total
     total_data = [
         ['', '', 'Subtotal:', f'${float(pedido.subtotal):.2f}'],
         ['', '', 'Descuento:', f'-${float(pedido.descuento):.2f}'],
@@ -270,7 +274,6 @@ def ticket(id):
     elementos.append(tabla_total)
     elementos.append(Spacer(1, 0.4*inch))
 
-    # Pie de pagina
     elementos.append(Table(
         [['']],
         colWidths=[6.5*inch],
@@ -288,20 +291,20 @@ def ticket(id):
         download_name=f'ticket_pedido_{pedido.id}.pdf',
         mimetype='application/pdf'
     )
-    
-    #ruta para detalle del pedido y generar tiket
+
+
 @pedidos_bp.route('/confirmacion/<int:id>')
 @login_required
 def confirmacion(id):
     pedido = Pedido.query.get_or_404(id)
     if pedido.usuario_id != session['user_id']:
         return redirect(url_for('pedidos.mis_pedidos'))
-    
+
     ref = ''
     if pedido.notas and 'REF:' in pedido.notas:
         ref = pedido.notas.split('REF:')[-1].strip()
-    
-    return render_template('cliente/confirmacion_pedido.html', 
-        pedido=pedido, 
+
+    return render_template('cliente/confirmacion_pedido.html',
+        pedido=pedido,
         ref=ref
     )

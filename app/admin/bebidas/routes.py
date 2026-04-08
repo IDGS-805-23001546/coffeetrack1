@@ -14,7 +14,7 @@ def index():
     
     vendidas = dict(db.session.query(
         DetallePedido.bebida_id,
-        sa_func.sum(DetallePedido.bebida_id)
+        sa_func.sum(DetallePedido.cantidad)
     ).group_by(DetallePedido.bebida_id).all())
     
     return render_template('admin/bebidas.html',
