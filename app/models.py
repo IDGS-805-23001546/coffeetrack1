@@ -87,8 +87,9 @@ class CategoriaBebida(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     descripcion = db.Column(db.Text)
+    solo_frio = db.Column(db.Boolean, default=False)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-
+    sin_temperatura = db.Column(db.Boolean, default=False)
     bebidas = db.relationship('Bebida', backref='categoria', lazy='dynamic')
 
 
@@ -108,8 +109,8 @@ class Bebida(db.Model):
     activo = db.Column(db.Boolean, default=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     recetas = db.relationship('Receta', backref='bebida', lazy='dynamic', cascade='all, delete-orphan')
+    imagen_url_frio = db.Column(db.String(255))
 
     def __repr__(self):
         return f'<Bebida {self.nombre}>'
@@ -190,6 +191,9 @@ class Pedido(db.Model):
     notas = db.Column(db.Text)
     fecha_entrega_estimada = db.Column(db.Date)
     fecha_entrega_real = db.Column(db.Date)
+    costo_envio = db.Column(db.Numeric(10, 2), default=0)
+    hora_estimada_entrega = db.Column(db.String(10))
+    dia_entrega = db.Column(db.Date)
 
     detalles = db.relationship('DetallePedido', backref='pedido', lazy='dynamic', cascade='all, delete-orphan')
     venta = db.relationship('Venta', backref='pedido', uselist=False)
