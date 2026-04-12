@@ -1,211 +1,131 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>CoffeeTrack - Recetas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
-        .sidebar { width: 240px; min-height: 100vh; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
-        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a2a; }
-        .brand-icon { width: 40px; height: 40px; background-color: #e8891a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .brand-name { font-weight: 700; font-size: 1rem; color: white; }
-        .brand-sub { font-size: 0.72rem; color: #888; display: block; }
-        .sidebar-section { padding: 18px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
-        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
-        .sidebar nav a:hover { background: #252525; color: white; }
-        .sidebar nav a.active { background: #e8891a; color: white; }
-        .sidebar nav a i { font-size: 1rem; width: 18px; }
-        .sidebar-logout { margin-top: auto; border-top: 1px solid #2a2a2a; padding: 15px 20px; }
-        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #888; text-decoration: none; font-size: 0.88rem; }
-        .sidebar-logout a:hover { color: white; }
-        .main-content { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
-        .topbar { background: white; padding: 14px 30px; border-bottom: 1px solid #e8e0d8; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.85rem; }
-        .page-body { padding: 30px; }
-        .page-title { font-size: 2rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-        .page-subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
-        .receta-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
-        .receta-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .receta-nombre { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; }
-        .receta-descripcion { font-size: 0.82rem; color: #999; margin-bottom: 16px; }
-        .receta-precio { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
-        .ingrediente-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
-        .ingrediente-row:last-child { border-bottom: none; }
-        .ing-nombre { color: #333; }
-        .ing-cantidad { color: #888; font-size: 0.82rem; }
-        .ing-actions { display: flex; gap: 6px; }
-        .btn-ing-edit { background: #f0ece6; border: none; color: #555; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 0.78rem; transition: 0.2s; }
-        .btn-ing-edit:hover { background: #e8891a; color: white; }
-        .btn-ing-del { background: #fee2e2; border: none; color: #e74c3c; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 0.78rem; transition: 0.2s; }
-        .btn-ing-del:hover { background: #e74c3c; color: white; }
-        .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
-        .btn-nueva:hover { background: #d47b15; }
-        .modal-content { border-radius: 16px; border: none; }
-        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
-        .modal-title { font-weight: 700; font-size: 1.1rem; }
-        .modal-body { padding: 24px; }
-        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
-        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
-        .ingrediente-row-form { background: #fdf8f3; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
-        .btn-add-ing { background: transparent; border: 2px dashed #e8891a; color: #e8891a; border-radius: 10px; padding: 8px; width: 100%; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-add-ing:hover { background: #fdf3e7; }
-        .btn-remove-ing { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 6px 10px; cursor: pointer; flex-shrink: 0; }
-        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
-        .btn-submit:hover { background: #d47b15; }
-        .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
-        .empty-state i { font-size: 3rem; margin-bottom: 16px; display: block; }
-    </style>
-</head>
-<body>
+{% extends "admin/layout/base_admin.html" %}
 
-<div class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
-        <div>
-            <span class="brand-name">CoffeeTrack</span>
-            <span class="brand-sub">Admin Panel</span>
-        </div>
-    </div>
-    <div class="sidebar-section">Principal</div>
-    <nav>
-        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Administración General</a>
-    </nav>
-    <div class="sidebar-section">Inventario</div>
-    <nav>
-        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
-        <a href="{{ url_for('admin_recetas.index') }}" class="active"><i class="bi bi-journal-text"></i> Recetas</a>
-        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a>
-        <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>
-    </nav>
-    <div class="sidebar-section">Gestión</div>
-    <nav>
-        <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
-        <a href="#"><i class="bi bi-cart"></i> Compras</a>
-        <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
-        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="{{ url_for('admin_ventas.index') }}"><i class="bi bi-currency-dollar"></i> Ventas</a>
-    </nav>
-    <div class="sidebar-logout">
-        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
+{% block title %}CoffeeTrack - Recetas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .receta-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .receta-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid #f0ece6; }
+    .receta-nombre { font-weight: 700; font-size: 1.1rem; color: #1a1a1a; }
+    .receta-desc { font-size: 0.82rem; color: #888; margin-top: 2px; }
+
+    .capacidad-badge {
+        display: flex; align-items: center; gap: 6px;
+        padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700;
+    }
+    .cap-ok { background: #d4edda; color: #155724; }
+    .cap-low { background: #fff3cd; color: #856404; }
+    .cap-zero { background: #f8d7da; color: #721c24; }
+
+    .limitante-tag { font-size: 0.72rem; color: #aaa; margin-top: 4px; text-align: right; }
+
+    .ingrediente-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f0eb; }
+    .ingrediente-row:last-child { border-bottom: none; }
+    .ing-nombre { font-size: 0.9rem; color: #333; }
+    .ing-cantidad { font-size: 0.85rem; color: #e8891a; font-weight: 600; }
+    .btn-ing-edit { background: #f0ece6; border: none; color: #555; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 0.75rem; transition: 0.2s; margin-right: 4px; }
+    .btn-ing-edit:hover { background: #e8891a; color: white; }
+    .btn-ing-del { background: #fee2e2; border: none; color: #e74c3c; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 0.75rem; transition: 0.2s; }
+    .btn-ing-del:hover { background: #e74c3c; color: white; }
+    .btn-add-receta { background: transparent; border: 2px dashed #e8891a; color: #e8891a; border-radius: 10px; padding: 7px; width: 100%; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 12px; }
+    .btn-add-receta:hover { background: #fdf3e7; }
+
+    .stock-indicator { font-size: 0.72rem; color: #aaa; margin-top: 2px; }
+    .stock-critico { color: #e74c3c; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <div class="page-title">Recetas</div>
+        <div class="page-subtitle">Ingredientes por bebida y capacidad de producción</div>
     </div>
 </div>
 
-<div class="main-content">
-    <div class="topbar">
-        <i class="bi bi-layout-sidebar"></i>
-        <span>Panel de Administración</span>
-    </div>
-    <div class="page-body">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for cat, msg in messages %}
-                <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show mb-3">
-                    {{ msg }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
+{% for bebida in bebidas %}
+{% set cap = capacidades.get(bebida.id, 0) %}
+{% set limitante = limitantes.get(bebida.id, '') %}
+<div class="receta-card">
+    <div class="receta-header">
+        <div>
+            <div class="receta-nombre">{{ bebida.nombre }}</div>
+            <div class="receta-desc">{{ bebida.descripcion or 'Sin descripción' }}</div>
+        </div>
+        <div style="text-align:right;">
+            {% if cap == 0 %}
+            <span class="capacidad-badge cap-zero">
+                <i class="bi bi-x-circle"></i> Sin stock para producir
+            </span>
+            {% elif cap <= 5 %}
+            <span class="capacidad-badge cap-low">
+                <i class="bi bi-exclamation-triangle"></i> Puedes hacer {{ cap }} unidades
+            </span>
+            {% else %}
+            <span class="capacidad-badge cap-ok">
+                <i class="bi bi-check-circle"></i> Puedes hacer {{ cap }} unidades
+            </span>
             {% endif %}
-        {% endwith %}
-
-        <div class="d-flex justify-content-between align-items-start mb-4">
-            <div>
-                <div class="page-title">Recetas</div>
-                <div class="page-subtitle">Recetas de preparación — {{ bebidas|length }} bebidas</div>
+            {% if limitante %}
+            <div class="limitante-tag">
+                <i class="bi bi-arrow-up"></i> Limitado por: {{ limitante }}
             </div>
-            <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaReceta">
-                + Nueva Receta
+            {% endif %}
+        </div>
+    </div>
+
+    {% if bebida.recetas.all() %}
+        {% for r in bebida.recetas.all() %}
+        <div class="ingrediente-row" id="ing-row-{{ r.id }}">
+            <div>
+                <div class="ing-nombre">{{ r.materia_prima.nombre }}</div>
+                <div class="stock-indicator {% if r.materia_prima.stock_actual <= r.materia_prima.stock_minimo %}stock-critico{% endif %}">
+                    Stock actual:
+                    {% if r.materia_prima.unidad_medida == 'ml' and r.materia_prima.stock_actual >= 1000 %}
+                        {{ "%.2f"|format(r.materia_prima.stock_actual / 1000) }} L
+                    {% elif r.materia_prima.unidad_medida == 'gr' and r.materia_prima.stock_actual >= 1000 %}
+                        {{ "%.2f"|format(r.materia_prima.stock_actual / 1000) }} kg
+                    {% else %}
+                        {{ r.materia_prima.stock_actual|int }} {{ r.materia_prima.unidad_medida }}
+                    {% endif %}
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span class="ing-cantidad">
+                    {{ r.cantidad|int }} {{ r.unidad_medida }}
+                    <span style="color:#aaa; font-weight:400; font-size:0.75rem;">por unidad</span>
+                </span>
+                <button class="btn-ing-edit" onclick="abrirEditarIng({{ r.id }}, {{ r.materia_prima_id }}, {{ r.cantidad }}, '{{ r.unidad_medida }}')">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-ing-del" onclick="eliminarIng({{ r.id }})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted" style="font-size:0.85rem;">Sin ingredientes registrados.</p>
+    {% endif %}
+
+    <!-- AGREGAR INGREDIENTE -->
+    <form method="POST" action="{{ url_for('admin_recetas.nueva') }}" id="form-receta-{{ bebida.id }}">
+        <input type="hidden" name="bebida_id" value="{{ bebida.id }}">
+        <div id="nuevos-ings-{{ bebida.id }}"></div>
+        <button type="button" class="btn-add-receta" onclick="agregarIngredienteReceta({{ bebida.id }})">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Ingrediente
+        </button>
+        <div id="submit-area-{{ bebida.id }}" style="display:none; margin-top:10px;">
+            <button type="submit" class="btn-submit" style="padding:8px; font-size:0.88rem;">
+                <i class="bi bi-save me-1"></i> Guardar Ingredientes
             </button>
         </div>
-
-        {% set bebidas_con_receta = bebidas | selectattr('recetas') | list %}
-        {% if bebidas_con_receta %}
-        <div class="row g-3">
-            {% for bebida in bebidas %}
-                {% set recetas_list = bebida.recetas.all() %}
-                {% if recetas_list %}
-                <div class="col-md-6">
-                    <div class="receta-card">
-                        <div class="receta-header">
-                            <div>
-                                <div class="receta-nombre">{{ bebida.nombre }}</div>
-                                <div class="receta-descripcion">{{ bebida.descripcion }}</div>
-                            </div>
-                            <span class="receta-precio">${{ "%.2f"|format(bebida.precio) }}</span>
-                        </div>
-                        {% for r in recetas_list %}
-                        <div class="ingrediente-row" id="ing-row-{{ r.id }}">
-                            <span class="ing-nombre">{{ r.materia_prima.nombre }}</span>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="ing-cantidad">{{ r.cantidad }} {{ r.unidad_medida }}</span>
-                                <div class="ing-actions">
-                                    <button class="btn-ing-edit" onclick="abrirEditarIngrediente(
-                                        {{ r.id }},
-                                        {{ r.materia_prima_id }},
-                                        '{{ r.materia_prima.nombre }}',
-                                        {{ r.cantidad }},
-                                        '{{ r.unidad_medida }}'
-                                    )">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn-ing-del" onclick="eliminarIngrediente({{ r.id }})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <i class="bi bi-journal-x"></i>
-            No hay recetas registradas aún.
-        </div>
-        {% endif %}
-    </div>
+    </form>
 </div>
-
-<!-- MODAL NUEVA RECETA -->
-<div class="modal fade" id="modalNuevaReceta" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nueva Receta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{{ url_for('admin_recetas.nueva') }}">
-                    <div class="mb-3">
-                        <label class="form-label">Bebida</label>
-                        <select name="bebida_id" class="form-select" required>
-                            <option value="">Seleccionar bebida</option>
-                            {% for b in bebidas %}
-                            <option value="{{ b.id }}">{{ b.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <hr>
-                    <label class="form-label mb-3">Ingredientes</label>
-                    <div id="ingredientes-container"></div>
-                    <button type="button" class="btn-add-ing mb-4" onclick="agregarIngrediente()">
-                        + Agregar Ingrediente
-                    </button>
-                    <button type="submit" class="btn-submit">Guardar Receta</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% endfor %}
 
 <!-- MODAL EDITAR INGREDIENTE -->
-<div class="modal fade" id="modalEditarIngrediente" tabindex="-1">
+<div class="modal fade" id="modalEditarIng" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -213,132 +133,103 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Materia Prima</label>
-                    <select id="edit_materia" class="form-select">
-                        {% for m in materias %}
-                        <option value="{{ m.id }}" data-unidad="{{ m.unidad_medida }}">{{ m.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Cantidad</label>
-                    <input type="number" id="edit_cantidad" class="form-control" step="0.01" min="0.01">
-                </div>
-                <div class="mb-4">
-                    <label class="form-label">Unidad</label>
-                    <select id="edit_unidad_ing" class="form-select">
-                        <option value="ml">ml</option>
-                        <option value="gr">gr</option>
-                        <option value="unidad">unidad</option>
-                    </select>
-                </div>
-                <button class="btn-submit" onclick="guardarIngrediente()">Guardar Cambios</button>
+                <form id="formEditarIng">
+                    <input type="hidden" id="edit_ing_id">
+                    <div class="mb-3">
+                        <label class="form-label">Materia Prima</label>
+                        <select name="materia_prima_id" id="edit_ing_mp" class="form-select">
+                            {% for m in materias %}
+                            <option value="{{ m.id }}">{{ m.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" step="0.01" id="edit_ing_cantidad" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Unidad</label>
+                            <select id="edit_ing_unidad" class="form-select">
+                                <option value="ml">ml</option>
+                                <option value="gr">gr</option>
+                                <option value="unidad">unidad</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
 <script>
-    const materias = [
-        {% for m in materias %}
-        { id: {{ m.id }}, nombre: "{{ m.nombre }}", unidad: "{{ m.unidad_medida }}" },
-        {% endfor %}
-    ];
+const materias = [
+    {% for m in materias %}
+    { id: {{ m.id }}, nombre: "{{ m.nombre }}", unidad: "{{ m.unidad_medida }}" },
+    {% endfor %}
+];
 
-    let editandoRecetaId = null;
+function agregarIngredienteReceta(bebidaId) {
+    const container = document.getElementById(`nuevos-ings-${bebidaId}`);
+    const submitArea = document.getElementById(`submit-area-${bebidaId}`);
+    const div = document.createElement('div');
+    div.className = 'd-flex gap-2 align-items-center mb-2 mt-2';
+    let options = materias.map(m => `<option value="${m.id}" data-unidad="${m.unidad}">${m.nombre}</option>`).join('');
+    div.innerHTML = `
+        <select name="materia_prima_id[]" class="form-select" style="flex:2;" required>
+            <option value="">Seleccionar materia</option>${options}
+        </select>
+        <input type="number" name="cantidad[]" class="form-control" placeholder="Cant." step="0.01" min="0.01" required style="max-width:90px">
+        <select name="unidad_medida[]" class="form-select" style="max-width:80px">
+            <option value="ml">ml</option>
+            <option value="gr">gr</option>
+            <option value="unidad">und</option>
+        </select>
+        <button type="button" class="btn-ing-del" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>
+    `;
+    container.appendChild(div);
+    submitArea.style.display = 'block';
+}
 
-    function agregarIngrediente() {
-        const container = document.getElementById('ingredientes-container');
-        const div = document.createElement('div');
-        div.className = 'ingrediente-row-form';
-        let options = materias.map(m =>
-            `<option value="${m.id}" data-unidad="${m.unidad}">${m.nombre}</option>`
-        ).join('');
-        div.innerHTML = `
-            <select name="materia_prima_id[]" class="form-select materia-select" onchange="actualizarUnidad(this)" required>
-                <option value="">Seleccionar materia</option>
-                ${options}
-            </select>
-            <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" step="0.01" min="0.01" required style="max-width:120px">
-            <select name="unidad_medida[]" class="form-select unidad-select" style="max-width:100px">
-                <option value="ml">ml</option>
-                <option value="gr">gr</option>
-                <option value="unidad">unidad</option>
-            </select>
-            <button type="button" class="btn-remove-ing" onclick="this.parentElement.remove()">
-                <i class="bi bi-trash"></i>
-            </button>
-        `;
-        container.appendChild(div);
-    }
+function abrirEditarIng(id, mpId, cantidad, unidad) {
+    document.getElementById('edit_ing_id').value = id;
+    document.getElementById('edit_ing_mp').value = mpId;
+    document.getElementById('edit_ing_cantidad').value = cantidad;
+    document.getElementById('edit_ing_unidad').value = unidad;
+    new bootstrap.Modal(document.getElementById('modalEditarIng')).show();
+}
 
-    function actualizarUnidad(select) {
-        const opt = select.options[select.selectedIndex];
-        const unidad = opt.getAttribute('data-unidad');
-        const unidadSelect = select.parentElement.querySelector('.unidad-select');
-        if (unidad && unidadSelect) {
-            for (let o of unidadSelect.options) {
-                if (o.value === unidad) { o.selected = true; break; }
-            }
+document.getElementById('formEditarIng').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit_ing_id').value;
+    const data = new FormData();
+    data.append('materia_prima_id', document.getElementById('edit_ing_mp').value);
+    data.append('cantidad', document.getElementById('edit_ing_cantidad').value);
+    data.append('unidad_medida', document.getElementById('edit_ing_unidad').value);
+
+    fetch(`/admin/recetas/editar/${id}`, { method: 'POST', body: data })
+    .then(r => r.json())
+    .then(res => {
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarIng')).hide();
+            location.reload();
+        } else {
+            alert('Error: ' + res.error);
         }
-    }
+    });
+});
 
-    // Editar ingrediente individual
-    function abrirEditarIngrediente(recetaId, materiaId, materiaNombre, cantidad, unidad) {
-        editandoRecetaId = recetaId;
-        document.getElementById('edit_materia').value = materiaId;
-        document.getElementById('edit_cantidad').value = cantidad;
-        document.getElementById('edit_unidad_ing').value = unidad;
-        new bootstrap.Modal(document.getElementById('modalEditarIngrediente')).show();
-    }
-
-    function guardarIngrediente() {
-        const materiaId = document.getElementById('edit_materia').value;
-        const cantidad = document.getElementById('edit_cantidad').value;
-        const unidad = document.getElementById('edit_unidad_ing').value;
-
-        const form = new FormData();
-        form.append('materia_prima_id', materiaId);
-        form.append('cantidad', cantidad);
-        form.append('unidad_medida', unidad);
-
-        fetch(`/admin/recetas/editar/${editandoRecetaId}`, {
-            method: 'POST',
-            body: form
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                // Actualiza el texto en la card sin recargar
-                const row = document.getElementById(`ing-row-${editandoRecetaId}`);
-                if (row) {
-                    const materia = materias.find(m => m.id == materiaId);
-                    row.querySelector('.ing-nombre').textContent = materia ? materia.nombre : '';
-                    row.querySelector('.ing-cantidad').textContent = `${cantidad} ${unidad}`;
-                }
-                bootstrap.Modal.getInstance(document.getElementById('modalEditarIngrediente')).hide();
-            } else {
-                alert('Error al guardar: ' + (data.error || 'desconocido'));
-            }
-        });
-    }
-
-    // Eliminar ingrediente individual
-    function eliminarIngrediente(recetaId) {
-        if (!confirm('¿Eliminar este ingrediente de la receta?')) return;
-        fetch(`/admin/recetas/eliminar/${recetaId}`, { method: 'POST' })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                const row = document.getElementById(`ing-row-${recetaId}`);
-                if (row) row.remove();
-            } else {
-                alert('Error al eliminar.');
-            }
-        });
-    }
+function eliminarIng(id) {
+    if (!confirm('¿Eliminar este ingrediente de la receta?')) return;
+    fetch(`/admin/recetas/eliminar/${id}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(res => {
+        if (res.ok) location.reload();
+    });
+}
 </script>
-</body>
-</html>
+{% endblock %}

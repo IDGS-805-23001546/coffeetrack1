@@ -16,7 +16,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
-        <div class="page-title">Producción</div>
+        <div class="page-title">Ordenes de Producción</div>
         <div class="page-subtitle">Registro de producción de bebidas — {{ producciones|length }} registros</div>
     </div>
     <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaProduccion">
@@ -70,12 +70,11 @@
                     {% endif %}
                 </td>
                 <td>
+                    <!--quitar esto si falla-->
                     {% if p.estado not in ['completada', 'cancelada'] %}
-                    <form method="POST" action="{{ url_for('admin_produccion.completar', id=p.id) }}" style="display:inline;">
-                        <button type="submit" class="btn-accion">
-                            <i class="bi bi-check-circle"></i> Completar
-                        </button>
-                    </form>
+                    <button class="btn-accion" onclick="verificarYCompletar({{ p.id }}, '{{ p.bebida.nombre }}')">
+                        <i class="bi bi-check-circle"></i> Completar
+                    </button>
                     <form method="POST" action="{{ url_for('admin_produccion.cancelar', id=p.id) }}" style="display:inline;">
                         <button type="submit" class="btn-cancelar ms-1">
                             <i class="bi bi-x-circle"></i> Cancelar
@@ -122,7 +121,7 @@
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="es_frio" id="esFrio">
             <label class="form-check-label" for="esFrio">
-                🧊 Producción fría (descuenta 100gr de hielo por unidad)
+                Producción fría (descuenta 100gr de hielo por unidad)
             </label>
         </div>
     </div>
@@ -133,6 +132,32 @@
 </div>
                     <button type="submit" class="btn-submit">Registrar Producción</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--si falla quital esto -->
+<!-- MODAL STOCK INSUFICIENTE -->
+<div class="modal fade" id="modalStockInsuficiente" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom: 1px solid #f8d7da; background: #fff5f5;">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Stock Insuficiente
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="stockAlertaContenido"></div>
+            <div class="modal-footer" style="border-top: 1px solid #f0ece6;">
+                <a href="{{ url_for('admin_materias.index') }}" class="btn-accion">
+                    <i class="bi bi-box-seam"></i> Ver Materias Primas
+                </a>
+                <a href="#" class="btn-submit" style="display:inline-block; text-decoration:none; text-align:center; width:auto; padding: 8px 20px;">
+                    <i class="bi bi-cart-plus"></i> Ir a Compras
+                </a>
+                <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -150,5 +175,88 @@
 
     const today = new Date().toISOString().split('T')[0];
     document.querySelector('input[name="fecha_produccion"]').value = today;
+
+    function verificarYCompletar(id, nombreBebida) {
+    fetch(`/admin/produccion/verificar_stock/${id}`)
+    .then(r => r.json())
+    .then(data => {
+        if (data.puede_completar) {
+            // Hay stock suficiente, enviar formulario
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/produccion/completar/${id}`;
+            document.body.appendChild(form);
+            form.submit();
+        } else {
+            // Mostrar modal de alerta detallada
+            let html = `
+                <div style="background:#fff5f5; border-radius:10px; padding:16px; margin-bottom:16px;">
+                    <p style="font-weight:700; color:#c0392b; margin-bottom:4px;">
+                        No es posible producir <span style="color:#e8891a;">${data.cantidad} unidades</span> de <strong>${data.bebida}</strong>
+                    </p>
+                    <p style="font-size:0.85rem; color:#888; margin:0;">
+                        Los siguientes ingredientes no tienen stock suficiente. Realiza una compra para continuar.
+                    </p>
+                </div>
+
+                <p style="font-size:0.8rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">
+                    Ingredientes con stock insuficiente (${data.faltantes.length})
+                </p>`;
+
+            data.faltantes.forEach(f => {
+                const porcentaje = Math.round((f.disponible / f.necesario) * 100);
+                html += `
+                <div style="background:white; border:1px solid #f8d7da; border-radius:12px; padding:16px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                            <div style="font-weight:700; font-size:0.95rem; color:#1a1a1a;">${f.materia}</div>
+                            <div style="font-size:0.75rem; color:#888;">${f.categoria}</div>
+                        </div>
+                        <span style="background:#fee2e2; color:#c0392b; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">
+                            Insuficiente
+                        </span>
+                    </div>
+
+                    <div style="background:#f8f9fa; border-radius:8px; padding:10px; margin-bottom:10px; font-size:0.82rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="color:#888;">Necesario:</span>
+                            <span style="font-weight:700;">${f.necesario} ${f.unidad}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="color:#888;">Disponible:</span>
+                            <span style="font-weight:700; color:${f.disponible > 0 ? '#e67e22' : '#e74c3c'};">${f.disponible} ${f.unidad}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:#888;">Falta:</span>
+                            <span style="font-weight:700; color:#e74c3c;">${f.faltante} ${f.unidad}</span>
+                        </div>
+                    </div>
+
+                    <div style="background:#f0ece6; border-radius:6px; height:8px; margin-bottom:6px;">
+                        <div style="background:#e8891a; border-radius:6px; height:8px; width:${Math.min(porcentaje, 100)}%;"></div>
+                    </div>
+                    <div style="font-size:0.75rem; color:#888;">${porcentaje}% del stock necesario disponible</div>
+
+                    <div style="margin-top:10px; padding-top:10px; border-top:1px solid #f0ece6; font-size:0.82rem; color:#555;">
+                        <i class="bi bi-tag" style="color:#e8891a;"></i>
+                        Costo estimado para completar: <strong style="color:#e8891a;">$${f.costo_faltante.toFixed(2)}</strong>
+                    </div>
+                </div>`;
+            });
+
+            html += `
+                <div style="background:#fdf3e7; border-radius:10px; padding:14px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.88rem; color:#555;">Inversión total estimada para reabastecerse:</span>
+                    <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total_costo_faltante.toFixed(2)}</span>
+                </div>`;
+
+            document.getElementById('stockAlertaContenido').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('modalStockInsuficiente')).show();
+        }
+    })
+    .catch(err => {
+        alert('Error al verificar stock. Intenta de nuevo.');
+    });
+}
 </script>
 {% endblock %}

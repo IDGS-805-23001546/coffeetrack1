@@ -1,0 +1,162 @@
+{% extends "admin/layout/base_admin.html" %}
+
+{% block title %}CoffeeTrack - Categorías{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cat-card { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; transition: 0.2s; }
+    .cat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .cat-nombre { font-weight: 700; font-size: 1rem; color: #1a1a1a; }
+    .cat-desc { font-size: 0.82rem; color: #888; margin-top: 2px; }
+    .cat-badge { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .cat-badge-frio { background: #e8f4fd; color: #3498db; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .cat-badge-neutral { background: #f0f0f0; color: #555; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .btn-edit { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; margin-right: 6px; }
+    .btn-edit:hover { background: #e8891a; color: white; }
+    .btn-del { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+    .btn-del:hover { background: #e74c3c; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <div class="page-title">Categorías</div>
+        <div class="page-subtitle">Categorías de bebidas — {{ categorias|length }} registros</div>
+    </div>
+    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaCat">
+        + Nueva Categoría
+    </button>
+</div>
+
+{% for cat in categorias %}
+<div class="cat-card">
+    <div>
+        <div class="cat-nombre">
+            {{ cat.nombre }}
+            {% if cat.solo_frio %}
+            <span class="cat-badge-frio ms-2"> Solo frío</span>
+            {% endif %}
+            {% if cat.sin_temperatura %}
+            <span class="cat-badge-neutral ms-2">🥐 Alimentos</span>
+            {% endif %}
+        </div>
+        <div class="cat-desc">{{ cat.descripcion or 'Sin descripción' }}</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="cat-badge">{{ cat.bebidas.count() }} bebidas</span>
+        <button class="btn-edit" onclick="abrirEditar(
+            {{ cat.id }},
+            '{{ cat.nombre }}',
+            '{{ cat.descripcion or '' }}',
+            {{ 'true' if cat.solo_frio else 'false' }},
+            {{ 'true' if cat.sin_temperatura else 'false' }})">
+            <i class="bi bi-pencil"></i> Editar
+        </button>
+        <form method="POST" action="{{ url_for('admin_categorias.eliminar', id=cat.id) }}" style="display:inline;"
+            onsubmit="return confirm('¿Eliminar categoría {{ cat.nombre }}?')">
+            <button type="submit" class="btn-del"><i class="bi bi-trash"></i></button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<!-- MODAL NUEVA -->
+<div class="modal fade" id="modalNuevaCat" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin_categorias.nueva') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required placeholder="Ej. Panadería, Frappés...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2" placeholder="Descripción opcional..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="solo_frio" id="soloFrioNueva">
+                            <label class="form-check-label form-label" for="soloFrioNueva">
+                                Solo frío (ej. Frappés, helados)
+                            </label>
+                        </div>
+                        <small class="text-muted">El cliente no podrá elegir temperatura caliente.</small>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="sin_temperatura" id="sinTempNueva">
+                            <label class="form-check-label form-label" for="sinTempNueva">
+                                    Sin temperatura (ej. Panadería, snacks)
+                            </label>
+                        </div>
+                        <small class="text-muted">El cliente solo agrega al carrito sin elegir temperatura.</small>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Categoría</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal fade" id="modalEditarCat" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formEditarCat">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" id="edit_cat_nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" id="edit_cat_desc" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="solo_frio" id="edit_cat_solo_frio">
+                            <label class="form-check-label form-label" for="edit_cat_solo_frio">
+                                Solo frío (ej. Frappés, helados)
+                            </label>
+                        </div>
+                        <small class="text-muted">El cliente no podrá elegir temperatura caliente.</small>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="sin_temperatura" id="edit_cat_sin_temp">
+                            <label class="form-check-label form-label" for="edit_cat_sin_temp">
+                                Sin temperatura (ej. Panadería, snacks)
+                            </label>
+                        </div>
+                        <small class="text-muted">El cliente solo agrega al carrito sin elegir temperatura.</small>
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function abrirEditar(id, nombre, desc, solo_frio, sin_temperatura) {
+    document.getElementById('edit_cat_nombre').value = nombre;
+    document.getElementById('edit_cat_desc').value = desc;
+    document.getElementById('edit_cat_solo_frio').checked = solo_frio;
+    document.getElementById('edit_cat_sin_temp').checked = sin_temperatura;
+    document.getElementById('formEditarCat').action = `/admin/categorias/editar/${id}`;
+    new bootstrap.Modal(document.getElementById('modalEditarCat')).show();
+}
+</script>
+{% endblock %}

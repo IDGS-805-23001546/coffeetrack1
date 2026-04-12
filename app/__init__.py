@@ -23,6 +23,14 @@ def create_app():
             dt = dt.replace(tzinfo=timezone.utc)
         mx = dt.astimezone(timezone(timedelta(hours=-6)))
         return mx.strftime('%d/%m/%Y %H:%M')
+    
+    @app.after_request
+    def add_no_cache(response):
+        if 'user_id' not in session:
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        return response  # SIEMPRE debe retornar response
 
     with app.app_context():
         from . import models
@@ -43,6 +51,7 @@ def create_app():
     from .admin.produccion import produccion_bp
     from .admin.ventas import ventas_bp
     from .admin.compras import compras_bp
+    from .admin.categorias import categorias_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(cliente_bp, url_prefix='/cliente')
@@ -59,6 +68,9 @@ def create_app():
     app.register_blueprint(produccion_bp, url_prefix='/admin/produccion')
     app.register_blueprint(ventas_bp, url_prefix='/admin/ventas')
     app.register_blueprint(compras_bp, url_prefix='/admin/compras')
+    app.register_blueprint(categorias_bp, url_prefix='/admin/categorias')
+    
+    
 
     
 

@@ -10,7 +10,6 @@
         padding-top: 5rem;
         padding-bottom: 3rem;
     }
-
     .confirm-card {
         background: rgba(255,255,255,0.05);
         backdrop-filter: blur(10px);
@@ -21,114 +20,66 @@
         margin: 0 auto;
         padding: 2.5rem;
     }
-
     .check-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
+        width: 80px; height: 80px; border-radius: 50%;
         background: linear-gradient(135deg, #e8891a, #f5a623);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        margin: 0 auto 1.5rem;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; margin: 0 auto 1.5rem;
         animation: popIn 0.4s ease;
     }
-
     @keyframes popIn {
         0% { transform: scale(0); opacity: 0; }
         70% { transform: scale(1.1); }
         100% { transform: scale(1); opacity: 1; }
     }
-
     .ref-badge {
-        background: rgba(232, 137, 26, 0.15);
-        border: 1px solid rgba(232, 137, 26, 0.4);
-        border-radius: 10px;
-        padding: 12px 20px;
-        text-align: center;
-        margin-bottom: 1.5rem;
+        background: rgba(232,137,26,0.15);
+        border: 1px solid rgba(232,137,26,0.4);
+        border-radius: 10px; padding: 12px 20px;
+        text-align: center; margin-bottom: 1.5rem;
     }
     .ref-label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
     .ref-value { font-size: 1.1rem; font-weight: 700; color: #e8891a; font-family: monospace; }
 
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        font-size: 0.9rem;
+    .horario-card {
+        background: rgba(52,152,219,0.1);
+        border: 1px solid rgba(52,152,219,0.3);
+        border-radius: 12px; padding: 16px 20px;
+        margin-bottom: 1.5rem; text-align: center;
     }
+    .horario-label { font-size: 0.75rem; color: #5dade2; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .horario-valor { font-size: 1.4rem; font-weight: 800; color: white; }
+    .horario-dia { font-size: 0.85rem; color: #aaa; margin-top: 2px; }
+
+    .envio-card {
+        background: rgba(232,137,26,0.08);
+        border: 1px solid rgba(232,137,26,0.2);
+        border-radius: 10px; padding: 10px 16px;
+        margin-bottom: 8px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.9rem; }
     .info-row:last-child { border-bottom: none; }
     .info-label { color: #888; flex-shrink: 0; margin-right: 12px; }
     .info-value { color: white; text-align: right; }
 
-    .detalle-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        font-size: 0.9rem;
-    }
+    .detalle-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.9rem; }
     .detalle-item:last-child { border-bottom: none; }
-    .detalle-nombre { font-weight: 600; }
+    .detalle-nombre { font-weight: 600; color: white; }
     .detalle-cant { font-size: 0.78rem; color: #888; margin-top: 2px; }
     .detalle-subtotal { color: #e8891a; font-weight: 700; }
 
-    .total-final {
-        display: flex;
-        justify-content: space-between;
-        padding: 14px 0 0;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: white;
-        border-top: 1px solid rgba(232,137,26,0.4);
-        margin-top: 8px;
-    }
-    .total-final span:last-child { color: #e8891a; font-size: 1.3rem; }
+    .total-section { padding: 14px 0 0; font-size: 0.9rem; border-top: 1px solid rgba(232,137,26,0.4); margin-top: 8px; }
+    .total-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .total-final { font-size: 1.2rem; font-weight: 800; }
 
-    .btn-ticket {
-        background: linear-gradient(135deg, #e8891a, #f5a623);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.2s;
-    }
+    .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; margin-bottom: 8px; }
+
+    .btn-ticket { background: linear-gradient(135deg, #e8891a, #f5a623); color: white; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 0.92rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
     .btn-ticket:hover { opacity: 0.9; color: white; transform: translateY(-1px); }
-
-    .btn-historial {
-        background: rgba(255,255,255,0.08);
-        color: #aaa;
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        font-size: 0.92rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.2s;
-    }
+    .btn-historial { background: rgba(255,255,255,0.08); color: #aaa; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 12px 24px; font-weight: 600; font-size: 0.92rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
     .btn-historial:hover { background: rgba(255,255,255,0.12); color: white; }
-
-    .section-label {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: #666;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
 </style>
 {% endblock %}
 
@@ -136,24 +87,39 @@
 <div class="confirm-page">
     <div class="container">
         <div class="confirm-card">
-
-            <!-- ÍCONO DE ÉXITO -->
+            <!-- ÍCONO -->
             <div class="text-center mb-2">
-                <div class="check-circle">
-                    <i class="bi bi-check-lg text-white"></i>
-                </div>
-                <h3 style="font-family: 'Playfair Display', serif; font-weight: 700;">
-                    ¡Pedido Confirmado!
-                </h3>
-                <p style="color: #888; font-size: 0.9rem; margin-bottom: 1.5rem;">
-                    Tu pedido fue recibido y está siendo procesado.
-                </p>
+                <div class="check-circle"><i class="bi bi-check-lg text-white"></i></div>
+                <h3 style="font-family:'Playfair Display',serif; font-weight:700;">¡Pedido Confirmado!</h3>
+                <p style="color:#888; font-size:0.9rem; margin-bottom:1.5rem;">Tu pedido fue recibido y está siendo procesado.</p>
             </div>
 
             <!-- REFERENCIA -->
             <div class="ref-badge">
                 <div class="ref-label">Referencia de pago</div>
                 <div class="ref-value">{{ ref or 'CT-' ~ pedido.id }}</div>
+            </div>
+
+            <!-- HORARIO ESTIMADO -->
+            <div class="horario-card">
+                <div class="horario-label">
+                    {% if pedido.direccion_entrega == 'Recoger en sucursal' %}
+                        <i class="bi bi-shop me-1"></i> Listo para recoger aproximadamente a las
+                    {% else %}
+                        <i class="bi bi-bicycle me-1"></i> Entrega estimada a domicilio
+                    {% endif %}
+                </div>
+                <div class="horario-valor">{{ pedido.hora_estimada_entrega or '—' }}</div>
+                <div class="horario-dia">
+                    {% if pedido.dia_entrega %}
+                        {% set hoy = now().date() if now else none %}
+                        {% if pedido.dia_entrega == hoy %}
+                            Hoy
+                        {% else %}
+                            {{ pedido.dia_entrega.strftime('%A %d de %B') }}
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
 
             <!-- INFO DEL PEDIDO -->
@@ -178,9 +144,7 @@
                 <div class="info-row">
                     <span class="info-label">Estado</span>
                     <span class="info-value">
-                        <span style="background: rgba(255,193,7,0.2); color: #ffc107; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">
-                            PENDIENTE
-                        </span>
+                        <span style="background:rgba(255,193,7,0.2); color:#ffc107; padding:3px 10px; border-radius:20px; font-size:0.78rem; font-weight:700;">PENDIENTE</span>
                     </span>
                 </div>
             </div>
@@ -192,17 +156,36 @@
                 <div class="detalle-item">
                     <div>
                         <div class="detalle-nombre">{{ d.bebida.nombre }}</div>
-                        <div class="detalle-cant">{{ d.cantidad }} × ${{ "%.2f"|format(d.precio_unitario) }}</div>
+                        <div class="detalle-cant">
+                            {{ d.cantidad }} × ${{ "%.2f"|format(d.precio_unitario) }}
+                            {% if d.temperatura == 'frio' %}
+                                <span style="color:#5dade2;">— 🧊 Frío</span>
+                            {% else %}
+                                <span style="color:#e8891a;">— ☕ Caliente</span>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="detalle-subtotal">${{ "%.2f"|format(d.subtotal) }}</div>
                 </div>
                 {% endfor %}
             </div>
 
-            <!-- TOTAL -->
-            <div class="total-final">
-                <span>Total a pagar</span>
-                <span>${{ "%.2f"|format(pedido.total) }}</span>
+            <!-- TOTALES -->
+            <div class="total-section">
+                <div class="total-row">
+                    <span style="color:#888;">Subtotal</span>
+                    <span style="color:white;">${{ "%.2f"|format(pedido.subtotal) }}</span>
+                </div>
+                {% if pedido.costo_envio and pedido.costo_envio > 0 %}
+                <div class="total-row">
+                    <span style="color:#888;"><i class="bi bi-bicycle me-1"></i>Costo de envío</span>
+                    <span style="color:#5dade2;">+${{ "%.2f"|format(pedido.costo_envio) }}</span>
+                </div>
+                {% endif %}
+                <div class="total-row total-final">
+                    <span style="color:white;">Total a pagar</span>
+                    <span style="color:#e8891a;">${{ "%.2f"|format(pedido.total) }}</span>
+                </div>
             </div>
 
             <!-- BOTONES -->
@@ -214,7 +197,6 @@
                     <i class="bi bi-clock-history"></i> Ver mis pedidos
                 </a>
             </div>
-
         </div>
     </div>
 </div>

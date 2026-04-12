@@ -252,10 +252,22 @@
                         </div>
 
                         <hr class="divider-dark">
-                        <div class="d-flex justify-content-between mb-3">
-                            <span style="color:rgba(255,255,255,0.5);">Total a pagar:</span>
-                            <span style="color:#e8891a; font-weight:800; font-size:1.2rem;">${{ "%.2f"|format(total) }}</span>
-                        </div>
+                        <div id="desglose-total">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span style="color:rgba(255,255,255,0.5); font-size:0.88rem;">Subtotal</span>
+                                <span style="color:white;">${{ "%.2f"|format(total) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2" id="fila-envio" style="display:none !important;">
+                                <span style="color:rgba(255,255,255,0.5); font-size:0.88rem;">
+                                    <i class="bi bi-bicycle me-1"></i>Envío a domicilio
+                                </span>
+                                <span style="color:#5dade2;">+$30.00</span>
+                                </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                    <span style="color:rgba(255,255,255,0.5);">Total a pagar:</span>
+                                    <span id="total-final" style="color:#e8891a; font-weight:800; font-size:1.2rem;">${{ "%.2f"|format(total) }}</span>
+                                </div>
+                            </div>
 
                         <button type="submit" class="btn btn-warning w-100 py-3 fw-bold"
                             style="border-radius:12px; font-size:1rem;"
@@ -273,6 +285,19 @@
 function toggleDireccion() {
     const tipo = document.getElementById('tipoEntrega').value;
     document.getElementById('campoDireccion').style.display = tipo === 'domicilio' ? 'block' : 'none';
+
+    // Mostrar costo de envío
+    const filaEnvio = document.getElementById('fila-envio');
+    const totalFinal = document.getElementById('total-final');
+    const subtotal = {{ total }};
+
+    if (tipo === 'domicilio') {
+        filaEnvio.style.display = 'flex';
+        totalFinal.textContent = '$' + (subtotal + 30).toFixed(2);
+    } else {
+        filaEnvio.style.display = 'none';
+        totalFinal.textContent = '$' + subtotal.toFixed(2);
+    }
 }
 </script>
 {% endblock %}

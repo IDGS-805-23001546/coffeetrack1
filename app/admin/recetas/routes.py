@@ -1,19 +1,57 @@
-# app/admin/recetas/routes.py
 from flask import render_template, redirect, url_for, request, flash, jsonify
 from . import recetas_bp
 from app.auth.routes import admin_required
 from app.models import Receta, Bebida, MateriaPrima
 from app import db
 
+
+def calcular_capacidad(bebida):
+    """Calcula cuántas unidades se pueden producir con el stock actual"""
+    recetas = bebida.recetas.all()
+    if not recetas:
+        return 0
+    capacidades = []
+    for r in recetas:
+        mp = r.materia_prima
+        if mp and float(r.cantidad) > 0:
+            capacidades.append(int(float(mp.stock_actual) // float(r.cantidad)))
+    return min(capacidades) if capacidades else 0
+
+
 @recetas_bp.route('/')
 @admin_required
 def index():
     bebidas = Bebida.query.filter_by(activo=True).all()
     materias = MateriaPrima.query.filter_by(activo=True).all()
+
+    # Calcular capacidad por bebida
+    capacidades = {}
+    for b in bebidas:
+        capacidades[b.id] = calcular_capacidad(b)
+
+    # Ingrediente limitante por bebida
+    limitantes = {}
+    for b in bebidas:
+        recetas = b.recetas.all()
+        if recetas:
+            min_cap = None
+            min_mp = None
+            for r in recetas:
+                mp = r.materia_prima
+                if mp and float(r.cantidad) > 0:
+                    cap = int(float(mp.stock_actual) // float(r.cantidad))
+                    if min_cap is None or cap < min_cap:
+                        min_cap = cap
+                        min_mp = mp.nombre
+            limitantes[b.id] = min_mp
+
     return render_template('admin/recetas.html',
         bebidas=bebidas,
-        materias=materias
+        materias=materias,
+        capacidades=capacidades,
+        limitantes=limitantes
     )
+
 
 @recetas_bp.route('/nueva', methods=['POST'])
 @admin_required
@@ -51,6 +89,7 @@ def nueva():
         flash(f'Error al guardar receta: {str(e)}', 'danger')
     return redirect(url_for('admin_recetas.index'))
 
+
 @recetas_bp.route('/editar/<int:id>', methods=['POST'])
 @admin_required
 def editar(id):
@@ -65,6 +104,7 @@ def editar(id):
         db.session.rollback()
         return jsonify({'ok': False, 'error': str(e)}), 500
 
+
 @recetas_bp.route('/eliminar/<int:id>', methods=['POST'])
 @admin_required
 def eliminar(id):
@@ -72,4 +112,3 @@ def eliminar(id):
     db.session.delete(receta)
     db.session.commit()
     return jsonify({'ok': True})
-

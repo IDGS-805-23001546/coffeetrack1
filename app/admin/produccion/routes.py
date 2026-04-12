@@ -1,7 +1,7 @@
-from flask import render_template, redirect, url_for, request, flash, jsonify
+from flask import render_template, redirect, url_for, request, flash, jsonify, session
 from . import produccion_bp
 from app.auth.routes import admin_required
-from app.models import Produccion, Bebida, Usuario, Pedido
+from app.models import Produccion, Bebida, MateriaPrima
 from app import db
 from datetime import date
 
@@ -19,35 +19,17 @@ def index():
 @admin_required
 def nueva():
     try:
-        from flask import session
         bebida_id = int(request.form.get('bebida_id'))
         cantidad = int(request.form.get('cantidad_producida'))
         fecha = request.form.get('fecha_produccion')
         notas = request.form.get('notas', '')
-        es_frio = True if request.form.get('es_frio') == 'on' else False
 
         bebida = Bebida.query.get(bebida_id)
-        costo = 0
-
-        # Verificar stock de materias primas
-        advertencias = []
-        for r in bebida.recetas.all():
-            necesario = float(r.cantidad) * cantidad
-            disponible = float(r.materia_prima.stock_actual)
-            if disponible < necesario:
-                advertencias.append(
-                    f'{r.materia_prima.nombre}: necesitas {necesario} {r.unidad_medida} pero solo hay {disponible}'
-                )
-            costo += float(r.cantidad) * float(r.materia_prima.precio_unitario)
-
+        costo = sum(
+            float(r.cantidad) * float(r.materia_prima.precio_unitario)
+            for r in bebida.recetas.all()
+        )
         costo_total = costo * cantidad
-        if es_frio:
-            costo_total += 100 * 0.015 * cantidad
-
-        # Si hay advertencias las mostramos pero dejamos continuar
-        if advertencias:
-            for adv in advertencias:
-                flash(f' Stock bajo: {adv}', 'warning')
 
         produccion = Produccion(
             bebida_id=bebida_id,
@@ -56,18 +38,49 @@ def nueva():
             costo_produccion=costo_total,
             usuario_registrado_id=session['user_id'],
             notas=notas,
-            estado='planificada',
-            es_frio=es_frio
+            estado='planificada'
         )
         db.session.add(produccion)
         db.session.commit()
         flash('Producción registrada exitosamente.', 'success')
-
     except Exception as e:
         db.session.rollback()
         flash(f'Error: {str(e)}', 'danger')
 
     return redirect(url_for('admin_produccion.index'))
+
+@produccion_bp.route('/verificar_stock/<int:id>')
+@admin_required
+def verificar_stock(id):
+    produccion = Produccion.query.get_or_404(id)
+    bebida = produccion.bebida
+    faltantes = []
+    suficiente = True
+
+    for r in bebida.recetas.all():
+        cantidad_necesaria = float(r.cantidad) * produccion.cantidad_producida
+        stock_disponible = float(r.materia_prima.stock_actual)
+        if stock_disponible < cantidad_necesaria:
+            suficiente = False
+            faltante = cantidad_necesaria - stock_disponible
+            faltantes.append({
+                'materia': r.materia_prima.nombre,
+                'categoria': r.materia_prima.categoria.nombre,
+                'necesario': round(cantidad_necesaria, 2),
+                'disponible': round(stock_disponible, 2),
+                'faltante': round(faltante, 2),
+                'unidad': r.unidad_medida,
+                'precio_unitario': float(r.materia_prima.precio_unitario),
+                'costo_faltante': round(faltante * float(r.materia_prima.precio_unitario), 2)
+            })
+
+    return jsonify({
+        'puede_completar': suficiente,
+        'bebida': bebida.nombre,
+        'cantidad': produccion.cantidad_producida,
+        'faltantes': faltantes,
+        'total_costo_faltante': round(sum(f['costo_faltante'] for f in faltantes), 2)
+    })
 
 @produccion_bp.route('/completar/<int:id>', methods=['POST'])
 @admin_required
@@ -76,41 +89,31 @@ def completar(id):
         produccion = Produccion.query.get_or_404(id)
         bebida = produccion.bebida
 
-        # Verificar stock suficiente antes de completar
+        # Verificar stock antes de completar
         faltantes = []
         for r in bebida.recetas.all():
-            necesario = float(r.cantidad) * produccion.cantidad_producida
-            disponible = float(r.materia_prima.stock_actual)
-            if disponible < necesario:
-                faltantes.append(
-                    f'{r.materia_prima.nombre}: necesitas {necesario} {r.unidad_medida} pero solo hay {disponible}'
-                )
+            cantidad_necesaria = float(r.cantidad) * produccion.cantidad_producida
+            stock_disponible = float(r.materia_prima.stock_actual)
+            if stock_disponible < cantidad_necesaria:
+                faltantes.append({
+                    'materia': r.materia_prima.nombre,
+                    'necesario': round(cantidad_necesaria, 2),
+                    'disponible': round(stock_disponible, 2),
+                    'faltante': round(cantidad_necesaria - stock_disponible, 2),
+                    'unidad': r.unidad_medida
+                })
 
-        # Verificar hielo si es frio
-        if produccion.es_frio:
-            from app.models import MateriaPrima
-            hielo = MateriaPrima.query.get(14)
-            hielo_necesario = 100 * produccion.cantidad_producida
-            if hielo and float(hielo.stock_actual) < hielo_necesario:
-                faltantes.append(
-                    f'Hielo: necesitas {hielo_necesario} gr pero solo hay {hielo.stock_actual} gr'
-                )
-
-        # Si faltan ingredientes BLOQUEAR
         if faltantes:
-            for f in faltantes:
-                flash(f' No se puede completar — {f}', 'danger')
+            msgs = [f"{f['materia']}: faltan {f['faltante']} {f['unidad']}" for f in faltantes]
+            flash(f'No se puede completar la producción. Stock insuficiente: {", ".join(msgs)}. Por favor realiza una compra antes de continuar.', 'danger')
             return redirect(url_for('admin_produccion.index'))
 
-        # Todo bien, completar
         produccion.estado = 'completada'
         db.session.commit()
-        flash(f'Producción #{id} completada. Stock actualizado automáticamente.', 'success')
-
+        flash(f'Producción #{id} completada. Stock de materia prima actualizado automáticamente.', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Error: {str(e)}', 'danger')
-
     return redirect(url_for('admin_produccion.index'))
 
 @produccion_bp.route('/cancelar/<int:id>', methods=['POST'])

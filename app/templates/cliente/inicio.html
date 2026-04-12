@@ -4,7 +4,6 @@
 
 {% block body %}
 <style>
-    /* --- Estilos Generales --- */
     .hero-container {
         height: 100vh;
         width: 100%;
@@ -17,7 +16,6 @@
         padding-left: 10%;
         color: white;
     }
-    
     .btn-custom-gold {
         background-color: #c8842a;
         color: white !important;
@@ -28,14 +26,11 @@
         display: inline-block;
         transition: 0.3s;
     }
-    .btn-custom-gold:hover {
-        background-color: #a66d22;
-    }
+    .btn-custom-gold:hover { background-color: #a66d22; }
 
-    /* --- ESTILOS SECCIÓN PROMOCIONAL (CHOCOLATE BLANCO) --- */
     .promo-section {
         display: flex;
-        flex-wrap: wrap; /* Para responsividad en móviles */
+        flex-wrap: wrap;
         align-items: center;
         background-color: #fdf5e6;
         min-height: 550px;
@@ -44,7 +39,6 @@
     .promo-image-container {
         flex: 1 1 50%;
         height: 550px;
-        /* RUTA CORREGIDA PARA LA IMAGEN GUARDADA */
         background-image: url("{{ url_for('static', filename='images/CaffeChocolateBlanco.png') }}");
         background-size: cover;
         background-position: center;
@@ -64,12 +58,8 @@
         display: inline-block;
         transition: 0.3s;
     }
-    .btn-outline-promo:hover {
-        background: #c8842a;
-        color: white !important;
-    }
+    .btn-outline-promo:hover { background: #c8842a; color: white !important; }
 
-    /* --- Estilos de Componentes --- */
     .bottle-card {
         background: #ffffff;
         border-radius: 20px;
@@ -77,7 +67,7 @@
         transition: 0.3s;
     }
     .bottle-card:hover { transform: translateY(-5px); border-color: #c8842a; }
-    
+
     .icon-box {
         background: #fdf5e6;
         width: 50px;
@@ -88,11 +78,7 @@
         justify-content: center;
         margin-bottom: 15px;
     }
-
-    .stat-card {
-        transition: 0.3s;
-        border: none;
-    }
+    .stat-card { transition: 0.3s; border: none; }
     .stat-card:hover { transform: translateY(-10px); }
 
     @media (max-width: 768px) {
@@ -100,13 +86,12 @@
     }
 </style>
 
-{# --- 1. SECCIÓN HERO --- #}
+<!-- HERO -->
 <div class="hero-container">
     <div class="hero-text-box">
         <h6 class="text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px;">Cold Brew & Artesanales</h6>
         <h1 class="display-3 fw-bold mb-3">Sabor artesanal<br>en cada cafe</h1>
         <p class="lead mb-4">Café de especialidad, reposado y embotellado para llevar.</p>
-        
         {% if not session.get('user_id') %}
             <a href="{{ url_for('auth.login') }}" class="btn-custom-gold">Iniciar Sesión</a>
         {% else %}
@@ -115,54 +100,59 @@
     </div>
 </div>
 
-{# --- 2. SECCIÓN PROMOCIONAL: INSERTADA ANTES DE "SOBRE NOSOTROS" --- #}
+<!-- SECCIÓN PROMOCIONAL -->
 <section class="promo-section">
     <div class="promo-image-container"></div>
-    
     <div class="promo-content">
         <h6 class="text-uppercase" style="color: #c8842a; letter-spacing: 2px;">Nuevo Producto</h6>
-        <h2 class="display-5 fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #2c1810;">¡Chocolate Blanco !</h2>
+        <h2 class="display-5 fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #2c1810;">¡Chocolate Blanco!</h2>
         <p class="text-muted mb-5 lead">
-            Descubre nuestra nueva creación: un Cafe artesanal y peculiar infusionado con chocolate blanco artesanal, 
+            Descubre nuestra nueva creación: un Café artesanal y peculiar infusionado con chocolate blanco artesanal,
             listo para disfrutar. Cremoso, rico y perfecto para cualquier momento del día.
         </p>
-        <a href="{{ url_for('auth.login') }}" class="btn-outline-promo">Probar</a>
+        <a href="{{ url_for('cliente.menu') }}" class="btn-outline-promo">Probar</a>
     </div>
 </section>
 
-{# --- 3. LÓGICA DE CONTENIDO DINÁMICO --- #}
-
+<!-- CONTENIDO DINÁMICO -->
 {% if session.get('user_id') %}
-    {# CASO 1: USUARIO LOGUEADO -> MUESTRA BEBIDAS #}
+    <!-- USUARIO LOGUEADO: MUESTRA BEBIDAS DESTACADAS -->
     <div class="container my-5">
         <div class="text-center mb-5">
-            <h2 class="fw-bold">Nuestras Mejores Especialidades</h2>
+            <h6 class="text-uppercase fw-bold" style="color: #c8842a; letter-spacing: 2px;">Destacadas</h6>
+            <h2 class="fw-bold" style="font-family: 'Playfair Display', serif; color: #2c1810;">Nuestras Mejores Especialidades</h2>
         </div>
         <div class="row g-4">
             {% for bebida in bebidas %}
             <div class="col-md-6 col-lg-3">
                 <div class="card bottle-card h-100 p-4">
                     <div class="icon-box">
-                        <i class="bi bi-droplet-fill" style="color: #c8842a;"></i> 
+                        {% if bebida.imagen_url %}
+                        <img src="{{ url_for('static', filename='uploads/bebidas/' + bebida.imagen_url) }}"
+                             style="width:50px; height:50px; border-radius:10px; object-fit:cover;">
+                        {% else %}
+                        <i class="bi bi-droplet-fill" style="color: #c8842a;"></i>
+                        {% endif %}
                     </div>
                     <h5 class="fw-bold">{{ bebida.nombre }}</h5>
                     <p class="text-muted small">{{ bebida.descripcion }}</p>
-                    <div class="d-flex justify-content-between align-items-center mt-auto">
-                        <span class="fw-bold fs-4">${{ "%.2f"|format(bebida.precio) }}</span>
-                        <span class="badge bg-info"></span>
+                    <div class="d-flex justify-content-between align-items-center mt-auto mb-3">
+                        <span class="fw-bold fs-4" style="color:#c8842a;">${{ "%.2f"|format(bebida.precio) }}</span>
                     </div>
-                    <form action="{{ url_for('cliente.agregar_carrito', bebida_id=bebida.id) }}" method="POST" class="mt-3">
-                        <input type="hidden" name="cantidad" value="1">
-                        <button type="submit" class="btn btn-dark w-100 rounded-pill">Agregar</button>
-                    </form>
+                    <a href="{{ url_for('cliente.menu') }}" class="btn btn-dark w-100 rounded-pill">
+                        <i class="bi bi-cart-plus me-1"></i> Pedir
+                    </a>
                 </div>
             </div>
             {% endfor %}
         </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('cliente.menu') }}" class="btn-custom-gold">Ver Menú Completo</a>
+        </div>
     </div>
 
 {% else %}
-    {# CASO 2: USUARIO NO LOGUEADO -> MUESTRA "SOBRE NOSOTROS" #}
+    <!-- NO LOGUEADO: MUESTRA SOBRE NOSOTROS -->
     <section class="py-5" style="background-color: #fdf5e6;">
         <div class="container text-center mb-5">
             <h6 class="text-uppercase fw-bold" style="color: #c8842a; letter-spacing: 2px;">Nuestra Historia</h6>
@@ -170,32 +160,31 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <p class="lead text-muted">
-                        Somos una empresa dedicada a la producción y venta de café artesanal de la más alta calidad. 
+                        Somos una empresa dedicada a la producción y venta de café artesanal de la más alta calidad.
                         Nacimos con la misión de llevar el mejor café de México directamente a tu mesa.
                     </p>
                 </div>
             </div>
         </div>
-
         <div class="container mb-5">
             <div class="row g-4 text-center">
                 <div class="col-md-4">
                     <div class="stat-card shadow-sm p-4 bg-white rounded-4">
-                        <i class="bi bi-cup-hot stat-icon" style="font-size: 2.5rem; color: #c8842a;"></i>
+                        <i class="bi bi-cup-hot" style="font-size: 2.5rem; color: #c8842a;"></i>
                         <h3 class="fw-bold mt-2">10</h3>
                         <p class="text-muted mb-0">Bebidas Únicas</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stat-card shadow-sm p-4 bg-white rounded-4">
-                        <i class="bi bi-people stat-icon" style="font-size: 2.5rem; color: #c8842a;"></i>
+                        <i class="bi bi-people" style="font-size: 2.5rem; color: #c8842a;"></i>
                         <h3 class="fw-bold mt-2">+500</h3>
-                        <p class="text-muted mb-0">Clientes Satisfecho</p>
+                        <p class="text-muted mb-0">Clientes Satisfechos</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stat-card shadow-sm p-4 bg-white rounded-4">
-                        <i class="bi bi-geo-alt stat-icon" style="font-size: 2.5rem; color: #c8842a;"></i>
+                        <i class="bi bi-geo-alt" style="font-size: 2.5rem; color: #c8842a;"></i>
                         <h3 class="fw-bold mt-2">León, Gto.</h3>
                         <p class="text-muted mb-0">Ubicación</p>
                     </div>

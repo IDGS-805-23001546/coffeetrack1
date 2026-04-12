@@ -203,17 +203,11 @@
                             <div class="col-md-3">
                                 <input type="number" step="0.001" name="precio_unitario[]" class="form-control" placeholder="Precio unit." oninput="calcularSubtotal(this)">
                             </div>
-                            <div class="col-md-1 d-flex align-items-center">
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarFila(this)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
+                           
                         </div>
                     </div>
 
-                    <button type="button" class="btn-accion mt-2 mb-3" onclick="agregarFila()">
-                        <i class="bi bi-plus"></i> Agregar Materia Prima
-                    </button>
+                    
 
                     <div style="text-align:right; font-size:1rem; font-weight:700; color:#1a1a1a;">
                         Total estimado: <span id="totalEstimado" style="color:#e8891a;">$0.00</span>

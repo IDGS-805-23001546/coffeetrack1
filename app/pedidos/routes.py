@@ -4,7 +4,7 @@ from app.models import Pedido, DetallePedido, Bebida, Usuario
 from app import db
 from app.auth.routes import login_required
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, date, timedelta, timezone
 from flask import send_file
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -13,9 +13,51 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 import io
 
+
 def generar_referencia(pedido_id):
     fecha = datetime.now().strftime('%Y%m%d')
     return f'CT-{fecha}-{str(pedido_id).zfill(3)}'
+
+
+def calcular_entrega(tipo_entrega):
+    """Calcula hora estimada y día de entrega según horario de la cafetería"""
+    ahora = datetime.now()
+    dia_semana = ahora.weekday()  # 0=lunes, 6=domingo
+    hora_actual = ahora.hour * 60 + ahora.minute
+
+    APERTURA = 7 * 60           # 7:00 AM
+    CIERRE_SEMANA = 22 * 60     # 10:00 PM lunes-viernes
+    CIERRE_FIN = 19 * 60        # 7:00 PM sábado-domingo
+    ULTIMO_ENVIO_SEMANA = 21 * 60  # 9:00 PM lunes-viernes
+    ULTIMO_ENVIO_FIN = 18 * 60     # 6:00 PM sábado-domingo
+    TIEMPO_PREP = 25            # minutos de preparación
+
+    es_fin_semana = dia_semana >= 5
+    cierre = CIERRE_FIN if es_fin_semana else CIERRE_SEMANA
+    ultimo_envio = ULTIMO_ENVIO_FIN if es_fin_semana else ULTIMO_ENVIO_SEMANA
+
+    limite = ultimo_envio if tipo_entrega == 'domicilio' else (cierre - TIEMPO_PREP)
+    hora_lista = hora_actual + TIEMPO_PREP
+
+    if hora_actual < APERTURA:
+        dia = ahora.date()
+        entrega_min = APERTURA + TIEMPO_PREP
+    elif hora_lista <= limite:
+        dia = ahora.date()
+        entrega_min = hora_lista
+    else:
+        siguiente = ahora + timedelta(days=1)
+        # Si es domicilio saltar fines de semana si ya no hay servicio
+        while tipo_entrega == 'domicilio' and siguiente.weekday() >= 5:
+            siguiente += timedelta(days=1)
+        dia = siguiente.date()
+        entrega_min = APERTURA + TIEMPO_PREP
+
+    horas = entrega_min // 60
+    minutos = entrega_min % 60
+    hora_str = f"{horas:02d}:{minutos:02d}"
+    return hora_str, dia
+
 
 @pedidos_bp.route('/crear', methods=['POST'])
 @login_required
@@ -30,7 +72,6 @@ def crear():
     subtotal = Decimal('0')
     detalles = []
 
-    #Bug 1 corregido: todo el bloque dentro del for
     for bebida_id, datos in cart.items():
         bebida = Bebida.query.get(int(bebida_id))
         if bebida and bebida.disponible:
@@ -58,24 +99,33 @@ def crear():
     telefono = request.form.get('telefono') or usuario.telefono or 'N/A'
     direccion = request.form.get('direccion') or usuario.direccion or 'Recoger en sucursal'
 
+    # Costo de envío
+    costo_envio = Decimal('30.00') if tipo_entrega == 'domicilio' else Decimal('0.00')
+    total = subtotal + costo_envio
+
     if tipo_entrega == 'sucursal':
         direccion = 'Recoger en sucursal'
+
+    # Calcular horario estimado
+    hora_estimada, dia_entrega = calcular_entrega(tipo_entrega)
 
     pedido = Pedido(
         usuario_id=session['user_id'],
         subtotal=subtotal,
-        total=subtotal,
+        total=total,
+        costo_envio=costo_envio,
         direccion_entrega=direccion,
         telefono_contacto=telefono[:15],
         notas=request.form.get('notas', ''),
-        estado='pendiente'
+        estado='pendiente',
+        hora_estimada_entrega=hora_estimada,
+        dia_entrega=dia_entrega
     )
     db.session.add(pedido)
     db.session.flush()
 
     pedido.notas = (pedido.notas or '') + f' | REF: {generar_referencia(pedido.id)}'
 
-    #Bug 2 corregido: db.session.add dentro del for
     for d in detalles:
         detalle = DetallePedido(
             pedido_id=pedido.id,
@@ -114,15 +164,34 @@ def detalle(id):
         'direccion': pedido.direccion_entrega,
         'telefono': pedido.telefono_contacto,
         'notas': pedido.notas,
-        #Bug hora corregido: usar el filtro hora_mx desde Python directamente
         'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M'),
         'detalles': [{
             'bebida': d.bebida.nombre,
             'cantidad': d.cantidad,
+            'temperatura': d.temperatura,
             'precio_unitario': str(d.precio_unitario),
             'subtotal': str(d.subtotal)
         } for d in pedido.detalles.all()]
     })
+
+
+@pedidos_bp.route('/confirmacion/<int:id>')
+@login_required
+def confirmacion(id):
+    pedido = Pedido.query.get_or_404(id)
+    if pedido.usuario_id != session['user_id']:
+        return redirect(url_for('pedidos.mis_pedidos'))
+
+    ref = ''
+    if pedido.notas and 'REF:' in pedido.notas:
+        ref = pedido.notas.split('REF:')[-1].strip()
+
+    return render_template('cliente/confirmacion_pedido.html',
+        pedido=pedido,
+        ref=ref,
+        now=datetime.now
+    )
+
 
 @pedidos_bp.route('/ticket/<int:id>')
 @login_required
@@ -146,32 +215,16 @@ def ticket(id):
     elementos = []
 
     estilo_titulo = ParagraphStyle(
-        'titulo',
-        parent=styles['Title'],
-        fontSize=22,
-        textColor=colors.HexColor('#e8891a'),
-        spaceAfter=4
+        'titulo', parent=styles['Title'],
+        fontSize=22, textColor=colors.HexColor('#e8891a'), spaceAfter=4
     )
     estilo_subtitulo = ParagraphStyle(
-        'subtitulo',
-        parent=styles['Normal'],
-        fontSize=10,
-        textColor=colors.HexColor('#888888'),
-        spaceAfter=2
-    )
-    estilo_normal = ParagraphStyle(
-        'normal',
-        parent=styles['Normal'],
-        fontSize=10,
-        textColor=colors.HexColor('#333333'),
-        spaceAfter=4
+        'subtitulo', parent=styles['Normal'],
+        fontSize=10, textColor=colors.HexColor('#888888'), spaceAfter=2
     )
     estilo_bold = ParagraphStyle(
-        'bold',
-        parent=styles['Normal'],
-        fontSize=10,
-        textColor=colors.HexColor('#1a1a1a'),
-        fontName='Helvetica-Bold'
+        'bold', parent=styles['Normal'],
+        fontSize=10, textColor=colors.HexColor('#1a1a1a'), fontName='Helvetica-Bold'
     )
 
     elementos.append(Paragraph('CoffeeTrack', estilo_titulo))
@@ -189,13 +242,23 @@ def ticket(id):
     if pedido.notas and 'REF:' in pedido.notas:
         ref = pedido.notas.split('REF:')[-1].strip()
 
-    # Hora corregida en el ticket PDF también
-    from datetime import timezone, timedelta
+    # Hora en zona horaria México
     fecha_pedido = pedido.fecha_pedido
     if fecha_pedido.tzinfo is None:
         fecha_pedido = fecha_pedido.replace(tzinfo=timezone.utc)
     fecha_mx = fecha_pedido.astimezone(timezone(timedelta(hours=-6)))
     fecha_str = fecha_mx.strftime('%d/%m/%Y %H:%M')
+
+    # Entrega estimada
+    entrega_str = ''
+    if pedido.hora_estimada_entrega and pedido.dia_entrega:
+        hoy = date.today()
+        if pedido.dia_entrega == hoy:
+            entrega_str = f'Hoy a las {pedido.hora_estimada_entrega}'
+        else:
+            dias_es = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
+            dia_nombre = dias_es[pedido.dia_entrega.weekday()]
+            entrega_str = f'{dia_nombre} {pedido.dia_entrega.strftime("%d/%m")} a las {pedido.hora_estimada_entrega}'
 
     info_data = [
         ['Ticket de Compra', ''],
@@ -205,6 +268,7 @@ def ticket(id):
         ['Cliente:', f'{usuario.nombre} {usuario.apellidos}'],
         ['Teléfono:', pedido.telefono_contacto],
         ['Entrega:', pedido.direccion_entrega],
+        ['Hora estimada:', entrega_str or '—'],
         ['Estado:', pedido.estado.upper()],
     ]
 
@@ -228,7 +292,7 @@ def ticket(id):
 
     detalle_data = [['Bebida', 'Temp.', 'Cantidad', 'Precio Unit.', 'Subtotal']]
     for d in pedido.detalles.all():
-        temp = 'Frio' if d.temperatura == 'frio' else 'Caliente'
+        temp = '🧊 Frío' if d.temperatura == 'frio' else '☕ Caliente'
         detalle_data.append([
             d.bebida.nombre,
             temp,
@@ -253,23 +317,28 @@ def ticket(id):
     elementos.append(tabla_detalle)
     elementos.append(Spacer(1, 0.2*inch))
 
+    # Totales con costo de envío
+    costo_envio = float(pedido.costo_envio or 0)
     total_data = [
         ['', '', 'Subtotal:', f'${float(pedido.subtotal):.2f}'],
-        ['', '', 'Descuento:', f'-${float(pedido.descuento):.2f}'],
-        ['', '', 'TOTAL:', f'${float(pedido.total):.2f}'],
     ]
+    if costo_envio > 0:
+        total_data.append(['', '', 'Envío a domicilio:', f'${ costo_envio:.2f}'])
+    total_data.append(['', '', 'TOTAL:', f'${float(pedido.total):.2f}'])
+
     tabla_total = Table(total_data, colWidths=[3*inch, 1*inch, 1.5*inch, 1*inch])
+    ultima_fila = len(total_data) - 1
     tabla_total.setStyle(TableStyle([
         ('FONTNAME', (2,0), (2,-1), 'Helvetica-Bold'),
-        ('FONTNAME', (3,2), (3,2), 'Helvetica-Bold'),
+        ('FONTNAME', (3,ultima_fila), (3,ultima_fila), 'Helvetica-Bold'),
         ('FONTSIZE', (0,0), (-1,-1), 10),
         ('TEXTCOLOR', (2,0), (2,-1), colors.HexColor('#888888')),
-        ('TEXTCOLOR', (3,2), (3,2), colors.HexColor('#e8891a')),
-        ('FONTSIZE', (3,2), (3,2), 13),
+        ('TEXTCOLOR', (3,ultima_fila), (3,ultima_fila), colors.HexColor('#e8891a')),
+        ('FONTSIZE', (3,ultima_fila), (3,ultima_fila), 13),
         ('ALIGN', (2,0), (-1,-1), 'RIGHT'),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('LINEABOVE', (2,2), (-1,2), 1, colors.HexColor('#e8891a')),
+        ('LINEABOVE', (2,ultima_fila), (-1,ultima_fila), 1, colors.HexColor('#e8891a')),
     ]))
     elementos.append(tabla_total)
     elementos.append(Spacer(1, 0.4*inch))
@@ -290,21 +359,4 @@ def ticket(id):
         as_attachment=True,
         download_name=f'ticket_pedido_{pedido.id}.pdf',
         mimetype='application/pdf'
-    )
-
-
-@pedidos_bp.route('/confirmacion/<int:id>')
-@login_required
-def confirmacion(id):
-    pedido = Pedido.query.get_or_404(id)
-    if pedido.usuario_id != session['user_id']:
-        return redirect(url_for('pedidos.mis_pedidos'))
-
-    ref = ''
-    if pedido.notas and 'REF:' in pedido.notas:
-        ref = pedido.notas.split('REF:')[-1].strip()
-
-    return render_template('cliente/confirmacion_pedido.html',
-        pedido=pedido,
-        ref=ref
     )
