@@ -49,6 +49,19 @@ def index():
             capacidades[b.id] = min(caps) if caps else 0
         else:
             capacidades[b.id] = 0
+            
+    # Ingredientes faltantes por bebida
+        faltantes = {}
+        for b in bebidas:
+            if capacidades.get(b.id, 0) <= 0:
+                faltantes_lista = []
+        for r in b.recetas.all():
+            mp = r.materia_prima
+            if mp and float(mp.stock_actual) < float(r.cantidad):
+                faltantes_lista.append(mp.nombre)
+        faltantes[b.id] = ', '.join(faltantes_lista) if faltantes_lista else 'Sin receta'
+            
+            
 
     return render_template('admin/bebidas.html',
         bebidas=bebidas,
@@ -56,6 +69,7 @@ def index():
         materias=materias,
         vendidas=vendidas,
         capacidades=capacidades
+        faltantes =faltantes
     )
 
 
