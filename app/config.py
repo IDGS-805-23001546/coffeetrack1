@@ -36,6 +36,10 @@ class Config:
     MAIL_USERNAME = 'carlosriosrmz17@gmail.com'
     MAIL_PASSWORD = 'uswiaczeqfhmlpbg'
     MAIL_DEFAULT_SENDER  = ('CofeeTrack', 'carlosriosrmz17@gmail.com')
+    
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads', 'bebidas')
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB máximo
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 class DevelopmentConfig(Config):
     DEBUG = True
