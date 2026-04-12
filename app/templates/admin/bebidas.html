@@ -88,8 +88,12 @@
                     <td>${{ "%.2f"|format(b.precio) }}</td>
                     <td style="font-weight:700; color:#e8891a;">{{ vendidas.get(b.id, 0) }} uds.</td>
                     <td>
-                        {% if cap == 0 %}
-                        <span class="cap-zero"><i class="bi bi-x-circle"></i> Agotado</span>
+                        {% if cap <= 0 %}
+                        <span class="cap-zero" style="cursor:pointer;" 
+                                data-bs-toggle="tooltip" 
+                                title="Faltantes: {{ faltantes.get(b.id, 'Ver recetas') }}">
+                                <i class="bi bi-x-circle"></i> No se puede producir
+                        </span>
                         {% elif cap <= 5 %}
                         <span class="cap-low"><i class="bi bi-exclamation-triangle"></i> {{ cap }} uds.</span>
                         {% else %}
@@ -298,6 +302,14 @@ document.getElementById('searchInput').addEventListener('input', function() {
     const val = this.value.toLowerCase();
     document.querySelectorAll('#bebidasTable tbody tr').forEach(row => {
         row.style.display = row.cells[3].textContent.toLowerCase().includes(val) ? '' : 'none';
+    });
+});
+
+// Activar tooltips de Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(function(el) {
+        new bootstrap.Tooltip(el);
     });
 });
 </script>
