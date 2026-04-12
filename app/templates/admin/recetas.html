@@ -53,9 +53,9 @@
             <div class="receta-desc">{{ bebida.descripcion or 'Sin descripción' }}</div>
         </div>
         <div style="text-align:right;">
-            {% if cap == 0 %}
+            {% if cap <= 0 %}
             <span class="capacidad-badge cap-zero">
-                <i class="bi bi-x-circle"></i> Sin stock para producir
+                <i class="bi bi-x-circle"></i> No se puede producir — compra materia prima faltante
             </span>
             {% elif cap <= 5 %}
             <span class="capacidad-badge cap-low">
