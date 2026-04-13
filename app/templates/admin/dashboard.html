@@ -6,204 +6,281 @@
 <style>
     .kpi-card {
         background: white;
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 22px 24px;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07);
         height: 100%;
-        transition: transform 0.15s;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid transparent;
+        cursor: pointer;
     }
-    .kpi-card:hover { transform: translateY(-2px); }
-    .kpi-label { font-size: 0.78rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
-    .kpi-value { font-size: 2rem; font-weight: 800; color: #1a1a1a; line-height: 1; }
-    .kpi-sub { font-size: 0.78rem; color: #aaa; margin-top: 4px; }
-    .kpi-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+    a .kpi-card:hover, .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .kpi-card.orange { border-left-color: #e8891a; }
+    .kpi-card.blue   { border-left-color: #3498db; }
+    .kpi-card.green  { border-left-color: #27ae60; }
+    .kpi-card.purple { border-left-color: #9b59b6; }
+    .kpi-card.red    { border-left-color: #e74c3c; }
+    .kpi-card.teal   { border-left-color: #1abc9c; }
 
-    .section-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
-    .section-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .kpi-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; color: #1a1a1a; line-height: 1; }
+    .kpi-sub { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
+    .kpi-sub.positive { color: #27ae60; }
+    .kpi-sub.warning  { color: #e67e22; }
+    .kpi-sub.danger   { color: #e74c3c; }
+    .kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 
-    .badge-estado { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; margin-top: 5px; }
-    .badge-pendiente { background: #fff3cd; color: #856404; }
-    .badge-confirmado { background: #cfe2ff; color: #084298; }
-    .badge-en-preparacion { background: #fff3cd; color: #664d03; }
-    .badge-enviado { background: #d1ecf1; color: #0c5460; }
-    .badge-entregado { background: #d4edda; color: #155724; }
-    .badge-cancelado { background: #f8d7da; color: #721c24; }
+    .section-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); height: 100%; }
+    .section-title { font-size: 0.95rem; font-weight: 700; color: #1a1a1a; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
 
-    .pedido-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0ece6; }
+    .badge-estado { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+    .badge-pendiente      { background: #fff3cd; color: #856404; }
+    .badge-confirmado     { background: #cfe2ff; color: #084298; }
+    .badge-en-preparacion { background: #ffe5d0; color: #6d3a00; }
+    .badge-enviado        { background: #d1ecf1; color: #0c5460; }
+    .badge-entregado      { background: #d4edda; color: #155724; }
+    .badge-cancelado      { background: #f8d7da; color: #721c24; }
+
+    .pedido-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f0eb; }
     .pedido-item:last-child { border-bottom: none; }
-    .pedido-nombre { font-weight: 600; font-size: 0.9rem; color: #1a1a1a; }
-    .pedido-dir { font-size: 0.78rem; color: #999; margin-top: 2px; }
-    .pedido-total { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; text-align: right; }
+    .pedido-nombre { font-weight: 600; font-size: 0.88rem; color: #1a1a1a; }
+    .pedido-meta   { font-size: 0.75rem; color: #bbb; margin-top: 2px; }
+    .pedido-right  { text-align: right; }
+    .pedido-total  { font-weight: 700; font-size: 0.92rem; color: #1a1a1a; }
 
-    .alerta-item { padding: 12px 0; border-bottom: 1px solid #f0ece6; display: flex; align-items: flex-start; gap: 10px; }
+    .top-bebida-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f5f0eb; }
+    .top-bebida-row:last-child { border-bottom: none; }
+    .top-num { width: 26px; height: 26px; border-radius: 8px; background: #fdf3e7; color: #e8891a; font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .top-num.gold { background: #e8891a; color: white; }
+    .top-bar-wrap  { flex: 1; }
+    .top-bar-label { font-size: 0.85rem; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .top-bar       { height: 5px; border-radius: 4px; background: #f0ece6; overflow: hidden; }
+    .top-bar-fill  { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #e8891a, #f5a623); }
+    .top-count     { font-size: 0.82rem; font-weight: 700; color: #e8891a; flex-shrink: 0; }
+
+    .alerta-item { padding: 10px 0; border-bottom: 1px solid #f0ece6; display: flex; align-items: flex-start; gap: 10px; }
     .alerta-item:last-child { border-bottom: none; }
-    .alerta-dot { width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; margin-top: 5px; flex-shrink: 0; }
-    .alerta-msg { font-size: 0.85rem; color: #333; font-weight: 500; line-height: 1.4; }
-    .alerta-fecha { font-size: 0.72rem; color: #bbb; margin-top: 2px; }
+    .alerta-dot  { width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; margin-top: 6px; flex-shrink: 0; }
+    .alerta-msg  { font-size: 0.83rem; color: #333; font-weight: 500; line-height: 1.4; }
+    .alerta-fecha { font-size: 0.7rem; color: #bbb; margin-top: 2px; }
 
     .variacion-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
     .variacion-pos { background: #d4edda; color: #155724; }
     .variacion-neg { background: #f8d7da; color: #721c24; }
     .variacion-neu { background: #f0f0f0; color: #555; }
 
-    .top-bebida-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid #f5f0eb; }
-    .top-bebida-row:last-child { border-bottom: none; }
-    .top-num { width: 28px; height: 28px; border-radius: 8px; background: #fdf3e7; color: #e8891a; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .top-num.gold { background: #e8891a; color: white; }
-    .top-bar-wrap { flex: 1; }
-    .top-bar-label { font-size: 0.88rem; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
-    .top-bar { height: 6px; border-radius: 4px; background: #f0ece6; overflow: hidden; }
-    .top-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #e8891a, #f5a623); }
-    .top-count { font-size: 0.85rem; font-weight: 700; color: #e8891a; flex-shrink: 0; }
+    .divider-label {
+        font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;
+        color: #bbb; font-weight: 700; margin: 28px 0 16px;
+        display: flex; align-items: center; gap: 10px;
+    }
+    .divider-label::after { content: ''; flex: 1; height: 1px; background: #f0ece6; }
+
+    /* Quitar decoración de links en KPIs */
+    .kpi-link { text-decoration: none !important; display: block; height: 100%; }
+    .kpi-link:hover { text-decoration: none !important; }
 </style>
 {% endblock %}
 
 {% block content %}
 
+<!-- HEADER -->
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <div class="page-title">Administración General</div>
+        <div class="page-title">Dashboard</div>
         <div class="page-subtitle">Panel de administración — CoffeeTrack</div>
     </div>
-    <span style="font-size:0.82rem; color:#aaa;">
-        <i class="bi bi-clock"></i>
+    <span style="font-size:0.82rem; color:#aaa; background:white; padding:8px 16px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <i class="bi bi-clock me-1"></i>
         <span id="reloj"></span>
     </span>
 </div>
 
 <!-- KPIs -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div>
-                <div class="kpi-label">Ingresos Hoy</div>
-                <div class="kpi-value">${{ "%.2f"|format(total_ventas_hoy) }}</div>
-                <div class="kpi-sub">{{ transacciones_hoy }} transacciones</div>
+{% set kpis = [
+    {
+        'label': 'Ingresos Hoy',
+        'value': '$' ~ "%.0f"|format(total_ventas_hoy),
+        'sub': transacciones_hoy ~ ' transacciones',
+        'sub_class': 'positive',
+        'color': 'orange',
+        'icon': 'bi-currency-dollar',
+        'icon_bg': '#fdf3e7',
+        'icon_color': '#e8891a',
+        'url': url_for('admin_ventas.index')
+    },
+    {
+        'label': 'Ingresos del Mes',
+        'value': '$' ~ "%.0f"|format(total_ventas_mes),
+        'sub': 'mes actual',
+        'sub_class': '',
+        'color': 'teal',
+        'icon': 'bi-graph-up-arrow',
+        'icon_bg': '#e8f8f5',
+        'icon_color': '#1abc9c',
+        'url': url_for('admin_ventas.index')
+    },
+    {
+        'label': 'Pedidos Pendientes',
+        'value': pedidos_pendientes_count,
+        'sub': 'requieren atención' if pedidos_pendientes_count > 0 else 'al día',
+        'sub_class': 'warning' if pedidos_pendientes_count > 0 else 'positive',
+        'color': 'red',
+        'icon': 'bi-bag-x',
+        'icon_bg': '#fdecea',
+        'icon_color': '#e74c3c',
+        'url': url_for('admin_pedidos.index')
+    },
+    {
+        'label': 'Productos',
+        'value': bebidas_disponibles,
+        'sub': 'de ' ~ total_bebidas ~ ' disponibles',
+        'sub_class': '',
+        'color': 'blue',
+        'icon': 'bi-cup-straw',
+        'icon_bg': '#e8f4fd',
+        'icon_color': '#3498db',
+        'url': url_for('admin_bebidas.index')
+    },
+    {
+        'label': 'Mat. Primas',
+        'value': materias_ok,
+        'sub': 'de ' ~ total_materias ~ ' sobre mínimo',
+        'sub_class': 'warning' if materias_ok < total_materias else 'positive',
+        'color': 'green',
+        'icon': 'bi-box-seam',
+        'icon_bg': '#eafaf1',
+        'icon_color': '#27ae60',
+        'url': url_for('admin_materias.index')
+    },
+    {
+        'label': 'Producción',
+        'value': producciones_completadas,
+        'sub': (producciones_activas ~ ' en proceso') if producciones_activas > 0 else 'lotes completados',
+        'sub_class': 'warning' if producciones_activas > 0 else '',
+        'color': 'purple',
+        'icon': 'bi-gear',
+        'icon_bg': '#f5eafb',
+        'icon_color': '#9b59b6',
+        'url': url_for('admin_produccion.index')
+    }
+] %}
+
+<div class="row g-3 mb-2">
+    {% for kpi in kpis %}
+    <div class="col-md-2">
+        <a href="{{ kpi.url }}" class="kpi-link">
+            <div class="kpi-card {{ kpi.color }}">
+                <div>
+                    <div class="kpi-label">{{ kpi.label }}</div>
+                    <div class="kpi-value">{{ kpi.value }}</div>
+                    <div class="kpi-sub {{ kpi.sub_class }}">{{ kpi.sub }}</div>
+                </div>
+                <div class="kpi-icon" style="background:{{ kpi.icon_bg }}; color:{{ kpi.icon_color }};">
+                    <i class="bi {{ kpi.icon }}"></i>
+                </div>
             </div>
-            <div class="kpi-icon" style="background:#fdf3e7; color:#e8891a;">
-                <i class="bi bi-currency-dollar"></i>
-            </div>
-        </div>
+        </a>
     </div>
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div>
-                <div class="kpi-label">Bebidas</div>
-                <div class="kpi-value">{{ bebidas_disponibles }}</div>
-                <div class="kpi-sub">de {{ total_bebidas }} activas disponibles</div>
-            </div>
-            <div class="kpi-icon" style="background:#e8f4fd; color:#3498db;">
-                <i class="bi bi-cup-straw"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div>
-                <div class="kpi-label">Materias Primas</div>
-                <div class="kpi-value">{{ materias_ok }}</div>
-                <div class="kpi-sub">de {{ total_materias }} sobre el mínimo</div>
-            </div>
-            <div class="kpi-icon" style="background:#eafaf1; color:#27ae60;">
-                <i class="bi bi-box-seam"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div>
-                <div class="kpi-label">Producciones</div>
-                <div class="kpi-value">{{ producciones_completadas }}</div>
-                <div class="kpi-sub">lotes completados</div>
-            </div>
-            <div class="kpi-icon" style="background:#f5eafb; color:#9b59b6;">
-                <i class="bi bi-gear"></i>
-            </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
-<!-- FILA 2: COMPARATIVA + TOP BEBIDAS -->
-<div class="row g-3 mb-4">
-    <div class="col-md-6">
+<!-- GRÁFICAS -->
+<div class="divider-label">Análisis de Ventas</div>
+<div class="row g-3 mb-3">
+    <!-- Barras 7 días -->
+    <div class="col-md-8">
         <div class="section-card">
-            <div class="section-title">
-                <i class="bi bi-graph-up" style="color:#e8891a;"></i>
-                Comparativa Semanal
-            </div>
-            <div class="d-flex gap-4 mb-3">
-                <div>
-                    <div style="font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Esta semana</div>
-                    <div style="font-size:1.6rem; font-weight:800; color:#1a1a1a;">${{ "%.2f"|format(ventas_esta_semana) }}</div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">
+                    <i class="bi bi-bar-chart-line" style="color:#e8891a;"></i>
+                    Ventas — Últimos 7 Días
                 </div>
-                <div>
-                    <div style="font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Semana anterior</div>
-                    <div style="font-size:1.6rem; font-weight:800; color:#aaa;">${{ "%.2f"|format(ventas_semana_anterior) }}</div>
-                </div>
-                <div style="margin-left:auto; display:flex; align-items:center;">
+                <div style="display:flex; gap:16px; align-items:center;">
+                    <div style="text-align:right;">
+                        <div style="font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Esta semana</div>
+                        <div style="font-size:1.2rem; font-weight:800; color:#1a1a1a;">${{ "%.2f"|format(ventas_esta_semana) }}</div>
+                    </div>
                     {% if variacion > 0 %}
-                    <span class="variacion-badge variacion-pos">
-                        <i class="bi bi-arrow-up"></i> {{ "%.1f"|format(variacion) }}%
-                    </span>
+                    <span class="variacion-badge variacion-pos"><i class="bi bi-arrow-up"></i> {{ "%.1f"|format(variacion) }}%</span>
                     {% elif variacion < 0 %}
-                    <span class="variacion-badge variacion-neg">
-                        <i class="bi bi-arrow-down"></i> {{ "%.1f"|format(variacion|abs) }}%
-                    </span>
+                    <span class="variacion-badge variacion-neg"><i class="bi bi-arrow-down"></i> {{ "%.1f"|format(variacion|abs) }}%</span>
                     {% else %}
-                    <span class="variacion-badge variacion-neu">
-                        <i class="bi bi-dash"></i> Sin datos
-                    </span>
+                    <span class="variacion-badge variacion-neu"><i class="bi bi-dash"></i> Sin datos</span>
                     {% endif %}
                 </div>
             </div>
-            <div style="font-size:0.82rem; color:#aaa;">
-                {% if variacion > 0 %}
-                    Las ventas de esta semana superan a la semana anterior.
-                {% elif variacion < 0 %}
-                    Las ventas están por debajo de la semana anterior.
-                {% else %}
-                    No hay ventas anteriores para comparar.
-                {% endif %}
+            <div style="position:relative; height:200px;">
+                <canvas id="chartDias"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
+    <!-- Dona bebidas -->
+    <div class="col-md-4">
         <div class="section-card">
             <div class="section-title">
-                <i class="bi bi-trophy" style="color:#e8891a;"></i>
-                Top Bebidas Más Vendidas
+                <i class="bi bi-pie-chart" style="color:#e8891a;"></i>
+                Bebidas Más Vendidas
             </div>
-            {% if top_bebidas %}
-                {% set max_vendido = top_bebidas[0].total_vendido %}
+            {% if dona_valores %}
+            <div style="position:relative; height:150px;">
+                <canvas id="chartDona"></canvas>
+            </div>
+            <div class="mt-3">
                 {% for b in top_bebidas %}
-                {% set i = loop.index0 %}
                 <div class="top-bebida-row">
-                    <div class="top-num {{ 'gold' if i == 0 else '' }}">{{ loop.index }}</div>
+                    <div class="top-num {{ 'gold' if loop.index == 1 else '' }}">{{ loop.index }}</div>
                     <div class="top-bar-wrap">
                         <div class="top-bar-label">{{ b.nombre }}</div>
                         <div class="top-bar">
-                            <div class="top-bar-fill" style="width:{{ ((b.total_vendido / max_vendido) * 100)|int }}%;"></div>
+                            <div class="top-bar-fill" style="width:{{ ((b.total_vendido / top_bebidas[0].total_vendido) * 100)|int }}%;"></div>
                         </div>
                     </div>
                     <div class="top-count">{{ b.total_vendido }} uds.</div>
                 </div>
                 {% endfor %}
+            </div>
             {% else %}
-                <div style="text-align:center; padding:30px 0; color:#aaa;">
-                    <i class="bi bi-bar-chart" style="font-size:2rem;"></i>
-                    <p class="mt-2 mb-0" style="font-size:0.88rem;">Sin ventas registradas aún</p>
-                </div>
+            <div style="text-align:center; padding:40px 0; color:#aaa;">
+                <i class="bi bi-pie-chart" style="font-size:2.5rem;"></i>
+                <p class="mt-2 mb-0" style="font-size:0.88rem;">Sin ventas registradas</p>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
 
-<!-- FILA 3: PEDIDOS + ALERTAS -->
+<!-- Línea 6 meses -->
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">
+                    <i class="bi bi-calendar3" style="color:#e8891a;"></i>
+                    Ingresos — Últimos 6 Meses
+                </div>
+                <div style="font-size:0.82rem; color:#aaa;">
+                    Total período: <strong style="color:#1a1a1a;">${{ "%.2f"|format(meses_valores | sum) }}</strong>
+                </div>
+            </div>
+            <div style="position:relative; height:180px;">
+                <canvas id="chartMeses"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PEDIDOS + ALERTAS + COMPARATIVA -->
+<div class="divider-label">Operaciones</div>
 <div class="row g-3">
+    <!-- Pedidos recientes -->
     <div class="col-md-8">
         <div class="section-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -220,11 +297,13 @@
                 <div class="pedido-item">
                     <div>
                         <div class="pedido-nombre">#{{ pedido.id }} — {{ pedido.usuario.nombre }} {{ pedido.usuario.apellidos }}</div>
-                        <div class="pedido-dir">{{ pedido.direccion_entrega }}</div>
+                        <div class="pedido-meta">
+                            {{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') }} ·
+                            {{ pedido.direccion_entrega[:35] }}{% if pedido.direccion_entrega|length > 35 %}...{% endif %}
+                        </div>
                     </div>
-                    <div class="pedido-total">
-                        ${{ "%.2f"|format(pedido.total) }}
-                        <br>
+                    <div class="pedido-right">
+                        <div class="pedido-total">${{ "%.2f"|format(pedido.total) }}</div>
                         <span class="badge-estado badge-{{ pedido.estado|replace('_','-') }}">
                             {{ pedido.estado|replace('_',' ') }}
                         </span>
@@ -237,8 +316,10 @@
         </div>
     </div>
 
+    <!-- Alertas + Comparativa -->
     <div class="col-md-4">
-        <div class="section-card">
+        <!-- Alertas -->
+        <div class="section-card mb-3">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="section-title mb-0">
                     <i class="bi bi-exclamation-triangle" style="color:#e74c3c;"></i>
@@ -260,12 +341,44 @@
                     </div>
                 </div>
                 {% endfor %}
+                <div class="mt-3">
+                    <a href="{{ url_for('admin_compras.index') }}" style="font-size:0.82rem; color:#e8891a; text-decoration:none; font-weight:600;">
+                        <i class="bi bi-cart-plus me-1"></i> Ir a Compras
+                    </a>
+                </div>
             {% else %}
                 <div style="text-align:center; padding:20px 0; color:#aaa;">
                     <i class="bi bi-check-circle" style="font-size:2rem; color:#27ae60;"></i>
-                    <p class="mt-2 mb-0" style="font-size:0.85rem;">Todo el inventario en orden</p>
+                    <p class="mt-2 mb-0" style="font-size:0.85rem;">Inventario en orden</p>
                 </div>
             {% endif %}
+        </div>
+
+        <!-- Comparativa semanal -->
+        <div class="section-card">
+            <div class="section-title">
+                <i class="bi bi-graph-up" style="color:#e8891a;"></i>
+                Semana vs Anterior
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <div>
+                    <div style="font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Esta semana</div>
+                    <div style="font-size:1.3rem; font-weight:800; color:#1a1a1a;">${{ "%.2f"|format(ventas_esta_semana) }}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Semana anterior</div>
+                    <div style="font-size:1.3rem; font-weight:800; color:#aaa;">${{ "%.2f"|format(ventas_semana_anterior) }}</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                {% if variacion > 0 %}
+                <span class="variacion-badge variacion-pos"><i class="bi bi-arrow-up"></i> +{{ "%.1f"|format(variacion) }}% vs semana anterior</span>
+                {% elif variacion < 0 %}
+                <span class="variacion-badge variacion-neg"><i class="bi bi-arrow-down"></i> {{ "%.1f"|format(variacion) }}% vs semana anterior</span>
+                {% else %}
+                <span class="variacion-badge variacion-neu"><i class="bi bi-dash"></i> Sin datos anteriores</span>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -273,7 +386,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// Reloj
 function actualizarReloj() {
     const ahora = new Date();
     const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -281,5 +396,92 @@ function actualizarReloj() {
 }
 actualizarReloj();
 setInterval(actualizarReloj, 60000);
+
+// Datos desde Flask
+const diasLabels  = {{ dias_labels  | tojson }};
+const diasValores = {{ dias_valores | tojson }};
+const mesesLabels  = {{ meses_labels  | tojson }};
+const mesesValores = {{ meses_valores | tojson }};
+const donaLabels  = {{ dona_labels  | tojson }};
+const donaValores = {{ dona_valores | tojson }};
+const colores = ['#e8891a','#3498db','#27ae60','#9b59b6','#e74c3c'];
+
+// Gráfica 1 — Barras 7 días
+new Chart(document.getElementById('chartDias'), {
+    type: 'bar',
+    data: {
+        labels: diasLabels,
+        datasets: [{
+            data: diasValores,
+            backgroundColor: diasValores.map((v, i) =>
+                i === diasValores.length - 1 ? '#e8891a' : 'rgba(232,137,26,0.25)'
+            ),
+            borderColor: '#e8891a',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` $${ctx.raw.toFixed(2)}` } }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { grid: { color: '#f5f0eb' }, ticks: { font: { size: 11 }, callback: v => `$${v}` } }
+        }
+    }
+});
+
+// Gráfica 2 — Dona bebidas
+if (donaValores.length > 0) {
+    new Chart(document.getElementById('chartDona'), {
+        type: 'doughnut',
+        data: {
+            labels: donaLabels,
+            datasets: [{ data: donaValores, backgroundColor: colores, borderWidth: 0, hoverOffset: 8 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} uds.` } }
+            }
+        }
+    });
+}
+
+// Gráfica 3 — Línea 6 meses
+new Chart(document.getElementById('chartMeses'), {
+    type: 'line',
+    data: {
+        labels: mesesLabels,
+        datasets: [{
+            data: mesesValores,
+            borderColor: '#e8891a',
+            backgroundColor: 'rgba(232,137,26,0.08)',
+            borderWidth: 3,
+            pointBackgroundColor: '#e8891a',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` $${ctx.raw.toFixed(2)}` } }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { grid: { color: '#f5f0eb' }, ticks: { font: { size: 11 }, callback: v => `$${v}` } }
+        }
+    }
+});
 </script>
 {% endblock %}
