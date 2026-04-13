@@ -111,6 +111,7 @@ class Bebida(db.Model):
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     recetas = db.relationship('Receta', backref='bebida', lazy='dynamic', cascade='all, delete-orphan')
     imagen_url_frio = db.Column(db.String(255))
+    solo_caliente = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f'<Bebida {self.nombre}>'

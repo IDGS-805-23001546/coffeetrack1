@@ -46,18 +46,22 @@
         </thead>
         <tbody>
             {% for m in materias %}
-            <td class="{% if m.stock_actual <= 0 %}stock-empty{% elif m.stock_actual <= m.stock_minimo %}stock-low{% else %}stock-ok{% endif %}">
-                {% if m.stock_actual <= 0 %}
-                    <span title="Comprar más al proveedor" data-bs-toggle="tooltip" style="cursor:help;">
-                        <i class="bi bi-exclamation-triangle-fill"></i> Insuficiente
-                    </span>
-                {% elif m.unidad_medida == 'ml' and m.stock_actual >= 1000 %}
-                    {{ "%.2f"|format(m.stock_actual / 1000) }} L
-                {% elif m.unidad_medida == 'gr' and m.stock_actual >= 1000 %}
-                    {{ "%.2f"|format(m.stock_actual / 1000) }} kg
-                {% else %}
-                    {{ m.stock_actual|int }} {{ m.unidad_medida }}
-                {% endif %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.nombre }}</td>
+                <td><span class="badge-cat">{{ m.categoria.nombre }}</span></td>
+                <td class="{% if m.stock_actual <= 0 %}stock-empty{% elif m.stock_actual <= m.stock_minimo %}stock-low{% else %}stock-ok{% endif %}">
+                    {% if m.stock_actual <= 0 %}
+                        <span title="Comprar más al proveedor" data-bs-toggle="tooltip" style="cursor:help;">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Insuficiente
+                        </span>
+                    {% elif m.unidad_medida == 'ml' and m.stock_actual >= 1000 %}
+                        {{ "%.2f"|format(m.stock_actual / 1000) }} L
+                    {% elif m.unidad_medida == 'gr' and m.stock_actual >= 1000 %}
+                        {{ "%.2f"|format(m.stock_actual / 1000) }} kg
+                    {% else %}
+                        {{ m.stock_actual|int }} {{ m.unidad_medida }}
+                    {% endif %}
                 </td>
                 <td>
                     {% if m.unidad_medida == 'ml' and m.stock_minimo >= 1000 %}
@@ -86,7 +90,6 @@
                         <span class="badge-disponible">Disponible</span>
                     {% endif %}
                 </td>
-                <!-- En la tabla, columna acciones — reemplaza el td del botón editar -->
                 <td>
                     <button class="btn-edit" onclick="abrirEditar(
                         {{ m.id }}, '{{ m.nombre }}', {{ m.categoria_id }},
@@ -156,7 +159,6 @@
 </div>
 
 <!-- MODAL EDITAR MATERIA -->
-<!-- Modal editar — reemplaza el modal completo #modalEditarMateria -->
 <div class="modal fade" id="modalEditarMateria" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
@@ -207,12 +209,12 @@
 
 {% block extra_js %}
 <script>
-
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     var tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltips.forEach(function(el) { new bootstrap.Tooltip(el); });
 });
-    function abrirEditar(id, nombre, categoria_id, unidad, stock_minimo, precio) {
+
+function abrirEditar(id, nombre, categoria_id, unidad, stock_minimo, precio) {
     document.getElementById('edit_nombre').value = nombre;
     document.getElementById('edit_categoria').value = categoria_id;
     document.getElementById('edit_unidad').value = unidad;
@@ -222,11 +224,11 @@
     new bootstrap.Modal(document.getElementById('modalEditarMateria')).show();
 }
 
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('#materiasTable tbody tr').forEach(row => {
-            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
-        });
+document.getElementById('searchInput').addEventListener('input', function() {
+    const val = this.value.toLowerCase();
+    document.querySelectorAll('#materiasTable tbody tr').forEach(row => {
+        row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
     });
+});
 </script>
 {% endblock %}

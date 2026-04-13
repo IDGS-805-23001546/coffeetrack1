@@ -146,19 +146,34 @@
                             </form>
 
                             {% else %}
-                            <!-- NORMAL: CALIENTE O FRÍO -->
-                            <div class="temp-selector" id="selector-{{ bebida.id }}">
-                                <button class="temp-btn selected-caliente" onclick="selTemp({{ bebida.id }}, 'caliente', this)"> Caliente</button>
-                                <button class="temp-btn" onclick="selTemp({{ bebida.id }}, 'frio', this)"> Frío</button>
-                            </div>
-                            <form action="{{ url_for('carrito.agregar', bebida_id=bebida.id) }}" method="POST">
-                                <input type="hidden" name="cantidad" value="1">
-                                <input type="hidden" name="temperatura" id="temp-input-{{ bebida.id }}" value="caliente">
-                                <button type="submit" class="btn-add-cart" onclick="sincronizarTemp({{ bebida.id }}, this.form)">
-                                    <i class="bi bi-cart-plus me-2"></i>Añadir al pedido
-                                </button>
-                            </form>
-                            {% endif %}
+<!-- NORMAL: CALIENTE O FRÍO -->
+{% if bebida.solo_caliente %}
+<div class="mb-3">
+    <span style="background:rgba(232,137,26,0.15); color:#e8891a; padding:6px 14px; border-radius:20px; font-size:0.82rem; font-weight:700;">
+        Solo se sirve caliente
+    </span>
+</div>
+<form action="{{ url_for('carrito.agregar', bebida_id=bebida.id) }}" method="POST">
+    <input type="hidden" name="cantidad" value="1">
+    <input type="hidden" name="temperatura" value="caliente">
+    <button type="submit" class="btn-add-cart">
+        <i class="bi bi-cart-plus me-2"></i>Añadir al pedido
+    </button>
+</form>
+{% else %}
+<div class="temp-selector" id="selector-{{ bebida.id }}">
+    <button class="temp-btn selected-caliente" onclick="selTemp({{ bebida.id }}, 'caliente', this)"> Caliente</button>
+    <button class="temp-btn" onclick="selTemp({{ bebida.id }}, 'frio', this)"> Frío</button>
+</div>
+<form action="{{ url_for('carrito.agregar', bebida_id=bebida.id) }}" method="POST">
+    <input type="hidden" name="cantidad" value="1">
+    <input type="hidden" name="temperatura" id="temp-input-{{ bebida.id }}" value="caliente">
+    <button type="submit" class="btn-add-cart" onclick="sincronizarTemp({{ bebida.id }}, this.form)">
+        <i class="bi bi-cart-plus me-2"></i>Añadir al pedido
+    </button>
+</form>
+{% endif %}
+{% endif %}
 
                         {% else %}
                         <button class="btn-agotado">

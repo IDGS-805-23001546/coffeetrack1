@@ -57,6 +57,7 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Categoría</th>
+                    <th>Temp.</th>
                     <th>Precio</th>
                     <th>Vendidas</th>
                     <th>Cap. Producción</th>
@@ -85,6 +86,18 @@
                     <td>{{ b.id }}</td>
                     <td><strong>{{ b.nombre }}</strong></td>
                     <td><span class="badge-cat">{{ b.categoria.nombre }}</span></td>
+                    <td>  <!-- AGREGAR -->
+                        {% if b.solo_caliente %}
+                        <span style="background:#fdf3e7; color:#e8891a; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"> Solo caliente</span>
+                        {% elif b.categoria.solo_frio %}
+                        <span style="background:#e8f4fd; color:#3498db; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"> Solo frío</span>
+                        {% elif b.categoria.sin_temperatura %}
+                        <span style="background:#f0f0f0; color:#555; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"> Sin temp.</span>
+                        {% else %}
+                        <span style="background:#f0f0f0; color:#888; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">Frío y Caliente</span>
+                        {% endif %}
+                    </td>
+                    <td>${{ "%.2f"|format(b.precio) }}</td>
                     <td>${{ "%.2f"|format(b.precio) }}</td>
                     <td style="font-weight:700; color:#e8891a;">{{ vendidas.get(b.id, 0) }} uds.</td>
                     <td>

@@ -6,7 +6,6 @@ from app import db
 from sqlalchemy import func as sa_func
 import os
 import uuid
-from werkzeug.utils import secure_filename
 
 
 def allowed_file(filename):
@@ -49,27 +48,25 @@ def index():
             capacidades[b.id] = min(caps) if caps else 0
         else:
             capacidades[b.id] = 0
-            
+
     # Ingredientes faltantes por bebida
-        faltantes = {}
-        for b in bebidas:
-            if capacidades.get(b.id, 0) <= 0:
-                faltantes_lista = []
-        for r in b.recetas.all():
-            mp = r.materia_prima
-            if mp and float(mp.stock_actual) < float(r.cantidad):
-                faltantes_lista.append(mp.nombre)
-        faltantes[b.id] = ', '.join(faltantes_lista) if faltantes_lista else 'Sin receta'
-            
-            
+    faltantes = {}
+    for b in bebidas:
+        if capacidades.get(b.id, 0) <= 0:
+            faltantes_lista = []
+            for r in b.recetas.all():
+                mp = r.materia_prima
+                if mp and float(mp.stock_actual) < float(r.cantidad):
+                    faltantes_lista.append(mp.nombre)
+            faltantes[b.id] = ', '.join(faltantes_lista) if faltantes_lista else 'Sin receta registrada'
 
     return render_template('admin/bebidas.html',
         bebidas=bebidas,
         categorias=categorias,
         materias=materias,
         vendidas=vendidas,
-        capacidades=capacidades
-        faltantes =faltantes
+        capacidades=capacidades,
+        faltantes=faltantes
     )
 
 
@@ -100,7 +97,6 @@ def nueva():
             if filename_frio:
                 imagen_url_frio = filename_frio
 
-        # Crear bebida con ambas imágenes
         bebida = Bebida(
             nombre=nombre,
             descripcion=descripcion,
@@ -116,7 +112,6 @@ def nueva():
         db.session.add(bebida)
         db.session.flush()
 
-        # Guardar ingredientes de la receta
         materia_ids = request.form.getlist('materia_prima_id[]')
         cantidades = request.form.getlist('cantidad[]')
         unidades = request.form.getlist('unidad_medida[]')
