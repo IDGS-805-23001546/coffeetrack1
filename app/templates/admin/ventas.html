@@ -290,20 +290,49 @@
     }
 
     function filtrarPorFecha() {
-        const fecha = document.getElementById('filtroFecha').value;
-        if (!fecha) return;
-
-        document.querySelectorAll('.historial-dia').forEach(dia => {
-            dia.style.display = dia.getAttribute('data-fecha') === fecha ? '' : 'none';
-        });
+    const fecha = document.getElementById('filtroFecha').value;
+    if (!fecha) {
+        alert('Selecciona una fecha para filtrar.');
+        return;
     }
 
-    function limpiarFiltro() {
-        document.getElementById('filtroFecha').value = '';
-        document.querySelectorAll('.historial-dia').forEach(dia => {
+    let encontrado = false;
+    document.querySelectorAll('.historial-dia').forEach(dia => {
+        const dataFecha = dia.getAttribute('data-fecha');
+        if (dataFecha === fecha) {
             dia.style.display = '';
-        });
+            // Abrir automáticamente el día filtrado
+            const body = dia.querySelector('.historial-dia-body');
+            const header = dia.querySelector('.historial-dia-header');
+            const chevron = dia.querySelector('.dia-chevron');
+            if (body && !body.classList.contains('abierto')) {
+                body.classList.add('abierto');
+                chevron.classList.add('rotado');
+                header.classList.add('activo');
+            }
+            encontrado = true;
+        } else {
+            dia.style.display = 'none';
+        }
+    });
+
+    if (!encontrado) {
+        document.getElementById('historialContainer').innerHTML += `
+            <div id="mensajeSinVentas" class="table-card text-center py-4 text-muted">
+                <i class="bi bi-calendar-x" style="font-size:2rem; opacity:0.3;"></i>
+                <p class="mt-2 mb-0">No hay ventas pagadas para el ${fecha}.</p>
+            </div>`;
     }
+}
+
+function limpiarFiltro() {
+    document.getElementById('filtroFecha').value = '';
+    document.querySelectorAll('.historial-dia').forEach(dia => {
+        dia.style.display = '';
+    });
+    const msg = document.getElementById('mensajeSinVentas');
+    if (msg) msg.remove();
+}
 
     function verDetalleVenta(id) {
         document.getElementById('detalleVentaContenido').innerHTML = `
