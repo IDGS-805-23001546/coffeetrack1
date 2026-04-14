@@ -34,7 +34,7 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     MAIL_USERNAME = 'carlosriosrmz17@gmail.com'
-    MAIL_PASSWORD = 'uswiaczeqfhmlpbg'
+    MAIL_PASSWORD = 'gnqjusqbddudzdro'
     MAIL_DEFAULT_SENDER  = ('CofeeTrack', 'carlosriosrmz17@gmail.com')
     
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads', 'bebidas')
