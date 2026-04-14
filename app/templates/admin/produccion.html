@@ -5,95 +5,231 @@
 {% block extra_css %}
 <style>
     .badge-planificada { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-en-proceso { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-completada { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-cancelada { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-en-proceso  { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-completada  { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-cancelada   { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+
     .btn-cancelar { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
     .btn-cancelar:hover { background: #e74c3c; color: white; }
+
+    .kpi-card {
+        background: white; border-radius: 14px; padding: 20px 22px;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07); height: 100%;
+        border-left: 4px solid transparent; transition: transform 0.2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); }
+    .kpi-card.orange { border-left-color: #e8891a; }
+    .kpi-card.green  { border-left-color: #27ae60; }
+    .kpi-card.blue   { border-left-color: #3498db; }
+    .kpi-card.purple { border-left-color: #9b59b6; }
+    .kpi-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
+    .kpi-value { font-size: 1.8rem; font-weight: 800; color: #1a1a1a; line-height: 1; }
+    .kpi-sub   { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
+    .kpi-icon  { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+
+    .stock-card {
+        background: white; border-radius: 14px; padding: 24px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07); margin-bottom: 24px;
+    }
+    .stock-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 0; border-bottom: 1px solid #f5f0eb;
+    }
+    .stock-item:last-child { border-bottom: none; }
+    .stock-nombre { font-weight: 600; font-size: 0.9rem; color: #1a1a1a; }
+    .stock-cant {
+        background: #d4edda; color: #155724;
+        padding: 4px 14px; border-radius: 20px;
+        font-size: 0.82rem; font-weight: 700;
+    }
+
+    .filter-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-bar select { border-radius: 10px; border: 1px solid #e0d8d0; padding: 7px 12px; font-size: 0.85rem; }
+    .filter-bar select:focus { outline: none; border-color: #e8891a; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3">
+<div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <div class="page-title">Ordenes de Producción</div>
-        <div class="page-subtitle">Registro de producción de bebidas — {{ producciones|length }} registros</div>
+        <div class="page-title">Órdenes de Producción</div>
+        <div class="page-subtitle">Registro y control de producción de bebidas</div>
     </div>
     <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaProduccion">
-        + Nuevo Registro
+        <i class="bi bi-plus-lg me-1"></i> Nueva Orden
     </button>
 </div>
 
-<div class="table-card">
-    <div class="mb-3">
-        <input type="text" id="searchInput" class="search-input" placeholder="Buscar producción...">
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card orange">
+            <div>
+                <div class="kpi-label">Producidas Hoy</div>
+                <div class="kpi-value">{{ producidas_hoy }}</div>
+                <div class="kpi-sub">unidades completadas hoy</div>
+            </div>
+            <div class="kpi-icon" style="background:#fdf3e7; color:#e8891a;">
+                <i class="bi bi-cup-hot"></i>
+            </div>
+        </div>
     </div>
-    <table class="table" id="produccionTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Bebida</th>
-                <th>Cantidad</th>
-                <th>Fecha</th>
-                <th>Costo</th>
-                <th>Registrado por</th>
-                <th>Temp.</th>
-                <th>Estado</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in producciones %}
-            <tr>
-                <td>{{ p.id }}</td>
-                <td>{{ p.bebida.nombre }}</td>
-                <td>{{ p.cantidad_producida }} unidades</td>
-                <td>{{ p.fecha_produccion }}</td>
-                <td>${{ "%.2f"|format(p.costo_produccion or 0) }}</td>
-                <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
-                <td>
-                    {% if p.es_frio %}
-                        <span style="background:#e8f4fd; color:#3498db; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">🧊 Frío</span>
-                    {% else %}
-                        <span style="background:#fdf3e7; color:#e8891a; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">☕ Caliente</span>
-                    {% endif %}
-                </td>
-                <td>
-    {% if p.estado == 'planificada' %}
-                        <span class="badge-planificada">Planificada</span>
-                    {% elif p.estado == 'en proceso' %}
-                        <span class="badge-en-proceso">En Proceso</span>
-                    {% elif p.estado == 'completada' %}
-                        <span class="badge-completada">Completada</span>
-                    {% else %}
-                        <span class="badge-cancelada">Cancelada</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <!--quitar esto si falla-->
-                    {% if p.estado not in ['completada', 'cancelada'] %}
-                    <button class="btn-accion" onclick="verificarYCompletar({{ p.id }}, '{{ p.bebida.nombre }}')">
-                        <i class="bi bi-check-circle"></i> Completar
-                    </button>
-                    <form method="POST" action="{{ url_for('admin_produccion.cancelar', id=p.id) }}" style="display:inline;">
-                        <button type="submit" class="btn-cancelar ms-1">
-                            <i class="bi bi-x-circle"></i> Cancelar
-                        </button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
+    <div class="col-md-3">
+        <div class="kpi-card green">
+            <div>
+                <div class="kpi-label">Esta Semana</div>
+                <div class="kpi-value">{{ producidas_semana }}</div>
+                <div class="kpi-sub">unidades completadas</div>
+            </div>
+            <div class="kpi-icon" style="background:#eafaf1; color:#27ae60;">
+                <i class="bi bi-graph-up"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card blue">
+            <div>
+                <div class="kpi-label">Lotes Pendientes</div>
+                <div class="kpi-value">{{ lotes_activos }}</div>
+                <div class="kpi-sub">órdenes por completar</div>
+            </div>
+            <div class="kpi-icon" style="background:#e8f4fd; color:#3498db;">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card purple">
+            <div>
+                <div class="kpi-label">Costo Hoy</div>
+                <div class="kpi-value">${{ "%.2f"|format(costo_hoy) }}</div>
+                <div class="kpi-sub">en producción completada</div>
+            </div>
+            <div class="kpi-icon" style="background:#f5eafb; color:#9b59b6;">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STOCK DISPONIBLE PARA VENTA DIRECTA -->
+{% if stock_disponible %}
+<div class="stock-card mb-4" style="border-left: 4px solid #27ae60;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div style="font-size:1rem; font-weight:700; color:#1a1a1a; display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-box-seam" style="color:#27ae60;"></i>
+            Bebidas Disponibles para Venta Directa
+        </div>
+        <span style="font-size:0.78rem; color:#888;">Producidas sin pedido pendiente</span>
+    </div>
+    {% for item in stock_disponible %}
+    <div class="stock-item">
+        <div>
+            <div class="stock-nombre">{{ item.bebida.nombre }}</div>
+            <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">
+                {{ item.bebida.categoria.nombre }}
+            </div>
+        </div>
+        <span class="stock-cant">
+            <i class="bi bi-check-circle me-1"></i>{{ item.disponible }} uds. listas
+        </span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TABLA DE ÓRDENES -->
+<div class="table-card">
+    <div class="filter-bar">
+        <div class="input-group" style="width:250px;">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Buscar...">
+        </div>
+        <select id="filtroEstado" onchange="filtrar()">
+            <option value="">Todos los estados</option>
+            <option value="planificada">Planificada</option>
+            <option value="completada">Completada</option>
+            <option value="cancelada">Cancelada</option>
+        </select>
+        <select id="filtroBebida" onchange="filtrar()">
+            <option value="">Todas las bebidas</option>
+            {% for b in bebidas %}
+            <option value="{{ b.nombre }}">{{ b.nombre }}</option>
             {% endfor %}
-        </tbody>
-    </table>
+        </select>
+        <button class="btn-accion" onclick="limpiarFiltros()">
+            <i class="bi bi-x"></i> Limpiar
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table" id="produccionTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Bebida</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Costo</th>
+                    <th>Registrado por</th>
+                    <th>Temp.</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in producciones %}
+                <tr data-estado="{{ p.estado }}" data-bebida="{{ p.bebida.nombre }}">
+                    <td>{{ p.id }}</td>
+                    <td><strong>{{ p.bebida.nombre }}</strong></td>
+                    <td>{{ p.cantidad_producida }} uds.</td>
+                    <td>{{ p.fecha_produccion }}</td>
+                    <td>${{ "%.2f"|format(p.costo_produccion or 0) }}</td>
+                    <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
+                    <td>
+                        {% if p.es_frio %}
+                        <span style="background:#e8f4fd; color:#3498db; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">🧊 Frío</span>
+                        {% else %}
+                        <span style="background:#fdf3e7; color:#e8891a; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">☕ Caliente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.estado == 'planificada' %}
+                        <span class="badge-planificada">Planificada</span>
+                        {% elif p.estado == 'en proceso' %}
+                        <span class="badge-en-proceso">En Proceso</span>
+                        {% elif p.estado == 'completada' %}
+                        <span class="badge-completada">Completada</span>
+                        {% else %}
+                        <span class="badge-cancelada">Cancelada</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.estado not in ['completada', 'cancelada'] %}
+                        <button class="btn-accion" onclick="verificarYCompletar({{ p.id }}, '{{ p.bebida.nombre }}')">
+                            <i class="bi bi-check-circle"></i> Completar
+                        </button>
+                        <form method="POST" action="{{ url_for('admin_produccion.cancelar', id=p.id) }}" style="display:inline;">
+                            <button type="submit" class="btn-cancelar ms-1" onclick="return confirm('¿Cancelar producción #{{ p.id }}?')">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- MODAL NUEVA PRODUCCION -->
 <div class="modal fade" id="modalNuevaProduccion" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nuevo Registro de Producción</h5>
+                <h5 class="modal-title">Nueva Orden de Producción</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -103,33 +239,33 @@
                         <select name="bebida_id" class="form-select" required>
                             <option value="">Seleccionar bebida</option>
                             {% for b in bebidas %}
-                            <option value="{{ b.id }}">{{ b.nombre }}</option>
+                            <option value="{{ b.id }}" data-frio="{{ 'true' if b.categoria.solo_frio else 'false' }}">
+                                {{ b.nombre }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Cantidad a Producir (unidades)</label>
-                        <input type="number" name="cantidad_producida" class="form-control" min="1" required placeholder="Ej. 50">
+                        <label class="form-label">Cantidad a Producir</label>
+                        <input type="number" name="cantidad_producida" class="form-control" min="1" required placeholder="Ej. 10">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Fecha de Producción</label>
                         <input type="date" name="fecha_produccion" class="form-control" required>
                     </div>
                     <div class="mb-3">
-    <label class="form-label">Temperatura de Producción</label>
-    <div class="d-flex gap-3">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="es_frio" id="esFrio">
-            <label class="form-check-label" for="esFrio">
-                Producción fría (descuenta 100gr de hielo por unidad)
-            </label>
-        </div>
-    </div>
-</div>
-<div class="mb-4">
-    <label class="form-label">Notas</label>
-    <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
-</div>
+                        <label class="form-label">Temperatura</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="es_frio" id="esFrio">
+                            <label class="form-check-label" for="esFrio">
+                                🧊 Producción fría <small class="text-muted">(descuenta 100gr de hielo por unidad)</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Notas</label>
+                        <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
+                    </div>
                     <button type="submit" class="btn-submit">Registrar Producción</button>
                 </form>
             </div>
@@ -137,24 +273,22 @@
     </div>
 </div>
 
-<!--si falla quital esto -->
 <!-- MODAL STOCK INSUFICIENTE -->
 <div class="modal fade" id="modalStockInsuficiente" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header" style="border-bottom: 1px solid #f8d7da; background: #fff5f5;">
+            <div class="modal-header" style="border-bottom:1px solid #f8d7da; background:#fff5f5;">
                 <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    Stock Insuficiente
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Stock Insuficiente
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="stockAlertaContenido"></div>
-            <div class="modal-footer" style="border-top: 1px solid #f0ece6;">
+            <div class="modal-footer" style="border-top:1px solid #f0ece6;">
                 <a href="{{ url_for('admin_materias.index') }}" class="btn-accion">
                     <i class="bi bi-box-seam"></i> Ver Materias Primas
                 </a>
-                <a href="#" class="btn-submit" style="display:inline-block; text-decoration:none; text-align:center; width:auto; padding: 8px 20px;">
+                <a href="{{ url_for('admin_compras.index') }}" class="btn-submit" style="display:inline-block; text-decoration:none; text-align:center; width:auto; padding:8px 20px;">
                     <i class="bi bi-cart-plus"></i> Ir a Compras
                 </a>
                 <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cerrar</button>
@@ -166,39 +300,60 @@
 
 {% block extra_js %}
 <script>
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('#produccionTable tbody tr').forEach(row => {
-            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
-        });
+// Fecha de hoy por defecto
+document.querySelector('input[name="fecha_produccion"]').value = new Date().toISOString().split('T')[0];
+
+// Auto-marcar es_frio si la bebida es solo_frio
+document.querySelector('select[name="bebida_id"]').addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    const esFrio = opt.getAttribute('data-frio') === 'true';
+    document.getElementById('esFrio').checked = esFrio;
+});
+
+// Filtros
+function filtrar() {
+    const estado = document.getElementById('filtroEstado').value.toLowerCase();
+    const bebida = document.getElementById('filtroBebida').value.toLowerCase();
+    const buscar = document.getElementById('searchInput').value.toLowerCase();
+
+    document.querySelectorAll('#produccionTable tbody tr').forEach(row => {
+        const matchEstado = !estado || row.getAttribute('data-estado') === estado;
+        const matchBebida = !bebida || row.getAttribute('data-bebida').toLowerCase() === bebida;
+        const matchBuscar = !buscar || row.cells[1].textContent.toLowerCase().includes(buscar);
+        row.style.display = matchEstado && matchBebida && matchBuscar ? '' : 'none';
     });
+}
 
-    const today = new Date().toISOString().split('T')[0];
-    document.querySelector('input[name="fecha_produccion"]').value = today;
+function limpiarFiltros() {
+    document.getElementById('filtroEstado').value = '';
+    document.getElementById('filtroBebida').value = '';
+    document.getElementById('searchInput').value = '';
+    filtrar();
+}
 
-    function verificarYCompletar(id, nombreBebida) {
+document.getElementById('searchInput').addEventListener('input', filtrar);
+
+// Verificar stock y completar
+function verificarYCompletar(id, nombreBebida) {
     fetch(`/admin/produccion/verificar_stock/${id}`)
     .then(r => r.json())
     .then(data => {
         if (data.puede_completar) {
-            // Hay stock suficiente, enviar formulario
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/admin/produccion/completar/${id}`;
             document.body.appendChild(form);
             form.submit();
         } else {
-            // Mostrar modal de alerta detallada
             let html = `
                 <div style="background:#fff5f5; border-radius:10px; padding:16px; margin-bottom:16px;">
                     <p style="font-weight:700; color:#c0392b; margin-bottom:4px;">
                         No es posible producir <span style="color:#e8891a;">${data.cantidad} unidades</span> de <strong>${data.bebida}</strong>
                     </p>
                     <p style="font-size:0.85rem; color:#888; margin:0;">
-                        Los siguientes ingredientes no tienen stock suficiente. Realiza una compra para continuar.
+                        Los siguientes ingredientes no tienen stock suficiente.
                     </p>
                 </div>
-
                 <p style="font-size:0.8rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">
                     Ingredientes con stock insuficiente (${data.faltantes.length})
                 </p>`;
@@ -212,11 +367,8 @@
                             <div style="font-weight:700; font-size:0.95rem; color:#1a1a1a;">${f.materia}</div>
                             <div style="font-size:0.75rem; color:#888;">${f.categoria}</div>
                         </div>
-                        <span style="background:#fee2e2; color:#c0392b; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">
-                            Insuficiente
-                        </span>
+                        <span style="background:#fee2e2; color:#c0392b; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">Insuficiente</span>
                     </div>
-
                     <div style="background:#f8f9fa; border-radius:8px; padding:10px; margin-bottom:10px; font-size:0.82rem;">
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                             <span style="color:#888;">Necesario:</span>
@@ -231,13 +383,11 @@
                             <span style="font-weight:700; color:#e74c3c;">${f.faltante} ${f.unidad}</span>
                         </div>
                     </div>
-
                     <div style="background:#f0ece6; border-radius:6px; height:8px; margin-bottom:6px;">
-                        <div style="background:#e8891a; border-radius:6px; height:8px; width:${Math.min(porcentaje, 100)}%;"></div>
+                        <div style="background:#e8891a; border-radius:6px; height:8px; width:${Math.min(porcentaje,100)}%;"></div>
                     </div>
-                    <div style="font-size:0.75rem; color:#888;">${porcentaje}% del stock necesario disponible</div>
-
-                    <div style="margin-top:10px; padding-top:10px; border-top:1px solid #f0ece6; font-size:0.82rem; color:#555;">
+                    <div style="font-size:0.75rem; color:#888; margin-bottom:8px;">${porcentaje}% del stock necesario disponible</div>
+                    <div style="font-size:0.82rem; color:#555;">
                         <i class="bi bi-tag" style="color:#e8891a;"></i>
                         Costo estimado para completar: <strong style="color:#e8891a;">$${f.costo_faltante.toFixed(2)}</strong>
                     </div>
@@ -246,7 +396,7 @@
 
             html += `
                 <div style="background:#fdf3e7; border-radius:10px; padding:14px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:0.88rem; color:#555;">Inversión total estimada para reabastecerse:</span>
+                    <span style="font-size:0.88rem; color:#555;">Inversión total estimada:</span>
                     <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total_costo_faltante.toFixed(2)}</span>
                 </div>`;
 
@@ -254,9 +404,7 @@
             new bootstrap.Modal(document.getElementById('modalStockInsuficiente')).show();
         }
     })
-    .catch(err => {
-        alert('Error al verificar stock. Intenta de nuevo.');
-    });
+    .catch(() => alert('Error al verificar stock. Intenta de nuevo.'));
 }
 </script>
 {% endblock %}
