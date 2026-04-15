@@ -126,6 +126,11 @@
                         <button class="btn-img-frio" onclick="abrirEditarImagen({{ b.id }}, '{{ b.nombre }}', 'frio')">
                             <i class="bi bi-camera"></i> Frio
                         </button>
+
+                        <button class="btn-cancelar ms-1" data-id="{{ b.id }}" data-nombre="{{ b.nombre }}"
+                                onclick="confirmarEliminar(this.dataset.id, this.dataset.nombre)">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -325,5 +330,35 @@ document.addEventListener('DOMContentLoaded', function() {
         new bootstrap.Tooltip(el);
     });
 });
+
+function confirmarEliminar(id, nombre) {
+    fetch('/admin/bebidas/tiene_receta/' + id)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        let eliminarReceta = 'no';
+        if (data.tiene_receta) {
+            const resp = confirm(
+                ' "' + nombre + '" tiene una receta registrada.\n\n' +
+                '¿Deseas eliminar también su receta?\n\n' +
+                'Aceptar = Sí, eliminar bebida y receta\n' +
+                'Cancelar = No eliminar nada'
+            );
+            if (!resp) return;
+            eliminarReceta = 'si';
+        } else {
+            if (!confirm('¿Eliminar la bebida "' + nombre + '"?')) return;
+        }
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/bebidas/eliminar/' + id;
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'eliminar_receta';
+        input.value = eliminarReceta;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    });
+}
 </script>
 {% endblock %}

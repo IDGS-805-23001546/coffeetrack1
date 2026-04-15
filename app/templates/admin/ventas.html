@@ -4,26 +4,21 @@
 
 {% block extra_css %}
 <style>
-    .kpi-card { background: white; border-radius: 14px; padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; }
-    .kpi-label { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
+    .kpi-card { background: white; border-radius: 14px; padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 1px 4px rgba(0,0,0,0.06); height: 100%; transition: transform 0.15s; }
+    .kpi-card:hover { transform: translateY(-2px); }
+    .kpi-label { font-size: 0.78rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
     .kpi-value { font-size: 2rem; font-weight: 700; color: #1a1a1a; line-height: 1; margin-bottom: 6px; }
     .kpi-sub { font-size: 0.8rem; color: #27ae60; }
     .kpi-sub-warning { font-size: 0.8rem; color: #e67e22; }
     .kpi-icon { width: 44px; height: 44px; background: #fdf3e7; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #e8891a; font-size: 1.2rem; flex-shrink: 0; }
 
-    .badge-pagado { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-pendiente { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-reembolsado { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-metodo { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-pagado     { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-pendiente  { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-reembolsado{ background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-metodo     { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
-    .chart-container { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
-    .chart-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
-    .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 160px; padding-bottom: 8px; }
-    .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; height: 100%; justify-content: flex-end; }
-    .bar { width: 100%; background: #e8891a; border-radius: 6px 6px 0 0; transition: 0.3s; min-height: 4px; }
-    .bar:hover { background: #d47b15; }
-    .bar-label { font-size: 0.7rem; color: #888; font-weight: 600; text-align: center; line-height: 1.2; }
-    .bar-value { font-size: 0.7rem; color: #e8891a; font-weight: 700; }
+    .section-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
+    .section-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 
     .pendientes-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; border-left: 4px solid #e8891a; }
     .pendientes-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
@@ -35,17 +30,8 @@
     .btn-confirmar { background: #e8891a; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-confirmar:hover { background: #d47b15; }
 
-    /* HISTORIAL POR DIA */
     .historial-dia { background: white; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 12px; overflow: hidden; }
-    .historial-dia-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px;
-        cursor: pointer;
-        transition: 0.2s;
-        user-select: none;
-    }
+    .historial-dia-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; cursor: pointer; transition: 0.2s; user-select: none; }
     .historial-dia-header:hover { background: #fdf8f3; }
     .historial-dia-header.activo { background: #fdf3e7; }
     .dia-fecha { font-weight: 700; font-size: 0.95rem; color: #1a1a1a; }
@@ -72,12 +58,15 @@
     .info-label { color: #888; }
     .info-value { color: #1a1a1a; font-weight: 600; }
 
-    .filtro-fecha { background: white; border-radius: 14px; padding: 16px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
-    .filtro-fecha label { font-size: 0.82rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-    .filtro-fecha input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 8px 14px; font-size: 0.88rem; }
-    .filtro-fecha input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
     .btn-filtrar { background: #e8891a; color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
     .btn-limpiar { background: #f0ece6; color: #555; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+
+    .divider-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; font-weight: 700; margin: 24px 0 16px; display: flex; align-items: center; gap: 10px; }
+    .divider-label::after { content: ''; flex: 1; height: 1px; background: #f0ece6; }
+
+    .mes-stat { text-align: center; padding: 8px 0; }
+    .mes-stat-valor { font-size: 1.1rem; font-weight: 800; color: #e8891a; }
+    .mes-stat-label { font-size: 0.72rem; color: #888; margin-top: 2px; }
 </style>
 {% endblock %}
 
@@ -131,9 +120,7 @@
     <div class="pendiente-item">
         <div>
             <div class="pendiente-nombre">Pedido #{{ venta.pedido_id }} — {{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</div>
-            <div class="pendiente-sub">
-                Ref: {{ venta.referencia_pago or 'N/A' }}
-            </div>
+            <div class="pendiente-sub">Ref: {{ venta.referencia_pago or 'N/A' }}</div>
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="pendiente-total">${{ "%.2f"|format(venta.total) }}</span>
@@ -146,22 +133,52 @@
 </div>
 {% endif %}
 
-<!-- GRAFICA ULTIMOS 7 DIAS -->
-<div class="chart-container">
-    <div class="chart-title">Ingresos — Últimos 7 Días</div>
-    <div class="bar-chart">
-        {% set max_val = datos_semana | map(attribute='total') | max %}
-        {% for d in datos_semana %}
-        <div class="bar-group">
-            <div class="bar-value">{% if d.total > 0 %}${{ "%.0f"|format(d.total) }}{% endif %}</div>
-            <div class="bar" style="height: {{ ((d.total / max_val * 100) if max_val > 0 else 0)|int }}%;"></div>
-            <div class="bar-label">{{ d.dia }}</div>
+<!-- GRÁFICAS -->
+<div class="divider-label">Análisis de Ventas</div>
+<div class="row g-3 mb-4">
+
+    <!-- Gráfica semana actual -->
+    <div class="col-md-6">
+        <div class="section-card">
+            <div class="section-title">
+                <i class="bi bi-bar-chart-line" style="color:#e8891a;"></i>
+                Ventas Esta Semana (Lun–Dom)
+            </div>
+            <div style="position:relative; height:200px;">
+                <canvas id="chartSemana"></canvas>
+            </div>
         </div>
-        {% endfor %}
+    </div>
+
+    <!-- Gráfica últimos 6 meses -->
+    <div class="col-md-6">
+        <div class="section-card">
+            <div class="section-title">
+                <i class="bi bi-calendar3" style="color:#e8891a;"></i>
+                Ingresos Últimos 6 Meses
+            </div>
+            <div style="position:relative; height:200px;">
+                <canvas id="chartMeses"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Resumen mensual -->
+<div class="row g-3 mb-4">
+    {% for i in range(meses_labels|length) %}
+    <div class="col">
+        <div class="section-card text-center py-3">
+            <div class="mes-stat-valor">${{ "%.0f"|format(meses_valores[i]) }}</div>
+            <div style="font-size:0.75rem; color:#aaa; margin: 2px 0;">{{ meses_cantidades[i] }} ventas</div>
+            <div class="mes-stat-label">{{ meses_labels[i] }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 <!-- HISTORIAL POR DIA -->
+<div class="divider-label">Historial</div>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div style="font-size:1.05rem; font-weight:700; color:#1a1a1a;">Historial por Día</div>
     <div class="d-flex gap-2 align-items-center">
@@ -191,7 +208,7 @@
                 <div class="venta-info">
                     <div class="venta-cliente">{{ venta.pedido.usuario.nombre }} {{ venta.pedido.usuario.apellidos }}</div>
                     <div class="venta-hora">
-                        Pedido #{{ venta.pedido_id }} · 
+                        Pedido #{{ venta.pedido_id }} ·
                         {{ (venta.fecha_venta - timedelta(hours=6)).strftime('%H:%M') }} hrs ·
                         Ref: {{ venta.referencia_pago or '—' }}
                     </div>
@@ -212,8 +229,6 @@
                 </div>
             </div>
             {% endfor %}
-
-            <!-- Subtotal del dia -->
             <div style="display:flex; justify-content:flex-end; padding:12px 24px; background:#fdf8f3; border-top:1px solid #f0ece6;">
                 <span style="font-size:0.85rem; color:#888; margin-right:12px;">Total del día:</span>
                 <span style="font-weight:700; color:#e8891a;">${{ "%.2f"|format(dia_data.total_dia) }}</span>
@@ -228,7 +243,7 @@
     {% endfor %}
 </div>
 
-<!-- MODAL VER DETALLE VENTA -->
+<!-- MODAL VER DETALLE -->
 <div class="modal fade" id="modalDetalleVenta" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
@@ -237,9 +252,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="detalleVentaContenido">
-                <div class="text-center py-4">
-                    <div class="spinner-border text-warning" role="status"></div>
-                </div>
+                <div class="text-center py-4"><div class="spinner-border text-warning" role="status"></div></div>
             </div>
         </div>
     </div>
@@ -274,34 +287,104 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    function toggleDia(header) {
-        const body = header.nextElementSibling;
-        const chevron = header.querySelector('.dia-chevron');
-        const abierto = body.classList.contains('abierto');
+// Datos desde Flask
+const semanaLabels  = {{ semana_labels | tojson }};
+const semanaValores = {{ semana_valores | tojson }};
+const semanaCants   = {{ semana_cantidades | tojson }};
+const mesesLabels   = {{ meses_labels | tojson }};
+const mesesValores  = {{ meses_valores | tojson }};
+const mesesCants    = {{ meses_cantidades | tojson }};
 
-        body.classList.toggle('abierto', !abierto);
-        chevron.classList.toggle('rotado', !abierto);
-        header.classList.toggle('activo', !abierto);
+// Gráfica semana — barras
+new Chart(document.getElementById('chartSemana'), {
+    type: 'bar',
+    data: {
+        labels: semanaLabels,
+        datasets: [{
+            data: semanaValores,
+            backgroundColor: semanaValores.map((v, i) => {
+                const hoy = new Date().getDay();
+                const diasDesLunes = (hoy === 0) ? 6 : hoy - 1;
+                return i === diasDesLunes ? '#e8891a' : 'rgba(232,137,26,0.25)';
+            }),
+            borderColor: '#e8891a',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ` $${ctx.raw.toFixed(2)} — ${semanaCants[ctx.dataIndex]} venta(s)`
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { grid: { color: '#f5f0eb' }, ticks: { font: { size: 11 }, callback: v => `$${v}` } }
+        }
     }
+});
 
-    function filtrarPorFecha() {
+// Gráfica meses — línea
+new Chart(document.getElementById('chartMeses'), {
+    type: 'line',
+    data: {
+        labels: mesesLabels,
+        datasets: [{
+            data: mesesValores,
+            borderColor: '#e8891a',
+            backgroundColor: 'rgba(232,137,26,0.08)',
+            borderWidth: 3,
+            pointBackgroundColor: '#e8891a',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ` $${ctx.raw.toFixed(2)} — ${mesesCants[ctx.dataIndex]} venta(s)`
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { grid: { color: '#f5f0eb' }, ticks: { font: { size: 11 }, callback: v => `$${v}` } }
+        }
+    }
+});
+
+function toggleDia(header) {
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.dia-chevron');
+    const abierto = body.classList.contains('abierto');
+    body.classList.toggle('abierto', !abierto);
+    chevron.classList.toggle('rotado', !abierto);
+    header.classList.toggle('activo', !abierto);
+}
+
+function filtrarPorFecha() {
     const fecha = document.getElementById('filtroFecha').value;
-    if (!fecha) {
-        alert('Selecciona una fecha para filtrar.');
-        return;
-    }
-
+    if (!fecha) { alert('Selecciona una fecha para filtrar.'); return; }
     let encontrado = false;
     document.querySelectorAll('.historial-dia').forEach(dia => {
-        const dataFecha = dia.getAttribute('data-fecha');
-        if (dataFecha === fecha) {
+        if (dia.getAttribute('data-fecha') === fecha) {
             dia.style.display = '';
-            // Abrir automáticamente el día filtrado
             const body = dia.querySelector('.historial-dia-body');
             const header = dia.querySelector('.historial-dia-header');
             const chevron = dia.querySelector('.dia-chevron');
@@ -315,8 +398,9 @@
             dia.style.display = 'none';
         }
     });
-
     if (!encontrado) {
+        const msg = document.getElementById('mensajeSinVentas');
+        if (msg) msg.remove();
         document.getElementById('historialContainer').innerHTML += `
             <div id="mensajeSinVentas" class="table-card text-center py-4 text-muted">
                 <i class="bi bi-calendar-x" style="font-size:2rem; opacity:0.3;"></i>
@@ -327,70 +411,58 @@
 
 function limpiarFiltro() {
     document.getElementById('filtroFecha').value = '';
-    document.querySelectorAll('.historial-dia').forEach(dia => {
-        dia.style.display = '';
-    });
+    document.querySelectorAll('.historial-dia').forEach(dia => dia.style.display = '');
     const msg = document.getElementById('mensajeSinVentas');
     if (msg) msg.remove();
 }
 
-    function verDetalleVenta(id) {
-        document.getElementById('detalleVentaContenido').innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-warning" role="status"></div>
-            </div>`;
-        new bootstrap.Modal(document.getElementById('modalDetalleVenta')).show();
-
-        fetch(`/admin/ventas/detalle/${id}`)
-        .then(r => r.json())
-        .then(data => {
-            let html = `
-                <div class="mb-3">
-                    <div class="info-row"><span class="info-label">Venta #</span><span class="info-value">${data.id}</span></div>
-                    <div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">${data.pedido_id}</span></div>
-                    <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">${data.cliente}</span></div>
-                    <div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">${data.telefono}</span></div>
-                    <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">${data.direccion}</span></div>
-                    <div class="info-row"><span class="info-label">Método Pago</span><span class="info-value">${data.metodo_pago}</span></div>
-                    <div class="info-row"><span class="info-label">Referencia</span><span class="info-value">${data.referencia}</span></div>
-                    <div class="info-row"><span class="info-label">Estado</span><span class="info-value">${data.estado_pago}</span></div>
-                </div>
-                <hr>
-                <p style="font-size:0.8rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px;" class="mb-3">Productos</p>`;
-
-            data.detalles.forEach(d => {
-                html += `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f5f0eb;">
-                    <div>
-                        <div style="font-weight:600; font-size:0.9rem;">${d.bebida}</div>
-                        <small style="color:#888;">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
-                    </div>
-                    <span style="font-weight:700; color:#e8891a;">$${d.subtotal}</span>
-                </div>`;
-            });
-
+function verDetalleVenta(id) {
+    document.getElementById('detalleVentaContenido').innerHTML = `
+        <div class="text-center py-4"><div class="spinner-border text-warning" role="status"></div></div>`;
+    new bootstrap.Modal(document.getElementById('modalDetalleVenta')).show();
+    fetch(`/admin/ventas/detalle/${id}`)
+    .then(r => r.json())
+    .then(data => {
+        let html = `
+            <div class="mb-3">
+                <div class="info-row"><span class="info-label">Venta #</span><span class="info-value">${data.id}</span></div>
+                <div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">${data.pedido_id}</span></div>
+                <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">${data.cliente}</span></div>
+                <div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">${data.telefono}</span></div>
+                <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">${data.direccion}</span></div>
+                <div class="info-row"><span class="info-label">Método Pago</span><span class="info-value">${data.metodo_pago}</span></div>
+                <div class="info-row"><span class="info-label">Referencia</span><span class="info-value">${data.referencia}</span></div>
+                <div class="info-row"><span class="info-label">Estado</span><span class="info-value">${data.estado_pago}</span></div>
+            </div><hr>
+            <p style="font-size:0.8rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px;" class="mb-3">Productos</p>`;
+        data.detalles.forEach(d => {
             html += `
-                <div style="display:flex; justify-content:space-between; margin-top:16px; padding-top:12px; border-top:2px solid #f0ece6;">
-                    <span style="font-weight:700;">Total</span>
-                    <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total}</span>
-                </div>`;
-
-            document.getElementById('detalleVentaContenido').innerHTML = html;
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f5f0eb;">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;">${d.bebida}</div>
+                    <small style="color:#888;">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
+                </div>
+                <span style="font-weight:700; color:#e8891a;">$${d.subtotal}</span>
+            </div>`;
         });
-    }
+        html += `
+            <div style="display:flex; justify-content:space-between; margin-top:16px; padding-top:12px; border-top:2px solid #f0ece6;">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total}</span>
+            </div>`;
+        document.getElementById('detalleVentaContenido').innerHTML = html;
+    });
+}
 
-    function abrirConfirmar(id, referencia) {
-        document.getElementById('inputReferencia').value = referencia;
-        document.getElementById('formConfirmar').action = `/admin/ventas/confirmar/${id}`;
-        new bootstrap.Modal(document.getElementById('modalConfirmar')).show();
-    }
+function abrirConfirmar(id, referencia) {
+    document.getElementById('inputReferencia').value = referencia;
+    document.getElementById('formConfirmar').action = `/admin/ventas/confirmar/${id}`;
+    new bootstrap.Modal(document.getElementById('modalConfirmar')).show();
+}
 
-    // Abrir automaticamente el dia de hoy
-    const hoy = new Date().toISOString().split('T')[0];
-    const diaHoy = document.querySelector(`.historial-dia[data-fecha="${hoy}"]`);
-    if (diaHoy) {
-        const header = diaHoy.querySelector('.historial-dia-header');
-        toggleDia(header);
-    }
+// Abrir día de hoy automáticamente
+const hoy = new Date().toISOString().split('T')[0];
+const diaHoy = document.querySelector(`.historial-dia[data-fecha="${hoy}"]`);
+if (diaHoy) toggleDia(diaHoy.querySelector('.historial-dia-header'));
 </script>
 {% endblock %}

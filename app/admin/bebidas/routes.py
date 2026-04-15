@@ -189,3 +189,29 @@ def toggle(id):
     bebida.disponible = not bebida.disponible
     db.session.commit()
     return jsonify({'disponible': bebida.disponible})
+
+@bebidas_bp.route('/tiene_receta/<int:id>')
+@admin_required
+def tiene_receta(id):
+    bebida = Bebida.query.get_or_404(id)
+    return jsonify({
+        'tiene_receta': bebida.recetas.count() > 0,
+        'nombre':bebida.nombre
+    })
+    
+@bebidas_bp.route('/eliminar/<int:id>', methods=['POST'])
+@admin_required
+def eliminar(id):
+    bebida = Bebida.query.get_or_404(id)
+    eliminar_receta = request.form.get('eliminar_receta') == 'si'
+    try:
+        if eliminar_receta:
+            Receta.query.filter_by(bebida_id=bebida.id).delete()
+        bebida.activo = False
+        bebida.disponible = False
+        db.session.commit()
+        flash(f'Bebida "{bebida.nombre}" eliminada correctamente.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_bebidas.index'))

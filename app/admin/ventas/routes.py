@@ -6,6 +6,7 @@ from app import db
 from datetime import date, datetime, timedelta
 import pytz
 
+
 @ventas_bp.route('/')
 @admin_required
 def index():
@@ -13,7 +14,6 @@ def index():
     ahora = datetime.now(tz_mexico)
     hoy = ahora.date()
 
-    # Semana actual: los ultimos 7 dias desde hoy
     inicio_semana = hoy - timedelta(days=6)
 
     ventas = Venta.query.order_by(Venta.fecha_venta.desc()).all()
@@ -59,8 +59,52 @@ def index():
             ventas_por_dia[key]['ventas'].append(v)
             ventas_por_dia[key]['total_dia'] += float(v.total)
 
-    # Ordenar por fecha descendente
     ventas_por_dia = dict(sorted(ventas_por_dia.items(), reverse=True))
+
+    # Ventas por mes — últimos 6 meses
+    nombres_meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    meses_labels = []
+    meses_valores = []
+    meses_cantidades = []
+
+    for i in range(5, -1, -1):
+        mes_fecha = hoy.replace(day=1)
+        for _ in range(i):
+            mes_fecha = (mes_fecha - timedelta(days=1)).replace(day=1)
+        mes_num = mes_fecha.month
+        anio_num = mes_fecha.year
+        total_mes = 0
+        cant_mes = 0
+        for v in ventas:
+            if v.estado_pago == 'pagado':
+                fecha_mx = v.fecha_venta.replace(tzinfo=pytz.utc).astimezone(tz_mexico).date()
+                if fecha_mx.month == mes_num and fecha_mx.year == anio_num:
+                    total_mes += float(v.total)
+                    cant_mes += 1
+        meses_labels.append(f"{nombres_meses[mes_num-1]} {anio_num}")
+        meses_valores.append(round(total_mes, 2))
+        meses_cantidades.append(cant_mes)
+
+    # Ventas por día de la semana actual completa (Lun-Dom)
+    semana_labels = []
+    semana_valores = []
+    semana_cantidades = []
+    inicio_semana_lunes = hoy - timedelta(days=hoy.weekday())
+
+    for i in range(7):
+        dia = inicio_semana_lunes + timedelta(days=i)
+        total_dia = 0
+        cant_dia = 0
+        for v in ventas:
+            if v.estado_pago == 'pagado':
+                fecha_mx = v.fecha_venta.replace(tzinfo=pytz.utc).astimezone(tz_mexico).date()
+                if fecha_mx == dia:
+                    total_dia += float(v.total)
+                    cant_dia += 1
+        nombre_dia = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][dia.weekday()]
+        semana_labels.append(f"{nombre_dia} {dia.strftime('%d/%m')}")
+        semana_valores.append(round(total_dia, 2))
+        semana_cantidades.append(cant_dia)
 
     return render_template('admin/ventas.html',
         ventas=ventas,
@@ -71,8 +115,15 @@ def index():
         ventas_por_dia=ventas_por_dia,
         tz_mexico=tz_mexico,
         timedelta=timedelta,
-        pytz=pytz
+        pytz=pytz,
+        meses_labels=meses_labels,
+        meses_valores=meses_valores,
+        meses_cantidades=meses_cantidades,
+        semana_labels=semana_labels,
+        semana_valores=semana_valores,
+        semana_cantidades=semana_cantidades,
     )
+
 
 @ventas_bp.route('/confirmar/<int:id>', methods=['POST'])
 @admin_required
@@ -92,6 +143,7 @@ def confirmar(id):
         flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('admin_ventas.index'))
 
+
 @ventas_bp.route('/cambiar_estado/<int:id>', methods=['POST'])
 @admin_required
 def cambiar_estado(id):
@@ -102,6 +154,7 @@ def cambiar_estado(id):
         db.session.commit()
         flash(f'Estado de venta #{id} actualizado.', 'success')
     return redirect(url_for('admin_ventas.index'))
+
 
 @ventas_bp.route('/detalle/<int:id>')
 @admin_required
