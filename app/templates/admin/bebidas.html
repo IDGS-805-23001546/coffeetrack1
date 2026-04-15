@@ -23,10 +23,19 @@
     .upload-area:hover { background: #fbe8cc; }
     .upload-area-frio { border-color: #3498db; background: #e8f4fd; }
     .upload-area-frio:hover { background: #d1ecf1; }
-
     .cap-ok { color: #27ae60; font-weight: 700; }
     .cap-low { color: #e67e22; font-weight: 700; }
     .cap-zero { color: #e74c3c; font-weight: 700; }
+
+    /* Modal eliminar */
+    .modal-eliminar-icon { width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.8rem; color: #e74c3c; }
+    .modal-eliminar-titulo { font-size: 1.1rem; font-weight: 700; color: #1a1a1a; text-align: center; margin-bottom: 8px; }
+    .modal-eliminar-sub { font-size: 0.88rem; color: #888; text-align: center; margin-bottom: 20px; }
+    .alerta-receta { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; }
+    .btn-confirmar-eliminar { background: #e74c3c; color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; width: 100%; }
+    .btn-confirmar-eliminar:hover { background: #c0392b; }
+    .btn-cancelar-modal { background: #f0ece6; color: #555; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; width: 100%; }
+    .btn-cancelar-modal:hover { background: #e0dbd4; }
 </style>
 {% endblock %}
 
@@ -62,7 +71,7 @@
                     <th>Vendidas</th>
                     <th>Cap. Producción</th>
                     <th>Disponible</th>
-                    <th>Fotos</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,26 +95,25 @@
                     <td>{{ b.id }}</td>
                     <td><strong>{{ b.nombre }}</strong></td>
                     <td><span class="badge-cat">{{ b.categoria.nombre }}</span></td>
-                    <td>  <!-- AGREGAR -->
+                    <td>
                         {% if b.solo_caliente %}
-                        <span style="background:#fdf3e7; color:#e8891a; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"> Solo caliente</span>
+                        <span style="background:#fdf3e7; color:#e8891a; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">☕ Solo caliente</span>
                         {% elif b.categoria.solo_frio %}
-                        <span style="background:#e8f4fd; color:#3498db; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"> Solo frío</span>
+                        <span style="background:#e8f4fd; color:#3498db; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">🧊 Solo frío</span>
                         {% elif b.categoria.sin_temperatura %}
-                        <span style="background:#f0f0f0; color:#555; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"> Sin temp.</span>
+                        <span style="background:#f0f0f0; color:#555; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">🥐 Sin temp.</span>
                         {% else %}
-                        <span style="background:#f0f0f0; color:#888; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">Frío y Caliente</span>
+                        <span style="background:#f0f0f0; color:#888; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">☕🧊 Ambas</span>
                         {% endif %}
                     </td>
-                    <td>${{ "%.2f"|format(b.precio) }}</td>
                     <td>${{ "%.2f"|format(b.precio) }}</td>
                     <td style="font-weight:700; color:#e8891a;">{{ vendidas.get(b.id, 0) }} uds.</td>
                     <td>
                         {% if cap <= 0 %}
-                        <span class="cap-zero" style="cursor:pointer;" 
-                                data-bs-toggle="tooltip" 
-                                title="Faltantes: {{ faltantes.get(b.id, 'Ver recetas') }}">
-                                <i class="bi bi-x-circle"></i> No se puede producir
+                        <span class="cap-zero" style="cursor:pointer;"
+                              data-bs-toggle="tooltip"
+                              title="Faltantes: {{ faltantes.get(b.id, 'Ver recetas') }}">
+                            <i class="bi bi-x-circle"></i> No se puede producir
                         </span>
                         {% elif cap <= 5 %}
                         <span class="cap-low"><i class="bi bi-exclamation-triangle"></i> {{ cap }} uds.</span>
@@ -121,14 +129,16 @@
                     </td>
                     <td>
                         <button class="btn-img" onclick="abrirEditarImagen({{ b.id }}, '{{ b.nombre }}', 'caliente')">
-                            <i class="bi bi-camera"></i> Caliente
+                            <i class="bi bi-camera"></i>
                         </button>
                         <button class="btn-img-frio" onclick="abrirEditarImagen({{ b.id }}, '{{ b.nombre }}', 'frio')">
-                            <i class="bi bi-camera"></i> Frio
+                            <i class="bi bi-camera"></i>
                         </button>
-
-                        <button class="btn-cancelar ms-1" data-id="{{ b.id }}" data-nombre="{{ b.nombre }}"
-                                onclick="confirmarEliminar(this.dataset.id, this.dataset.nombre)">
+                        <button class="btn-cancelar ms-1"
+                                data-id="{{ b.id }}"
+                                data-nombre="{{ b.nombre }}"
+                                data-recetas="{{ b.recetas.count() }}"
+                                onclick="abrirModalEliminar(this.dataset.id, this.dataset.nombre, this.dataset.recetas)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -169,7 +179,7 @@
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"> Foto Caliente</label>
+                            <label class="form-label">☕ Foto Caliente</label>
                             <img id="previewCal" class="img-preview" src="" alt="preview">
                             <div class="upload-area" onclick="document.getElementById('inputCal').click()">
                                 <i class="bi bi-cloud-upload" style="font-size:1.5rem; color:#e8891a;"></i>
@@ -178,7 +188,7 @@
                             <input type="file" name="imagen" id="inputCal" accept=".png,.jpg,.jpeg,.webp" style="display:none;" onchange="previewImagen(this, 'previewCal')">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"> Foto Frío</label>
+                            <label class="form-label">🧊 Foto Frío</label>
                             <img id="previewFrioN" class="img-preview" src="" alt="preview">
                             <div class="upload-area upload-area-frio" onclick="document.getElementById('inputFrioN').click()">
                                 <i class="bi bi-cloud-upload" style="font-size:1.5rem; color:#3498db;"></i>
@@ -251,6 +261,45 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL ELIMINAR BEBIDA -->
+<div class="modal fade" id="modalEliminarBebida" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-body" style="padding:32px 28px;">
+
+                <div class="modal-eliminar-icon">
+                    <i class="bi bi-trash3"></i>
+                </div>
+
+                <div class="modal-eliminar-titulo" id="eliminarTitulo">¿Eliminar esta bebida?</div>
+                <div class="modal-eliminar-sub" id="eliminarSub">Esta acción desactivará la bebida del catálogo.</div>
+
+                <!-- Alerta receta (se muestra solo si tiene receta) -->
+                <div class="alerta-receta" id="alertaReceta" style="display:none;">
+                    <i class="bi bi-exclamation-triangle-fill" style="color:#e67e22; font-size:1.1rem; flex-shrink:0; margin-top:2px;"></i>
+                    <div>
+                        <div style="font-weight:700; font-size:0.88rem; color:#856404; margin-bottom:3px;">Esta bebida tiene una receta registrada</div>
+                        <div style="font-size:0.82rem; color:#856404;">Al confirmar, también se eliminará la receta asociada a esta bebida.</div>
+                    </div>
+                </div>
+
+                <form method="POST" id="formEliminarBebida">
+                    <input type="hidden" name="eliminar_receta" id="inputEliminarReceta" value="no">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn-confirmar-eliminar">
+                            <i class="bi bi-trash3 me-2"></i>Sí, eliminar
+                        </button>
+                        <button type="button" class="btn-cancelar-modal" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -265,15 +314,15 @@ function previewImagen(input, previewId) {
     const preview = document.getElementById(previewId);
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = e => { preview.src = e.target.result; preview.classList.add('show'); };
+        reader.onload = function(e) { preview.src = e.target.result; preview.classList.add('show'); };
         reader.readAsDataURL(input.files[0]);
     }
 }
 
 function abrirEditarImagen(id, nombre, tipo) {
     const esFrio = tipo === 'frio';
-    document.getElementById('tituloModalImg').textContent = (esFrio ? ' Foto Frío — ' : ' Foto Caliente — ') + nombre;
-    document.getElementById('formEditarImagen').action = esFrio ? `/admin/bebidas/editar_imagen_frio/${id}` : `/admin/bebidas/editar_imagen/${id}`;
+    document.getElementById('tituloModalImg').textContent = (esFrio ? '🧊 Foto Frío — ' : '☕ Foto Caliente — ') + nombre;
+    document.getElementById('formEditarImagen').action = esFrio ? '/admin/bebidas/editar_imagen_frio/' + id : '/admin/bebidas/editar_imagen/' + id;
     document.getElementById('previewEditar').classList.remove('show');
     document.getElementById('inputImagenEditar').value = '';
     const area = document.getElementById('uploadAreaEditar');
@@ -283,21 +332,27 @@ function abrirEditarImagen(id, nombre, tipo) {
     new bootstrap.Modal(document.getElementById('modalEditarImagen')).show();
 }
 
+function abrirModalEliminar(id, nombre, tieneRecetas) {
+    const tieneR = parseInt(tieneRecetas) > 0;
+
+    document.getElementById('eliminarTitulo').textContent = '¿Eliminar "' + nombre + '"?';
+    document.getElementById('eliminarSub').textContent = tieneR
+        ? 'Esta bebida tiene ingredientes en su receta. Lee el aviso antes de continuar.'
+        : 'Esta acción desactivará la bebida del catálogo. Los pedidos anteriores no se verán afectados.';
+
+    document.getElementById('alertaReceta').style.display = tieneR ? 'flex' : 'none';
+    document.getElementById('inputEliminarReceta').value = tieneR ? 'si' : 'no';
+    document.getElementById('formEliminarBebida').action = '/admin/bebidas/eliminar/' + id;
+
+    new bootstrap.Modal(document.getElementById('modalEliminarBebida')).show();
+}
+
 function agregarIngrediente() {
     const container = document.getElementById('ingredientes-container');
     const div = document.createElement('div');
     div.className = 'ingrediente-row d-flex gap-2 align-items-center';
-    let options = materias.map(m => `<option value="${m.id}" data-unidad="${m.unidad}">${m.nombre}</option>`).join('');
-    div.innerHTML = `
-        <select name="materia_prima_id[]" class="form-select materia-select" onchange="actualizarUnidad(this)" required>
-            <option value="">Seleccionar materia</option>${options}
-        </select>
-        <input type="number" name="cantidad[]" class="form-control" placeholder="Cant." step="0.01" min="0.01" required style="max-width:100px">
-        <select name="unidad_medida[]" class="form-select unidad-select" style="max-width:100px">
-            <option value="ml">ml</option><option value="gr">gr</option><option value="unidad">unidad</option>
-        </select>
-        <button type="button" class="btn-remove-ing" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>
-    `;
+    let options = materias.map(function(m) { return '<option value="' + m.id + '" data-unidad="' + m.unidad + '">' + m.nombre + '</option>'; }).join('');
+    div.innerHTML = '<select name="materia_prima_id[]" class="form-select materia-select" onchange="actualizarUnidad(this)" required><option value="">Seleccionar materia</option>' + options + '</select><input type="number" name="cantidad[]" class="form-control" placeholder="Cant." step="0.01" min="0.01" required style="max-width:100px"><select name="unidad_medida[]" class="form-select unidad-select" style="max-width:100px"><option value="ml">ml</option><option value="gr">gr</option><option value="unidad">unidad</option></select><button type="button" class="btn-remove-ing" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>';
     container.appendChild(div);
 }
 
@@ -308,9 +363,9 @@ function actualizarUnidad(select) {
 }
 
 function toggleDisponible(id, btn) {
-    fetch(`/admin/bebidas/toggle/${id}`, { method: 'POST' })
-    .then(r => r.json())
-    .then(data => {
+    fetch('/admin/bebidas/toggle/' + id, { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
         btn.textContent = data.disponible ? 'Si' : 'No';
         btn.className = 'toggle-btn ' + (data.disponible ? 'toggle-on' : 'toggle-off');
     });
@@ -318,47 +373,14 @@ function toggleDisponible(id, btn) {
 
 document.getElementById('searchInput').addEventListener('input', function() {
     const val = this.value.toLowerCase();
-    document.querySelectorAll('#bebidasTable tbody tr').forEach(row => {
+    document.querySelectorAll('#bebidasTable tbody tr').forEach(function(row) {
         row.style.display = row.cells[3].textContent.toLowerCase().includes(val) ? '' : 'none';
     });
 });
 
-// Activar tooltips de Bootstrap
 document.addEventListener('DOMContentLoaded', function() {
     var tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    tooltips.forEach(function(el) {
-        new bootstrap.Tooltip(el);
-    });
+    tooltips.forEach(function(el) { new bootstrap.Tooltip(el); });
 });
-
-function confirmarEliminar(id, nombre) {
-    fetch('/admin/bebidas/tiene_receta/' + id)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        let eliminarReceta = 'no';
-        if (data.tiene_receta) {
-            const resp = confirm(
-                ' "' + nombre + '" tiene una receta registrada.\n\n' +
-                '¿Deseas eliminar también su receta?\n\n' +
-                'Aceptar = Sí, eliminar bebida y receta\n' +
-                'Cancelar = No eliminar nada'
-            );
-            if (!resp) return;
-            eliminarReceta = 'si';
-        } else {
-            if (!confirm('¿Eliminar la bebida "' + nombre + '"?')) return;
-        }
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/admin/bebidas/eliminar/' + id;
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'eliminar_receta';
-        input.value = eliminarReceta;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-    });
-}
 </script>
 {% endblock %}
