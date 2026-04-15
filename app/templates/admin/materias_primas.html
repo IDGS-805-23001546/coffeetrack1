@@ -108,6 +108,13 @@
                     )">
                         <i class="bi bi-pencil"></i> Editar
                     </button>
+                    <button class="btn-cancelar ms-1"
+                            data-id="{{ m.id }}"
+                            data-nombre="{{ m.nombre }}"
+                            data-recetas="{{ m.recetas.count() }}"
+                            onclick="abrirModalEliminarMP(this.dataset.id, this.dataset.nombre, this.dataset.recetas)">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </td>
             </tr>
             {% endfor %}
@@ -222,6 +229,39 @@
         </div>
     </div>
 </div>
+<!-- MODAL ELIMINAR MATERIA PRIMA -->
+<div class="modal fade" id="modalEliminarMP" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-body" style="padding:32px 28px;">
+                <div style="width:64px; height:64px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#e74c3c;">
+                    <i class="bi bi-trash3"></i>
+                </div>
+                <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; text-align:center; margin-bottom:8px;" id="mpEliminarTitulo"></div>
+                <div style="font-size:0.88rem; color:#888; text-align:center; margin-bottom:20px;" id="mpEliminarSub"></div>
+
+                <div id="mpAlertaRecetas" style="display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:none; gap:10px; align-items:flex-start;">
+                    <i class="bi bi-exclamation-triangle-fill" style="color:#e67e22; font-size:1.1rem; flex-shrink:0; margin-top:2px;"></i>
+                    <div>
+                        <div style="font-weight:700; font-size:0.88rem; color:#856404; margin-bottom:3px;">Esta materia prima está en recetas</div>
+                        <div style="font-size:0.82rem; color:#856404;" id="mpAlertaRecetasTexto"></div>
+                    </div>
+                </div>
+
+                <form method="POST" id="formEliminarMP">
+                    <div class="d-grid gap-2">
+                        <button type="submit" style="background:#e74c3c; color:white; border:none; padding:10px 24px; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; width:100%;">
+                            <i class="bi bi-trash3 me-2"></i>Sí, eliminar
+                        </button>
+                        <button type="button" style="background:#f0ece6; color:#555; border:none; padding:10px 24px; border-radius:10px; font-weight:600; font-size:0.9rem; cursor:pointer; width:100%;" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -286,5 +326,22 @@ document.getElementById('searchInput').addEventListener('input', function() {
         row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
     });
 });
+
+function abrirModalEliminarMP(id, nombre, recetas) {
+    const numRecetas = parseInt(recetas);
+    document.getElementById('mpEliminarTitulo').textContent = '¿Eliminar "' + nombre + '"?';
+    document.getElementById('formEliminarMP').action = '/admin/materias/eliminar/' + id;
+
+    const alerta = document.getElementById('mpAlertaRecetas');
+    if (numRecetas > 0) {
+        document.getElementById('mpEliminarSub').textContent = 'Esta materia prima está siendo usada en ' + numRecetas + ' receta(s).';
+        document.getElementById('mpAlertaRecetasTexto').textContent = 'Se eliminarán ' + numRecetas + ' ingrediente(s) de recetas asociadas. La capacidad de producción de las bebidas afectadas se recalculará.';
+        alerta.style.display = 'flex';
+    } else {
+        document.getElementById('mpEliminarSub').textContent = 'Esta acción desactivará la materia prima del inventario.';
+        alerta.style.display = 'none';
+    }
+    new bootstrap.Modal(document.getElementById('modalEliminarMP')).show();
+}
 </script>
 {% endblock %}

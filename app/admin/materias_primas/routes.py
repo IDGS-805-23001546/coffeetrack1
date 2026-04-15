@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash, jsonify
 from . import materias_bp
 from app.auth.routes import admin_required
-from app.models import MateriaPrima, CategoriaMateriaPrima
+from app.models import MateriaPrima, CategoriaMateriaPrima, Receta
 from app import db
 
 @materias_bp.route('/')
@@ -56,7 +56,15 @@ def editar(id):
 @materias_bp.route('/eliminar/<int:id>', methods=['POST'])
 @admin_required
 def eliminar(id):
+    from app.models import Receta
     materia = MateriaPrima.query.get_or_404(id)
-    materia.activo = False
-    db.session.commit()
-    return jsonify({'ok': True})
+    try:
+        recetas_afectadas = Receta.query.filter_by(materia_prima_id=id).count()
+        Receta.query.filter_by(materia_prima_id=id).delete()
+        materia.activo = False
+        db.session.commit()
+        flash(f'Materia prima "{materia.nombre}" eliminada. {recetas_afectadas} receta(s) afectada(s).', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_materias.index'))
