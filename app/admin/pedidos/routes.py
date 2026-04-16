@@ -73,6 +73,31 @@ def cambiar_estado(id):
     if nuevo_estado not in estados_validos:
         flash('Estado no válido.', 'danger')
         return redirect(url_for('admin_pedidos.index'))
+    
+    transacciones_validas = {
+        'pendiente': ['confirmado', 'cancelado'],
+        'confirmado': ['en_preparacion', 'cancelado'],
+        'en_preparacion':['enviado', 'entregado', 'cancelado'],
+        'enviado': ['entregado', 'cancelado'],
+        'entregado': [],
+        'cancelado':[]
+    }
+    
+    estado_actual = pedido_estado or 'pendiente'
+    if nuevo_estado not in transacciones_validas.get(estado_actual, []):
+        mensajes = {
+            ('pendiente', 'en_preparacion'): 'Primero debes confirmar el pedido antes de mandarlo a producción.',
+            ('pendiente', 'enviado'):        'Primero confirma el pedido y mándalo a producción.',
+            ('pendiente', 'entregado'):      'Primero confirma el pedido y mándalo a producción.',
+            ('confirmado', 'enviado'):       'Primero debes mandar el pedido a producción antes de enviarlo.',
+            ('confirmado', 'entregado'):     'Primero debes mandar el pedido a producción.',
+            ('en_preparacion', 'confirmado'):'El pedido ya está en producción, no puedes regresar a confirmado.',
+        }
+        msg = mensajes.get((estado_actual, nuevo_estado),
+            f'No puedes cambiar de "{estado_actual}" a "{nuevo_estado}". Sigue el flujo correcto.')
+        flash(msg, 'danger')
+        return redirect(url_for('admin_pedidos.index'))
+
 
     try:
         pedido.estado = nuevo_estado
@@ -129,7 +154,7 @@ def cambiar_estado(id):
                     pedido.hora_estimada_entrega = hora_rapida
                     pedido.dia_entrega = dia_rapido
                     flash(
-                        f'⚡ Entrega rápida — todo está listo. Nueva hora estimada: {hora_rapida}',
+                        f' Entrega rápida — todo está listo. Nueva hora estimada: {hora_rapida}',
                         'info'
                     )
 

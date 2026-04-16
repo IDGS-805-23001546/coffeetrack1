@@ -126,26 +126,34 @@
 
 <!-- MODAL CAMBIAR ESTADO -->
 <div class="modal fade" id="modalEstado" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cambiar Estado del Pedido</h5>
+    <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-header" style="border-bottom:1px solid #f0ece6; padding:20px 24px;">
+                <h5 class="modal-title">Cambiar Estado — Pedido #<span id="modalEstadoPedidoId"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <form method="POST" id="formEstado">
-                    <div class="mb-4">
-                        <label class="form-label">Nuevo Estado</label>
-                        <select name="estado" id="selectEstado" class="form-select">
-                            <option value="pendiente">Pendiente</option>
-                            <option value="confirmado">Confirmado</option>
-                            <option value="en_preparacion">En Preparación</option>
-                            <option value="enviado">Enviado</option>
-                            <option value="entregado">Entregado</option>
-                            <option value="cancelado">Cancelado</option>
-                        </select>
+            <div class="modal-body" style="padding:24px;">
+                <!-- Estado actual -->
+                <div style="background:#f5f0eb; border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:0.78rem; color:#888; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Estado actual:</span>
+                    <span id="modalEstadoActualBadge"></span>
+                </div>
+
+                <!-- Alerta de flujo -->
+                <div id="alertaFlujo" style="display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:12px 16px; margin-bottom:16px;">
+                    <div style="display:flex; gap:8px; align-items:flex-start;">
+                        <i class="bi bi-exclamation-triangle-fill" style="color:#e67e22; margin-top:2px;"></i>
+                        <div style="font-size:0.85rem; color:#856404;" id="alertaFlujoTexto"></div>
                     </div>
-                    <button type="submit" class="btn-submit">Guardar Estado</button>
+                </div>
+
+                <form method="POST" id="formEstado">
+                    <label class="form-label">Cambiar a</label>
+                    <div id="opcionesEstado" class="d-grid gap-2 mb-4"></div>
+                    <input type="hidden" name="estado" id="estadoSeleccionado">
+                    <button type="submit" class="btn-submit" id="btnGuardarEstado" disabled>
+                        Guardar Estado
+                    </button>
                 </form>
             </div>
         </div>
@@ -201,11 +209,87 @@
         });
     }
 
-    function abrirCambiarEstado(id, estadoActual) {
-        document.getElementById('selectEstado').value = estadoActual;
-        document.getElementById('formEstado').action = `/admin/pedidos/cambiar_estado/${id}`;
-        new bootstrap.Modal(document.getElementById('modalEstado')).show();
+    const transicionesValidas = {
+    'pendiente':      ['confirmado', 'cancelado'],
+    'confirmado':     ['en_preparacion', 'cancelado'],
+    'en_preparacion': ['enviado', 'entregado', 'cancelado'],
+    'enviado':        ['entregado', 'cancelado'],
+    'entregado':      [],
+    'cancelado':      []
+};
+
+const estadoInfo = {
+    'pendiente':      { label: 'Pendiente',       color: '#495057', bg: '#e9ecef' },
+    'confirmado':     { label: 'Confirmado',       color: '#0c5460', bg: '#d1ecf1' },
+    'en_preparacion': { label: 'En Preparación',   color: '#856404', bg: '#fff3cd' },
+    'enviado':        { label: 'Enviado',           color: '#004085', bg: '#cce5ff' },
+    'entregado':      { label: 'Entregado',         color: 'white',   bg: '#e8891a' },
+    'cancelado':      { label: 'Cancelado',         color: '#721c24', bg: '#f8d7da' }
+};
+
+const alertasMensajes = {
+    'pendiente':      ' Debes confirmar el pedido primero antes de avanzar.',
+    'confirmado':     ' Debes mandar a producción antes de enviarlo o entregarlo.',
+    'en_preparacion': ' El pedido está en producción. Puedes enviarlo o marcarlo como entregado.',
+    'enviado':        ' El pedido fue enviado. Márcalo como entregado al completarse.',
+    'entregado':      ' Este pedido ya fue entregado.',
+    'cancelado':      '❌ Este pedido fue cancelado.'
+};
+
+function abrirCambiarEstado(id, estadoActual) {
+    document.getElementById('modalEstadoPedidoId').textContent = id;
+    document.getElementById('formEstado').action = '/admin/pedidos/cambiar_estado/' + id;
+    document.getElementById('btnGuardarEstado').disabled = true;
+    document.getElementById('estadoSeleccionado').value = '';
+
+    // Badge estado actual
+    const info = estadoInfo[estadoActual] || estadoInfo['pendiente'];
+    document.getElementById('modalEstadoActualBadge').innerHTML =
+        '<span style="background:' + info.bg + '; color:' + info.color + '; padding:4px 14px; border-radius:20px; font-size:0.78rem; font-weight:700;">' + info.label + '</span>';
+
+    // Alerta de flujo
+    const alertaDiv = document.getElementById('alertaFlujo');
+    const alertaTexto = document.getElementById('alertaFlujoTexto');
+    const msg = alertasMensajes[estadoActual];
+    if (msg) {
+        alertaTexto.textContent = msg;
+        alertaDiv.style.display = 'block';
+    } else {
+        alertaDiv.style.display = 'none';
     }
+
+    // Opciones disponibles
+    const opciones = transicionesValidas[estadoActual] || [];
+    const container = document.getElementById('opcionesEstado');
+    container.innerHTML = '';
+
+    if (opciones.length === 0) {
+        container.innerHTML = '<p style="color:#888; font-size:0.88rem; text-align:center;">No hay opciones disponibles para este estado.</p>';
+    } else {
+        opciones.forEach(function(estado) {
+            const inf = estadoInfo[estado];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.style.cssText = 'background:' + inf.bg + '; color:' + inf.color + '; border:2px solid transparent; padding:10px 16px; border-radius:10px; font-weight:600; font-size:0.9rem; cursor:pointer; text-align:left; transition:0.2s;';
+            btn.innerHTML = inf.label;
+            btn.addEventListener('click', function() {
+                // Deseleccionar todos
+                container.querySelectorAll('button').forEach(function(b) {
+                    b.style.border = '2px solid transparent';
+                    b.style.boxShadow = 'none';
+                });
+                // Seleccionar este
+                btn.style.border = '2px solid #e8891a';
+                btn.style.boxShadow = '0 0 0 3px rgba(232,137,26,0.2)';
+                document.getElementById('estadoSeleccionado').value = estado;
+                document.getElementById('btnGuardarEstado').disabled = false;
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    new bootstrap.Modal(document.getElementById('modalEstado')).show();
+}
 
     document.getElementById('searchPedidos').addEventListener('input', function() {
         const val = this.value.toLowerCase();
