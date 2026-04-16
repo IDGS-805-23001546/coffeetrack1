@@ -124,7 +124,7 @@
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="pendiente-total">${{ "%.2f"|format(venta.total) }}</span>
-            <button class="btn-confirmar" onclick="abrirConfirmar({{ venta.id }}, '{{ venta.referencia_pago or '' }}')">
+            <button class="btn-confirmar" onclick="abrirConfirmar({{ venta.id }}, '{{ venta.referencia_pago or '' }}', '{{ venta.pedido.metodo_pago_cliente or 'efectivo' }}')">
                 <i class="bi bi-check-circle"></i> Confirmar Pago
             </button>
         </div>
@@ -269,13 +269,10 @@
             <div class="modal-body">
                 <form method="POST" id="formConfirmar">
                     <div class="mb-3">
-                        <label class="form-label">Método de Pago</label>
-                        <select name="metodo_pago" class="form-select" required>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
-                            <option value="transferencia">Transferencia</option>
-                            <option value="paypal">PayPal</option>
-                        </select>
+                        <label class="form-label">Método de Pago del Cliente</label>
+                        <div id="metodoPagoDisplay" style="background:#fdf3e7; border:1px solid #e8891a; border-radius:10px; padding:10px 14px; font-weight:600; color:#e8891a;"></div>
+                        <input type="hidden" name="metodo_pago" id="inputMetodoPago">
+                        <small class="text-muted">Método elegido por el cliente al hacer el pedido.</small>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Referencia de Pago <span class="text-muted" style="text-transform:none; font-weight:400;">(opcional)</span></label>
@@ -454,9 +451,20 @@ function verDetalleVenta(id) {
     });
 }
 
-function abrirConfirmar(id, referencia) {
+function abrirConfirmar(id, referencia, metodoPago) {
     document.getElementById('inputReferencia').value = referencia;
-    document.getElementById('formConfirmar').action = `/admin/ventas/confirmar/${id}`;
+    document.getElementById('formConfirmar').action = '/admin/ventas/confirmar/' + id;
+
+    const iconos = {
+        'efectivo': ' Efectivo',
+        'transferencia': ' Transferencia',
+        'tarjeta': ' Tarjeta',
+        'deposito': ' Depósito'
+    };
+    const metodo = metodoPago || 'efectivo';
+    document.getElementById('metodoPagoDisplay').textContent = iconos[metodo] || metodo;
+    document.getElementById('inputMetodoPago').value = metodo;
+
     new bootstrap.Modal(document.getElementById('modalConfirmar')).show();
 }
 

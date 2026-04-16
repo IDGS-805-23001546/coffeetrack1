@@ -195,7 +195,7 @@ class Pedido(db.Model):
     costo_envio = db.Column(db.Numeric(10, 2), default=0)
     hora_estimada_entrega = db.Column(db.String(10))
     dia_entrega = db.Column(db.Date)
-
+    metodo_pago_cliente = db.Column(db.String(20), default='efectivo')
     detalles = db.relationship('DetallePedido', backref='pedido', lazy='dynamic', cascade='all, delete-orphan')
     venta = db.relationship('Venta', backref='pedido', uselist=False)
 

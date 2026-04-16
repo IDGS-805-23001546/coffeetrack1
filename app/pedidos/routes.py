@@ -292,7 +292,7 @@ def ticket(id):
 
     detalle_data = [['Bebida', 'Temp.', 'Cantidad', 'Precio Unit.', 'Subtotal']]
     for d in pedido.detalles.all():
-        temp = '🧊 Frío' if d.temperatura == 'frio' else '☕ Caliente'
+        temp = ' Frío' if d.temperatura == 'frio' else ' Caliente'
         detalle_data.append([
             d.bebida.nombre,
             temp,
