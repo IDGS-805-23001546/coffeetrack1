@@ -282,11 +282,40 @@
 </div>
 
 <script>
+// Horarios de envío
+function verificarEnvioDisponible() {
+    const ahora = new Date();
+    const dia = ahora.getDay(); // 0=Dom, 1=Lun, 6=Sab
+    const hora = ahora.getHours();
+    const minutos = ahora.getMinutes();
+    const horaDecimal = hora + minutos / 60;
+
+    let envioDisponible = true;
+    let mensajeNoDisponible = '';
+
+    if (dia === 0) {
+        // Domingo — sin envíos
+        envioDisponible = false;
+        mensajeNoDisponible = 'Los domingos no contamos con servicio de envío a domicilio. Puedes pasar a recoger hasta las 4pm.';
+    } else if (dia === 6) {
+        // Sábado — hasta las 5pm
+        if (horaDecimal >= 17) {
+            envioDisponible = false;
+            mensajeNoDisponible = 'El servicio de envío a domicilio los sábados está disponible hasta las 5:00pm. Puedes pasar a recoger hasta las 5pm.';
+        }
+    } else {
+        // Lunes a Viernes — hasta las 9pm
+        if (horaDecimal >= 21) {
+            envioDisponible = false;
+            mensajeNoDisponible = 'El servicio de envío a domicilio de lunes a viernes está disponible hasta las 9:00pm. Puedes pasar a recoger hasta las 10pm.';
+        }
+    }
+
+    return { disponible: envioDisponible, mensaje: mensajeNoDisponible };
+}
+
 function toggleDireccion() {
     const tipo = document.getElementById('tipoEntrega').value;
-    document.getElementById('campoDireccion').style.display = tipo === 'domicilio' ? 'block' : 'none';
-
-    // Mostrar costo de envío
     const filaEnvio = document.getElementById('fila-envio');
     const totalFinal = document.getElementById('total-final');
     const subtotal = {{ total }};
@@ -294,10 +323,36 @@ function toggleDireccion() {
     if (tipo === 'domicilio') {
         filaEnvio.style.display = 'flex';
         totalFinal.textContent = '$' + (subtotal + 30).toFixed(2);
+        document.getElementById('campoDireccion').style.display = 'block';
     } else {
         filaEnvio.style.display = 'none';
         totalFinal.textContent = '$' + subtotal.toFixed(2);
+        document.getElementById('campoDireccion').style.display = 'none';
     }
 }
+
+// Al cargar la página verificar si el envío está disponible
+document.addEventListener('DOMContentLoaded', function() {
+    const { disponible, mensaje } = verificarEnvioDisponible();
+    const selectEntrega = document.getElementById('tipoEntrega');
+    const optionDomicilio = selectEntrega.querySelector('option[value="domicilio"]');
+
+    if (!disponible) {
+        // Deshabilitar opción domicilio
+        optionDomicilio.disabled = true;
+        optionDomicilio.textContent = 'Entrega a domicilio (No disponible)';
+
+        // Mostrar aviso debajo del selector
+        const aviso = document.createElement('div');
+        aviso.style.cssText = 'background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.4); border-radius:10px; padding:10px 14px; margin-top:8px; font-size:0.82rem; color:#e74c3c; display:flex; gap:8px; align-items:flex-start;';
+        aviso.innerHTML = '<i class="bi bi-clock" style="flex-shrink:0; margin-top:2px;"></i><span>' + mensaje + '</span>';
+        selectEntrega.parentElement.appendChild(aviso);
+
+        // Asegurarse que quede en sucursal
+        selectEntrega.value = 'sucursal';
+        document.getElementById('campoDireccion').style.display = 'none';
+        document.getElementById('fila-envio').style.display = 'none';
+    }
+});
 </script>
 {% endblock %}

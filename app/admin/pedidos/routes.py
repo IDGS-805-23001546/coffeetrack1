@@ -83,7 +83,7 @@ def cambiar_estado(id):
         'cancelado':[]
     }
     
-    estado_actual = pedido_estado or 'pendiente'
+    estado_actual = pedido.estado or 'pendiente'
     if nuevo_estado not in transacciones_validas.get(estado_actual, []):
         mensajes = {
             ('pendiente', 'en_preparacion'): 'Primero debes confirmar el pedido antes de mandarlo a producción.',
