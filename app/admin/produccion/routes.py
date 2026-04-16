@@ -72,6 +72,9 @@ def nueva():
         es_frio = True if request.form.get('es_frio') == 'on' else False
 
         bebida = Bebida.query.get(bebida_id)
+        if not bebida or not bebida.activo or not bebida.disponible:
+            flash('No se puede producir una bebida desactivada o no disponible.', 'danger')
+            return redirect(url_for('admin_produccion.index'))
         costo = sum(
             float(r.cantidad) * float(r.materia_prima.precio_unitario)
             for r in bebida.recetas.all()
@@ -160,6 +163,10 @@ def completar(id):
     try:
         produccion = Produccion.query.get_or_404(id)
         bebida = produccion.bebida
+        
+        if not bebida.activo or not bebida.disponible:
+            flash(f'No se puede completar — la bebida "{bebida.nombre}" está desactivada. Actívala primero desde el módulo de Productos.', 'danger')
+            return redirect(url_for('admin_produccion.index'))
 
         faltantes = []
         for r in bebida.recetas.all():
