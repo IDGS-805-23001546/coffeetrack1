@@ -20,7 +20,7 @@
         <div class="page-title">Compras</div>
         <div class="page-subtitle">Registro de compras de materia prima — {{ compras|length }} registros</div>
     </div>
-    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra">
+    <button class="btn-nueva" onclick="abrirModalPin()">
         + Nueva Compra
     </button>
 </div>
@@ -146,6 +146,43 @@
 {% endif %}
 {% endfor %}
 
+<!-- MODAL PIN -->
+<div class="modal fade" id="modalPin" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-body" style="padding:32px 28px;">
+                <div style="width:64px; height:64px; border-radius:50%; background:#fdf3e7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#e8891a;">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; text-align:center; margin-bottom:6px;">Acceso Restringido</div>
+                <div style="font-size:0.85rem; color:#888; text-align:center; margin-bottom:24px;">Ingresa tu PIN de 4 dígitos para registrar una compra</div>
+
+                <div class="mb-3">
+                    <input type="password" id="inputPin" class="form-control text-center"
+                        maxlength="4" placeholder="• • • •"
+                        style="font-size:1.5rem; letter-spacing:8px; border-radius:12px; border:2px solid #e0d8d0; text-align:center;"
+                        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                </div>
+
+                <div id="pinError" style="display:none; background:#fee2e2; border:1px solid #f8d7da; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.85rem; color:#e74c3c; text-align:center;">
+                    <i class="bi bi-x-circle me-1"></i> PIN incorrecto. Intenta de nuevo.
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="button" onclick="verificarPin()"
+                        style="background:#e8891a; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; font-size:0.95rem; cursor:pointer;">
+                        <i class="bi bi-unlock me-2"></i>Verificar PIN
+                    </button>
+                    <button type="button" data-bs-dismiss="modal"
+                        style="background:#f0ece6; color:#555; border:none; padding:10px; border-radius:12px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL NUEVA COMPRA -->
 <div class="modal fade" id="modalNuevaCompra" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -203,7 +240,6 @@
                             <div class="col-md-3">
                                 <input type="number" step="0.001" name="precio_unitario[]" class="form-control" placeholder="Precio unit." oninput="calcularSubtotal(this)">
                             </div>
-                           
                         </div>
                     </div>
 
@@ -270,5 +306,71 @@
             calcularSubtotal(null);
         }
     }
+    function abrirModalPin() {
+    document.getElementById('inputPin').value = '';
+    document.getElementById('pinError').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('modalPin')).show();
+}
+
+function verificarPin() {
+    const pin = document.getElementById('inputPin').value;
+    if (pin === '1704') {
+        document.getElementById('pinError').style.display = 'none';
+
+        // Mostrar mensaje de éxito
+        const modalBody = document.querySelector('#modalPin .modal-body');
+        modalBody.innerHTML = `
+            <div style="text-align:center; padding:16px 0;">
+                <div style="width:64px; height:64px; border-radius:50%; background:#d4edda; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#27ae60;">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; margin-bottom:6px;">¡Acceso Correcto!</div>
+                <div style="font-size:0.88rem; color:#888;">Abriendo formulario de compra...</div>
+            </div>`;
+
+        setTimeout(function() {
+            bootstrap.Modal.getInstance(document.getElementById('modalPin')).hide();
+            // Restaurar modal PIN para siguiente uso
+            setTimeout(function() {
+                document.querySelector('#modalPin .modal-body').innerHTML = `
+                    <div style="width:64px; height:64px; border-radius:50%; background:#fdf3e7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#e8891a;">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; text-align:center; margin-bottom:6px;">Acceso Restringido</div>
+                    <div style="font-size:0.85rem; color:#888; text-align:center; margin-bottom:24px;">Ingresa tu PIN de 4 dígitos para registrar una compra</div>
+                    <div class="mb-3">
+                        <input type="password" id="inputPin" class="form-control text-center" maxlength="4" placeholder="• • • •"
+                            style="font-size:1.5rem; letter-spacing:8px; border-radius:12px; border:2px solid #e0d8d0; text-align:center;"
+                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                    </div>
+                    <div id="pinError" style="display:none; background:#fee2e2; border:1px solid #f8d7da; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.85rem; color:#e74c3c; text-align:center;">
+                        <i class="bi bi-x-circle me-1"></i> PIN incorrecto. Intenta de nuevo.
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" onclick="verificarPin()" style="background:#e8891a; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; font-size:0.95rem; cursor:pointer;">
+                            <i class="bi bi-unlock me-2"></i>Verificar PIN
+                        </button>
+                        <button type="button" data-bs-dismiss="modal" style="background:#f0ece6; color:#555; border:none; padding:10px; border-radius:12px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                            Cancelar
+                        </button>
+                    </div>`;
+                // Re-registrar evento Enter
+                document.getElementById('inputPin').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') verificarPin();
+                });
+                new bootstrap.Modal(document.getElementById('modalNuevaCompra')).show();
+            }, 400);
+        }, 1200);
+    } else {
+        document.getElementById('pinError').style.display = 'block';
+        document.getElementById('inputPin').value = '';
+        document.getElementById('inputPin').focus();
+    }
+}
+
+// Enter en el input del PIN
+document.getElementById('inputPin').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') verificarPin();
+});
 </script>
 {% endblock %}
