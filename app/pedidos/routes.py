@@ -96,6 +96,7 @@ def crear():
         return redirect(url_for('carrito.ver_carrito'))
 
     tipo_entrega = request.form.get('tipo_entrega', 'sucursal')
+    metodo_pago = request.form.get('metodo_pago', 'efectivo') 
     telefono = request.form.get('telefono') or usuario.telefono or 'N/A'
     direccion = request.form.get('direccion') or usuario.direccion or 'Recoger en sucursal'
 
@@ -119,7 +120,8 @@ def crear():
         notas=request.form.get('notas', ''),
         estado='pendiente',
         hora_estimada_entrega=hora_estimada,
-        dia_entrega=dia_entrega
+        dia_entrega=dia_entrega,
+        metodo_pago_cliente=metodo_pago
     )
     db.session.add(pedido)
     db.session.flush()

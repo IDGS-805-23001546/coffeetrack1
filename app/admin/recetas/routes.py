@@ -112,3 +112,17 @@ def eliminar(id):
     db.session.delete(receta)
     db.session.commit()
     return jsonify({'ok': True})
+
+@recetas_bp.route('/eliminar_completa/<int:bebida_id>', methods=['POST'])
+@admin_required
+def eliminar_completa(bebida_id):
+    try:
+        bebida = Bebida.query.get_or_404(bebida_id)
+        recetas_count = Receta.query.filter_by(bebida_id=bebida_id).count()
+        Receta.query.filter_by(bebida_id=bebida_id).delete()
+        db.session.commit()
+        flash(f'Receta de "{bebida.nombre}" eliminada. {recetas_count} ingrediente(s) borrados.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_recetas.index'))

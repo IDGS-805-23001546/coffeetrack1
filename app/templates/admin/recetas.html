@@ -9,9 +9,9 @@
     .receta-nombre { font-weight: 700; font-size: 1.1rem; color: #1a1a1a; }
     .receta-desc { font-size: 0.82rem; color: #888; margin-top: 2px; }
 
-    .capacidad-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; }
-    .cap-ok  { background: #d4edda; color: #155724; }
-    .cap-low { background: #fff3cd; color: #856404; }
+    .capacidad-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; }
+    .cap-ok   { background: #d4edda; color: #155724; }
+    .cap-low  { background: #fff3cd; color: #856404; }
     .cap-zero { background: #f8d7da; color: #721c24; }
 
     .limitante-tag { font-size: 0.72rem; color: #aaa; margin-top: 4px; text-align: right; }
@@ -28,15 +28,16 @@
     .btn-add-receta:hover { background: #fdf3e7; }
     .stock-indicator { font-size: 0.72rem; color: #aaa; margin-top: 2px; }
     .stock-critico { color: #e74c3c; }
+    .btn-eliminar-receta { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: 0.2s; margin-top: 8px; display: inline-block; }
+    .btn-eliminar-receta:hover { background: #e74c3c; color: white; }
 
-    /* Modal eliminar */
     .modal-eliminar-icon { width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.8rem; color: #e74c3c; }
     .modal-eliminar-titulo { font-size: 1.1rem; font-weight: 700; color: #1a1a1a; text-align: center; margin-bottom: 8px; }
     .modal-eliminar-sub { font-size: 0.88rem; color: #888; text-align: center; margin-bottom: 20px; }
     .alerta-asociacion { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; }
-    .btn-confirmar-eliminar { background: #e74c3c; color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; width: 100%; }
+    .btn-confirmar-eliminar { background: #e74c3c; color: white; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; width: 100%; }
     .btn-confirmar-eliminar:hover { background: #c0392b; }
-    .btn-cancelar-modal { background: #f0ece6; color: #555; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; width: 100%; }
+    .btn-cancelar-modal { background: #f0ece6; color: #555; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; width: 100%; }
     .btn-cancelar-modal:hover { background: #e0dbd4; }
 </style>
 {% endblock %}
@@ -53,6 +54,8 @@
 {% set cap = capacidades.get(bebida.id, 0) %}
 {% set limitante = limitantes.get(bebida.id, '') %}
 <div class="receta-card">
+
+    <!-- HEADER -->
     <div class="receta-header">
         <div>
             <div class="receta-nombre">{{ bebida.nombre }}</div>
@@ -77,9 +80,18 @@
                 <i class="bi bi-arrow-up"></i> Limitado por: {{ limitante }}
             </div>
             {% endif %}
+            <br>
+            <button class="btn-eliminar-receta"
+                    data-id="{{ bebida.id }}"
+                    data-nombre="{{ bebida.nombre }}"
+                    data-ings="{{ bebida.recetas.count() }}"
+                    onclick="abrirEliminarRecetaCompleta(this.dataset.id, this.dataset.nombre, this.dataset.ings)">
+                <i class="bi bi-trash3 me-1"></i> Eliminar Receta
+            </button>
         </div>
     </div>
 
+    <!-- INGREDIENTES -->
     {% if bebida.recetas.all() %}
         {% for r in bebida.recetas.all() %}
         <div class="ingrediente-row" id="ing-row-{{ r.id }}">
@@ -118,6 +130,7 @@
         <p class="text-muted" style="font-size:0.85rem;">Sin ingredientes registrados.</p>
     {% endif %}
 
+    <!-- AGREGAR INGREDIENTE -->
     <form method="POST" action="{{ url_for('admin_recetas.nueva') }}" id="form-receta-{{ bebida.id }}">
         <input type="hidden" name="bebida_id" value="{{ bebida.id }}">
         <div id="nuevos-ings-{{ bebida.id }}"></div>
@@ -130,6 +143,7 @@
             </button>
         </div>
     </form>
+
 </div>
 {% endfor %}
 
@@ -178,12 +192,9 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
         <div class="modal-content" style="border-radius:20px; border:none;">
             <div class="modal-body" style="padding:32px 28px;">
-                <div class="modal-eliminar-icon">
-                    <i class="bi bi-trash3"></i>
-                </div>
+                <div class="modal-eliminar-icon"><i class="bi bi-trash3"></i></div>
                 <div class="modal-eliminar-titulo" id="ingEliminarTitulo">¿Eliminar ingrediente?</div>
                 <div class="modal-eliminar-sub" id="ingEliminarSub"></div>
-
                 <div class="alerta-asociacion">
                     <i class="bi bi-link-45deg" style="color:#856404; font-size:1.2rem; flex-shrink:0; margin-top:2px;"></i>
                     <div>
@@ -191,15 +202,40 @@
                         <div style="font-size:0.82rem; color:#856404;">Este ingrediente forma parte de la receta. Al eliminarlo se recalculará la capacidad de producción.</div>
                     </div>
                 </div>
-
                 <div class="d-grid gap-2">
                     <button type="button" class="btn-confirmar-eliminar" id="btnConfirmarEliminarIng">
                         <i class="bi bi-trash3 me-2"></i>Sí, eliminar ingrediente
                     </button>
-                    <button type="button" class="btn-cancelar-modal" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
+                    <button type="button" class="btn-cancelar-modal" data-bs-dismiss="modal">Cancelar</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ELIMINAR RECETA COMPLETA -->
+<div class="modal fade" id="modalEliminarReceta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-body" style="padding:32px 28px;">
+                <div class="modal-eliminar-icon"><i class="bi bi-trash3"></i></div>
+                <div class="modal-eliminar-titulo" id="recetaEliminarTitulo"></div>
+                <div class="modal-eliminar-sub" id="recetaEliminarSub"></div>
+                <div class="alerta-asociacion">
+                    <i class="bi bi-exclamation-triangle-fill" style="color:#e67e22; font-size:1.1rem; flex-shrink:0; margin-top:2px;"></i>
+                    <div>
+                        <div style="font-weight:700; font-size:0.88rem; color:#856404; margin-bottom:3px;">La bebida se quedará sin receta</div>
+                        <div style="font-size:0.82rem; color:#856404;">No se podrá producir esta bebida hasta que agregues una nueva receta.</div>
+                    </div>
+                </div>
+                <form method="POST" id="formEliminarReceta">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn-confirmar-eliminar">
+                            <i class="bi bi-trash3 me-2"></i>Sí, eliminar receta
+                        </button>
+                        <button type="button" class="btn-cancelar-modal" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -241,7 +277,9 @@ function agregarIngredienteReceta(bebidaId) {
     const submitArea = document.getElementById('submit-area-' + bebidaId);
     const div = document.createElement('div');
     div.className = 'd-flex gap-2 align-items-center mb-2 mt-2';
-    let options = materias.map(function(m) { return '<option value="' + m.id + '" data-unidad="' + m.unidad + '">' + m.nombre + '</option>'; }).join('');
+    let options = materias.map(function(m) {
+        return '<option value="' + m.id + '" data-unidad="' + m.unidad + '">' + m.nombre + '</option>';
+    }).join('');
     div.innerHTML = '<select name="materia_prima_id[]" class="form-select" style="flex:2;" required><option value="">Seleccionar materia</option>' + options + '</select><input type="number" name="cantidad[]" class="form-control" placeholder="Cant." step="0.01" min="0.01" required style="max-width:90px"><select name="unidad_medida[]" class="form-select" style="max-width:80px"><option value="ml">ml</option><option value="gr">gr</option><option value="unidad">und</option></select><button type="button" class="btn-ing-del" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>';
     container.appendChild(div);
     submitArea.style.display = 'block';
@@ -271,5 +309,12 @@ document.getElementById('formEditarIng').addEventListener('submit', function(e) 
         }
     });
 });
+
+function abrirEliminarRecetaCompleta(id, nombre, ings) {
+    document.getElementById('recetaEliminarTitulo').textContent = '¿Eliminar receta de "' + nombre + '"?';
+    document.getElementById('recetaEliminarSub').textContent = 'Esta receta tiene ' + ings + ' ingrediente(s) registrados.';
+    document.getElementById('formEliminarReceta').action = '/admin/recetas/eliminar_completa/' + id;
+    new bootstrap.Modal(document.getElementById('modalEliminarReceta')).show();
+}
 </script>
 {% endblock %}
