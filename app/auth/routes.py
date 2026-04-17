@@ -110,7 +110,8 @@ def login():
             session.pop('login_bloqueado_hasta', None)
 
             session['user_id'] = usuario.id
-            session['user_nombre'] = f"{usuario.nombre} {usuario.apellidos}"
+            session['user_nombre'] = usuario.nombre          # ← solo nombre
+            session['user_apellidos'] = usuario.apellidos    # ← agregar esto
             session['user_rol'] = usuario.rol
             session['user_email'] = usuario.email
             session['user_telefono'] = usuario.telefono or ''

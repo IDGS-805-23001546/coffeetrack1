@@ -9,7 +9,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f5f0eb; display: flex; min-height: 100vh; }
 
-        /* ── SIDEBAR ── */
         .sidebar {
             width: 250px; min-height: 100vh;
             background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
@@ -17,157 +16,106 @@
             position: fixed; top: 0; left: 0; z-index: 100; overflow-y: auto;
             box-shadow: 4px 0 20px rgba(0,0,0,0.15);
         }
-
-        .sidebar-brand {
-            padding: 22px 20px;
-            display: flex; align-items: center; gap: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .brand-icon {
-            width: 42px; height: 42px; background: linear-gradient(135deg, #e8891a, #f5a623);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; box-shadow: 0 4px 12px rgba(232,137,26,0.4);
-        }
+        .sidebar-brand { padding: 22px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .brand-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #e8891a, #f5a623); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(232,137,26,0.4); }
         .brand-name { font-weight: 800; font-size: 1rem; color: white; letter-spacing: 0.3px; }
         .brand-sub { font-size: 0.7rem; color: #555; display: block; margin-top: 1px; }
 
-        .sidebar-section {
-            padding: 20px 20px 6px;
-            font-size: 0.65rem; text-transform: uppercase;
-            letter-spacing: 2px; color: #444; font-weight: 700;
-        }
+        .sidebar-section { padding: 20px 20px 6px; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: #444; font-weight: 700; }
 
+        /* Nivel 1 — links directos */
         .sidebar nav a {
             display: flex; align-items: center; gap: 12px;
             padding: 10px 20px; color: #888; text-decoration: none;
             font-size: 0.88rem; transition: all 0.2s; border-left: 3px solid transparent;
-            position: relative;
         }
         .sidebar nav a:hover { background: rgba(255,255,255,0.04); color: #ddd; border-left-color: rgba(232,137,26,0.4); }
         .sidebar nav a.active { background: rgba(232,137,26,0.12); color: white; border-left-color: #e8891a; font-weight: 600; }
         .sidebar nav a i { font-size: 1rem; width: 18px; flex-shrink: 0; }
 
+        /* Nivel 2 — submenú directo (Bebidas, Categorías, Órdenes) */
         .submenu { background: rgba(0,0,0,0.2); }
         .submenu a { padding: 8px 20px 8px 46px !important; font-size: 0.83rem !important; color: #666 !important; border-left: 3px solid transparent !important; }
         .submenu a:hover { background: rgba(255,255,255,0.04) !important; color: #ccc !important; }
         .submenu a.active { background: rgba(200,118,15,0.15) !important; color: #e8891a !important; border-left-color: #c8760f !important; }
 
-        .sidebar-logout {
-            margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06);
-            padding: 16px 20px;
+        /* Nivel 2 — submenú con hijos (Operaciones, Administración) */
+        .submenu2 { background: rgba(0,0,0,0.15); }
+        .submenu2-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 9px 20px 9px 36px; color: #666; text-decoration: none;
+            font-size: 0.83rem; transition: all 0.2s; border-left: 3px solid transparent;
+            cursor: pointer;
         }
-        .sidebar-logout a {
-            display: flex; align-items: center; gap: 10px;
-            color: #555; text-decoration: none; font-size: 0.85rem;
-            transition: 0.2s; border-radius: 8px; padding: 8px 10px;
-        }
+        .submenu2-header:hover { background: rgba(255,255,255,0.04); color: #ccc; }
+        .submenu2-header.active { color: #e8891a; }
+
+        /* Nivel 3 — links dentro de Operaciones/Administración */
+        .submenu3 { background: rgba(0,0,0,0.15); }
+        .submenu3 a { padding: 7px 20px 7px 58px !important; font-size: 0.81rem !important; color: #555 !important; border-left: 3px solid transparent !important; }
+        .submenu3 a:hover { background: rgba(255,255,255,0.03) !important; color: #bbb !important; }
+        .submenu3 a.active { background: rgba(200,118,15,0.12) !important; color: #e8891a !important; border-left-color: #c8760f !important; }
+
+        .sidebar-logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06); padding: 16px 20px; }
+        .sidebar-logout a { display: flex; align-items: center; gap: 10px; color: #555; text-decoration: none; font-size: 0.85rem; transition: 0.2s; border-radius: 8px; padding: 8px 10px; }
         .sidebar-logout a:hover { color: #e74c3c; background: rgba(231,76,60,0.08); }
 
-        /* ── TOPBAR ── */
         .main-content { margin-left: 250px; flex: 1; display: flex; flex-direction: column; }
-        .topbar {
-            background: white; padding: 0 30px;
-            border-bottom: 1px solid #ede8e0;
-            display: flex; align-items: center; justify-content: space-between;
-            height: 58px; position: sticky; top: 0; z-index: 50;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-        }
+        .topbar { background: white; padding: 0 30px; border-bottom: 1px solid #ede8e0; display: flex; align-items: center; justify-content: space-between; height: 58px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 6px rgba(0,0,0,0.04); }
         .topbar-left { display: flex; align-items: center; gap: 10px; color: #aaa; font-size: 0.85rem; }
         .topbar-right { display: flex; align-items: center; gap: 16px; }
-        .topbar-user {
-            display: flex; align-items: center; gap: 10px;
-            background: #fdf3e7; border-radius: 10px; padding: 6px 14px;
-            font-size: 0.83rem; font-weight: 600; color: #e8891a;
-        }
-        .topbar-user i { font-size: 1rem; }
         .topbar-time { font-size: 0.78rem; color: #bbb; }
 
-        /* ── PAGE ── */
         .page-body { padding: 28px 30px; }
         .page-title { font-size: 1.8rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
         .page-subtitle { color: #aaa; font-size: 0.88rem; margin-bottom: 28px; }
 
-        /* ── TABLA ── */
-        .table-card {
-            background: white; border-radius: 16px; padding: 24px;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.06); margin-bottom: 24px;
-        }
-        .table thead th {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px;
-            color: #aaa; border-bottom: 2px solid #f0ece6; font-weight: 700;
-            padding-bottom: 12px;
-        }
+        .table-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; color: #aaa; border-bottom: 2px solid #f0ece6; font-weight: 700; padding-bottom: 12px; }
         .table tbody td { vertical-align: middle; font-size: 0.88rem; border-color: #f8f5f2; padding: 12px 10px; }
         .table tbody tr { transition: background 0.15s; }
         .table tbody tr:hover { background-color: #fdf8f3; }
 
-        /* ── BOTONES ── */
-        .btn-nueva {
-            background: linear-gradient(135deg, #e8891a, #f5a623);
-            color: white; border: none; padding: 10px 22px; border-radius: 10px;
-            font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 4px 12px rgba(232,137,26,0.3);
-        }
+        .btn-nueva { background: linear-gradient(135deg, #e8891a, #f5a623); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(232,137,26,0.3); }
         .btn-nueva:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(232,137,26,0.4); }
-        .btn-accion {
-            background: #f0ece6; border: none; color: #555; border-radius: 8px;
-            padding: 5px 12px; cursor: pointer; font-size: 0.82rem; transition: 0.2s;
-        }
+        .btn-accion { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
         .btn-accion:hover { background: #e8891a; color: white; }
-        .btn-cancelar {
-            background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px;
-            padding: 5px 12px; cursor: pointer; font-size: 0.82rem; transition: 0.2s;
-        }
+        .btn-cancelar { background: #fee2e2; border: none; color: #e74c3c; border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
         .btn-cancelar:hover { background: #e74c3c; color: white; }
 
-        /* ── SEARCH ── */
-        .search-input {
-            border-radius: 10px; border: 1px solid #e0d8d0;
-            padding: 9px 14px; font-size: 0.88rem; width: 260px; transition: 0.2s;
-        }
+        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 260px; transition: 0.2s; }
         .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.12); }
 
-        /* ── BADGES ── */
-        .badge-cat       { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .badge-disponible{ background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .badge-bajo      { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .badge-agotado   { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-cat        { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-disponible { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-bajo       { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-agotado    { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
-        /* ── MODAL ── */
         .modal-content { border-radius: 18px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
         .modal-header { border-bottom: 1px solid #f0ece6; padding: 22px 26px; }
         .modal-title { font-weight: 700; font-size: 1.05rem; color: #1a1a1a; }
         .modal-body { padding: 24px 26px; }
         .form-label { font-size: 0.75rem; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-        .form-control, .form-select {
-            border-radius: 10px; border: 1px solid #e0d8d0;
-            font-size: 0.9rem; padding: 10px 14px; transition: 0.2s;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.12);
-        }
-        .btn-submit {
-            background: linear-gradient(135deg, #e8891a, #f5a623);
-            color: white; border: none; padding: 12px; border-radius: 10px;
-            font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 4px 12px rgba(232,137,26,0.25);
-        }
+        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; transition: 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.12); }
+        .btn-submit { background: linear-gradient(135deg, #e8891a, #f5a623); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(232,137,26,0.25); }
         .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(232,137,26,0.35); }
 
-        /* ── FLASH ── */
-        .alert {
-            border-radius: 12px; border: none; padding: 12px 18px;
-            font-size: 0.88rem; font-weight: 500;
-        }
+        .alert { border-radius: 12px; border: none; padding: 12px 18px; font-size: 0.88rem; font-weight: 500; }
         .alert-success { background: #d4edda; color: #155724; }
-        .alert-danger  { background: #f8d7da; color: #721c24; }
-        .alert-info    { background: #d1ecf1; color: #0c5460; }
-        .alert-warning { background: #fff3cd; color: #856404; }
+        .alert-danger   { background: #f8d7da; color: #721c24; }
+        .alert-info     { background: #d1ecf1; color: #0c5460; }
+        .alert-warning  { background: #fff3cd; color: #856404; }
 
-        /* ── SCROLLBAR SIDEBAR ── */
         .sidebar::-webkit-scrollbar { width: 4px; }
         .sidebar::-webkit-scrollbar-track { background: transparent; }
         .sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .perfil-info-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f0ece6; }
+        .perfil-info-row:last-child { border-bottom: none; }
+        .perfil-icon { width: 38px; height: 38px; background: #fdf3e7; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #e8891a; font-size: 1rem; flex-shrink: 0; }
+        .perfil-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .perfil-value { font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-top: 2px; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -183,6 +131,7 @@
         </div>
     </div>
 
+    <!-- PRINCIPAL -->
     <div class="sidebar-section">Principal</div>
     <nav>
         <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
@@ -190,8 +139,10 @@
         </a>
     </nav>
 
+    <!-- INVENTARIO -->
     <div class="sidebar-section">Inventario</div>
     <nav>
+        <!-- Productos ▾ -->
         {% set productos_activo = request.endpoint in ['admin_bebidas.index', 'admin_categorias.index'] %}
         <a href="#submenuProductos" data-bs-toggle="collapse"
            class="{{ 'active' if productos_activo }}"
@@ -212,13 +163,17 @@
             </nav>
         </div>
 
+        <!-- Recetas -->
         <a href="{{ url_for('admin_recetas.index') }}" class="{{ 'active' if request.endpoint == 'admin_recetas.index' }}">
             <i class="bi bi-journal-text"></i> Recetas
         </a>
+
+        <!-- Materias Primas -->
         <a href="{{ url_for('admin_materias.index') }}" class="{{ 'active' if request.endpoint == 'admin_materias.index' }}">
             <i class="bi bi-box-seam"></i> Materias Primas
         </a>
 
+        <!-- Producción ▾ -->
         {% set produccion_activo = request.endpoint in ['admin_produccion.index'] %}
         <a href="#submenuProduccion" data-bs-toggle="collapse"
            class="{{ 'active' if produccion_activo }}"
@@ -237,32 +192,62 @@
         </div>
     </nav>
 
+    <!-- GESTIÓN -->
     <div class="sidebar-section">Gestión</div>
     <nav>
-        <a href="{{ url_for('admin_proveedores.index') }}" class="{{ 'active' if request.endpoint == 'admin_proveedores.index' }}">
-            <i class="bi bi-truck"></i> Proveedores
-        </a>
-        <a href="{{ url_for('admin_compras.index') }}" class="{{ 'active' if request.endpoint == 'admin_compras.index' }}">
-            <i class="bi bi-cart3"></i> Compras
-        </a>
-        <a href="{{ url_for('admin_usuarios.index') }}" class="{{ 'active' if request.endpoint == 'admin_usuarios.index' }}">
-            <i class="bi bi-people"></i> Usuarios
-        </a>
-        <a href="{{ url_for('admin_pedidos.index') }}"
-           class="{{ 'active' if request.endpoint == 'admin_pedidos.index' }}"
-           style="justify-content:space-between;">
+        <!-- Operaciones ▾ -->
+        {% set operaciones_activo = request.endpoint in ['admin_pedidos.index', 'admin_ventas.index'] %}
+        <a href="#submenuOperaciones" data-bs-toggle="collapse"
+           class="{{ 'active' if operaciones_activo }}"
+           style="justify-content:space-between; cursor:pointer;">
             <span style="display:flex; align-items:center; gap:12px;">
-                <i class="bi bi-bag-check"></i> Pedidos
+                <i class="bi bi-activity"></i> Operaciones
             </span>
-            {% if g.get('pedidos_pendientes', 0) > 0 %}
-            <span style="background:#e74c3c; color:white; border-radius:20px; padding:2px 8px; font-size:0.68rem; font-weight:700;">
-                {{ g.pedidos_pendientes }}
+            <i class="bi bi-chevron-down" style="font-size:0.7rem; transition:0.2s;" id="chevronOperaciones"></i>
+        </a>
+        <div class="collapse submenu {{ 'show' if operaciones_activo }}" id="submenuOperaciones">
+            <nav>
+                <a href="{{ url_for('admin_pedidos.index') }}"
+                   class="{{ 'active' if request.endpoint == 'admin_pedidos.index' }}"
+                   style="justify-content:space-between;">
+                    <span style="display:flex; align-items:center; gap:12px;">
+                        <i class="bi bi-bag-check"></i> Pedidos
+                    </span>
+                    {% if g.get('pedidos_pendientes', 0) > 0 %}
+                    <span style="background:#e74c3c; color:white; border-radius:20px; padding:2px 8px; font-size:0.68rem; font-weight:700;">
+                        {{ g.pedidos_pendientes }}
+                    </span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
+                    <i class="bi bi-currency-dollar"></i> Ventas
+                </a>
+            </nav>
+        </div>
+
+        <!-- Administración ▾ -->
+        {% set admin_activo = request.endpoint in ['admin_proveedores.index', 'admin_compras.index', 'admin_usuarios.index'] %}
+        <a href="#submenuAdministracion" data-bs-toggle="collapse"
+           class="{{ 'active' if admin_activo }}"
+           style="justify-content:space-between; cursor:pointer;">
+            <span style="display:flex; align-items:center; gap:12px;">
+                <i class="bi bi-sliders"></i> Administración
             </span>
-            {% endif %}
+            <i class="bi bi-chevron-down" style="font-size:0.7rem; transition:0.2s;" id="chevronAdministracion"></i>
         </a>
-        <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
-            <i class="bi bi-currency-dollar"></i> Ventas
-        </a>
+        <div class="collapse submenu {{ 'show' if admin_activo }}" id="submenuAdministracion">
+            <nav>
+                <a href="{{ url_for('admin_proveedores.index') }}" class="{{ 'active' if request.endpoint == 'admin_proveedores.index' }}">
+                    <i class="bi bi-truck"></i> Proveedores
+                </a>
+                <a href="{{ url_for('admin_compras.index') }}" class="{{ 'active' if request.endpoint == 'admin_compras.index' }}">
+                    <i class="bi bi-cart3"></i> Compras
+                </a>
+                <a href="{{ url_for('admin_usuarios.index') }}" class="{{ 'active' if request.endpoint == 'admin_usuarios.index' }}">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+            </nav>
+        </div>
     </nav>
 
     <div class="sidebar-logout">
@@ -280,35 +265,36 @@
             <span>Panel de Administración</span>
         </div>
         <div class="topbar-right">
-    <span class="topbar-time" id="topbarReloj"></span>
+            <span class="topbar-time" id="topbarReloj"></span>
 
-    <!-- Acceso rápido -->
-    <a href="{{ url_for('cliente.inicio') }}" target="_blank"
-       style="background:#f5f0eb; border-radius:10px; padding:6px 14px; font-size:0.82rem; color:#888; text-decoration:none; font-weight:600; transition:0.2s;"
-       onmouseover="this.style.background='#e8891a'; this.style.color='white';"
-       onmouseout="this.style.background='#f5f0eb'; this.style.color='#888';">
-        <i class="bi bi-shop me-1"></i> Ver tienda
-    </a>
+            <a href="{{ url_for('cliente.inicio') }}" target="_blank"
+               style="background:#f5f0eb; border-radius:10px; padding:6px 14px; font-size:0.82rem; color:#888; text-decoration:none; font-weight:600; transition:0.2s;"
+               onmouseover="this.style.background='#e8891a'; this.style.color='white';"
+               onmouseout="this.style.background='#f5f0eb'; this.style.color='#888';">
+                <i class="bi bi-shop me-1"></i> Ver tienda
+            </a>
 
-    <!-- Pedidos pendientes badge -->
-    {% if g.get('pedidos_pendientes', 0) > 0 %}
-    <a href="{{ url_for('admin_pedidos.index') }}"
-       style="background:#fee2e2; border-radius:10px; padding:6px 14px; font-size:0.82rem; color:#e74c3c; text-decoration:none; font-weight:700; display:flex; align-items:center; gap:6px;">
-        <i class="bi bi-bag-x"></i> {{ g.pedidos_pendientes }} pendiente(s)
-    </a>
-    {% endif %}
+            {% if g.get('pedidos_pendientes', 0) > 0 %}
+            <a href="{{ url_for('admin_pedidos.index') }}"
+               style="background:#fee2e2; border-radius:10px; padding:6px 14px; font-size:0.82rem; color:#e74c3c; text-decoration:none; font-weight:700; display:flex; align-items:center; gap:6px;">
+                <i class="bi bi-bag-x"></i> {{ g.pedidos_pendientes }} pendiente(s)
+            </a>
+            {% endif %}
 
-    <!-- Usuario -->
-    <div style="display:flex; align-items:center; gap:10px; background:#fdf3e7; border-radius:12px; padding:7px 16px; border:1px solid rgba(232,137,26,0.2);">
-        <div style="width:32px; height:32px; background:linear-gradient(135deg,#e8891a,#f5a623); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:0.85rem; flex-shrink:0;">
-            {{ session.get('user_nombre', 'A')[0]|upper }}
+            <div onclick="abrirPerfilAdmin()"
+                 style="display:flex; align-items:center; gap:10px; background:#fdf3e7; border-radius:12px; padding:7px 16px; border:1px solid rgba(232,137,26,0.2); cursor:pointer; transition:0.2s;"
+                 onmouseover="this.style.background='#fbe8cc';"
+                 onmouseout="this.style.background='#fdf3e7';">
+                <div style="width:32px; height:32px; background:linear-gradient(135deg,#e8891a,#f5a623); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:0.85rem; flex-shrink:0;">
+                    {{ session.get('user_nombre', 'A')[0]|upper }}
+                </div>
+                <div>
+                    <div style="font-size:0.85rem; font-weight:700; color:#1a1a1a; line-height:1.2;">{{ session.get('user_nombre', 'Admin') }}</div>
+                    <div style="font-size:0.7rem; color:#e8891a; font-weight:600;">Administrador</div>
+                </div>
+                <i class="bi bi-chevron-down" style="font-size:0.7rem; color:#e8891a; margin-left:4px;"></i>
+            </div>
         </div>
-        <div>
-            <div style="font-size:0.85rem; font-weight:700; color:#1a1a1a; line-height:1.2;">{{ session.get('user_nombre', 'Admin') }}</div>
-            <div style="font-size:0.7rem; color:#e8891a; font-weight:600;">Administrador</div>
-        </div>
-    </div>
-</div>
     </div>
 
     <div class="page-body">
@@ -331,9 +317,91 @@
     </div>
 </div>
 
+<!-- MODAL PERFIL ADMIN -->
+<div class="modal fade" id="modalPerfilAdmin" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+        <div class="modal-content" style="border-radius:20px; border:none; overflow:hidden;">
+            <div class="modal-body" style="padding:0;">
+                <div style="background:linear-gradient(135deg,#1a1a1a,#2c1810); padding:36px 32px; text-align:center; position:relative;">
+                    <button type="button" data-bs-dismiss="modal"
+                        style="position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.1); border:none; color:white; border-radius:8px; width:30px; height:30px; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">
+                        ×
+                    </button>
+                    <div style="width:76px; height:76px; background:linear-gradient(135deg,#e8891a,#f5a623); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:2rem; margin:0 auto 14px; box-shadow:0 8px 24px rgba(232,137,26,0.5);">
+                        {{ session.get('user_nombre', 'A')[0]|upper }}
+                    </div>
+                    <div style="font-size:1.25rem; font-weight:800; color:white; margin-bottom:8px;">
+                        {{ session.get('user_nombre', '') }} {{ session.get('user_apellidos', '') }}
+                    </div>
+                    <span style="font-size:0.8rem; color:#e8891a; font-weight:700; background:rgba(232,137,26,0.15); padding:4px 16px; border-radius:20px; border:1px solid rgba(232,137,26,0.3);">
+                        <i class="bi bi-shield-check me-1"></i> Administrador
+                    </span>
+                </div>
+                <div style="padding:24px 28px;">
+                    <div class="perfil-info-row">
+                        <div class="perfil-icon"><i class="bi bi-envelope"></i></div>
+                        <div>
+                            <div class="perfil-label">Correo electrónico</div>
+                            <div class="perfil-value">{{ session.get('user_email', '—') }}</div>
+                        </div>
+                    </div>
+                    <div class="perfil-info-row">
+                        <div class="perfil-icon"><i class="bi bi-shield-lock"></i></div>
+                        <div style="flex:1;">
+                            <div class="perfil-label">PIN de Compras</div>
+                            <div class="perfil-value" id="pinDisplay">• • • •</div>
+                        </div>
+                        <button onclick="togglePin()" style="background:#f0ece6; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:0.78rem; color:#555; display:flex; align-items:center; gap:4px;">
+                            <i class="bi bi-eye" id="pinIcon"></i> Ver
+                        </button>
+                    </div>
+                    <div class="perfil-info-row">
+                        <div class="perfil-icon"><i class="bi bi-person-check"></i></div>
+                        <div>
+                            <div class="perfil-label">Privilegios</div>
+                            <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
+                                <span style="background:#d4edda; color:#155724; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">Acceso Total</span>
+                                <span style="background:#cce5ff; color:#004085; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">Inventario</span>
+                                <span style="background:#fff3cd; color:#856404; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">Ventas y Compras</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding:14px 0 0;">
+                        <div class="perfil-label" style="margin-bottom:10px;">Módulos con acceso</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            {% for icono, nombre in [
+                                ('bi-grid-1x2', 'Dashboard'),
+                                ('bi-cup-straw', 'Productos'),
+                                ('bi-journal-text', 'Recetas'),
+                                ('bi-box-seam', 'Mat. Primas'),
+                                ('bi-gear', 'Producción'),
+                                ('bi-truck', 'Proveedores'),
+                                ('bi-cart3', 'Compras'),
+                                ('bi-bag-check', 'Pedidos'),
+                                ('bi-currency-dollar', 'Ventas'),
+                                ('bi-people', 'Usuarios')
+                            ] %}
+                            <div style="display:flex; align-items:center; gap:8px; background:#f5f0eb; border-radius:8px; padding:8px 12px;">
+                                <i class="bi {{ icono }}" style="color:#e8891a; font-size:0.88rem;"></i>
+                                <span style="font-size:0.82rem; font-weight:600; color:#333;">{{ nombre }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a href="{{ url_for('auth.logout') }}"
+                       style="display:flex; align-items:center; justify-content:center; gap:8px; background:#fee2e2; color:#e74c3c; border-radius:10px; padding:11px; font-weight:700; font-size:0.88rem; text-decoration:none; margin-top:20px; transition:0.2s;"
+                       onmouseover="this.style.background='#e74c3c'; this.style.color='white';"
+                       onmouseout="this.style.background='#fee2e2'; this.style.color='#e74c3c';">
+                        <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Reloj topbar
 function actualizarReloj() {
     const ahora = new Date();
     const opciones = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
@@ -343,22 +411,31 @@ function actualizarReloj() {
 actualizarReloj();
 setInterval(actualizarReloj, 60000);
 
-// Chevron Productos
-const collapseEl = document.getElementById('submenuProductos');
-const chevron = document.getElementById('chevronProductos');
-if (collapseEl && chevron) {
-    collapseEl.addEventListener('show.bs.collapse', function() { chevron.style.transform = 'rotate(180deg)'; });
-    collapseEl.addEventListener('hide.bs.collapse', function() { chevron.style.transform = 'rotate(0deg)'; });
-    if (collapseEl.classList.contains('show')) chevron.style.transform = 'rotate(180deg)';
+function initChevron(collapseId, chevronId) {
+    const el = document.getElementById(collapseId);
+    const ch = document.getElementById(chevronId);
+    if (!el || !ch) return;
+    el.addEventListener('show.bs.collapse', function() { ch.style.transform = 'rotate(180deg)'; });
+    el.addEventListener('hide.bs.collapse', function() { ch.style.transform = 'rotate(0deg)'; });
+    if (el.classList.contains('show')) ch.style.transform = 'rotate(180deg)';
+}
+initChevron('submenuProductos', 'chevronProductos');
+initChevron('submenuProduccion', 'chevronProduccion');
+initChevron('submenuOperaciones', 'chevronOperaciones');
+initChevron('submenuAdministracion', 'chevronAdministracion');
+
+function abrirPerfilAdmin() {
+    pinVisible = false;
+    document.getElementById('pinDisplay').textContent = '• • • •';
+    document.getElementById('pinIcon').className = 'bi bi-eye';
+    new bootstrap.Modal(document.getElementById('modalPerfilAdmin')).show();
 }
 
-// Chevron Producción
-const collapseElProd = document.getElementById('submenuProduccion');
-const chevronProd = document.getElementById('chevronProduccion');
-if (collapseElProd && chevronProd) {
-    collapseElProd.addEventListener('show.bs.collapse', function() { chevronProd.style.transform = 'rotate(180deg)'; });
-    collapseElProd.addEventListener('hide.bs.collapse', function() { chevronProd.style.transform = 'rotate(0deg)'; });
-    if (collapseElProd.classList.contains('show')) chevronProd.style.transform = 'rotate(180deg)';
+let pinVisible = false;
+function togglePin() {
+    pinVisible = !pinVisible;
+    document.getElementById('pinDisplay').textContent = pinVisible ? '1704' : '• • • •';
+    document.getElementById('pinIcon').className = pinVisible ? 'bi bi-eye-slash' : 'bi bi-eye';
 }
 </script>
 {% block extra_js %}{% endblock %}

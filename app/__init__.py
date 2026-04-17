@@ -1,4 +1,5 @@
 from flask import Flask, session
+from flask import Flask, session, request, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from .config import Config
@@ -12,7 +13,36 @@ def create_app():
     app.config.from_object(Config)
     db.init_app(app)
     mail.init_app(app)
-    app.jinja_env.globals['enumerate'] = enumerate
+    
+    import logging
+    from logging.handlers import RotatingFileHandler
+    import os
+
+    app.logger.handlers.clear()
+
+    log_dir = os.path.join(os.getcwd(), 'logs')
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+
+    log_path = os.path.join(log_dir, 'app.log')
+
+    file_handler = RotatingFileHandler(log_path, maxBytes=10240, backupCount=5)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%d/%m/%Y %H:%M:%S'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Aplicación iniciada')
+    
+    @app.before_request
+    def log_request_info():
+        nombre = session.get('user_nombre', 'Anónimo')
+        app.logger.info(f"Usuario: {nombre} - {request.method} {request.path}")
+        from app.models import Pedido
+        g.pedidos_pendientes = Pedido.query.filter_by(estado='pendiente').count()
+        app.jinja_env.globals['enumerate'] = enumerate
     
     # Filtro de zona horaria México (CST = UTC-6)
     @app.template_filter('hora_mx')

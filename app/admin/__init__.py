@@ -12,3 +12,4 @@ from .pedidos import pedidos_admin_bp
 from .produccion import produccion_bp
 from .ventas import ventas_bp
 from .compras import compras_bp
+from .categorias import categorias_bp

@@ -10,7 +10,7 @@ from sqlalchemy import func
 @produccion_bp.route('/')
 @admin_required
 def index():
-    producciones = Produccion.query.order_by(Produccion.fecha_produccion.desc()).all()
+    producciones = Produccion.query.order_by(Produccion.id.desc()).all()
     bebidas = Bebida.query.filter_by(activo=True).all()
 
     hoy = date.today()

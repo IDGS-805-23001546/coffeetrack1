@@ -1,0 +1,124 @@
+16/04/2026 15:53:01 - INFO - Aplicación iniciada
+16/04/2026 15:53:33 - INFO - Aplicación iniciada
+16/04/2026 15:53:51 - INFO - Aplicación iniciada
+16/04/2026 15:53:54 - INFO - Usuario: Anónimo - GET /login
+16/04/2026 15:53:54 - INFO - Usuario: Anónimo - GET /static/css/style.css
+16/04/2026 15:53:54 - INFO - Usuario: Anónimo - GET /static/js/main.js
+16/04/2026 15:54:05 - INFO - Usuario: Anónimo - GET /login
+16/04/2026 15:54:05 - INFO - Usuario: Anónimo - GET /static/css/style.css
+16/04/2026 15:54:05 - INFO - Usuario: Anónimo - GET /static/js/main.js
+16/04/2026 15:54:15 - INFO - Usuario: Anónimo - POST /login
+16/04/2026 15:54:16 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/dashboard
+16/04/2026 15:54:24 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/proveedores/
+16/04/2026 15:54:30 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/produccion/
+16/04/2026 15:54:32 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/materias/
+16/04/2026 15:54:34 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/recetas/
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /cliente/
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/css/style.css
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/uploads/bebidas/c54262a1f7ce4550b99462c49a9c9fba.png
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/uploads/bebidas/e63eba70daa34319bf75b3ad283212bd.png
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/uploads/bebidas/666124e5a7b1441992512960619fa6ce.png
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/uploads/bebidas/d1cd6db524664d1b9ce1371738b4b552.png
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/uploads/bebidas/f67409b0b2b44cf68b2dd48f60cc5dc3.png
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/js/main.js
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/uploads/bebidas/b62ba8fe48e3480b912d8b816bf976ea.png
+16/04/2026 15:54:39 - INFO - Usuario: Carlos Rios Ramirez - GET /static/images/CaffeChocolateBlanco.png
+16/04/2026 15:55:46 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/produccion/
+16/04/2026 18:14:20 - INFO - Aplicación iniciada
+16/04/2026 18:14:22 - INFO - Aplicación iniciada
+16/04/2026 18:14:44 - INFO - Usuario: Anónimo - GET /
+16/04/2026 18:14:44 - INFO - Usuario: Anónimo - GET /login
+16/04/2026 18:14:44 - INFO - Usuario: Anónimo - GET /static/css/style.css
+16/04/2026 18:14:44 - INFO - Usuario: Anónimo - GET /static/js/main.js
+16/04/2026 18:14:44 - INFO - Usuario: Anónimo - GET /favicon.ico
+16/04/2026 18:27:48 - INFO - Aplicación iniciada
+16/04/2026 18:27:50 - INFO - Usuario: Anónimo - GET /login
+16/04/2026 18:27:51 - INFO - Usuario: Anónimo - GET /static/css/style.css
+16/04/2026 18:27:51 - INFO - Usuario: Anónimo - GET /static/js/main.js
+16/04/2026 18:27:59 - INFO - Usuario: Anónimo - POST /login
+16/04/2026 18:27:59 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/dashboard
+16/04/2026 18:28:30 - INFO - Usuario: Carlos Rios Ramirez - GET /
+16/04/2026 18:28:30 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/dashboard
+16/04/2026 18:28:48 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/produccion/
+16/04/2026 18:29:01 - INFO - Aplicación iniciada
+16/04/2026 18:36:48 - INFO - Aplicación iniciada
+16/04/2026 18:36:53 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/produccion/
+16/04/2026 18:36:54 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/dashboard
+16/04/2026 18:46:35 - INFO - Usuario: Carlos Rios Ramirez - GET /admin/usuarios/
+16/04/2026 19:01:41 - INFO - Usuario: Carlos Rios Ramirez - GET /logout
+16/04/2026 19:01:41 - INFO - Usuario: Anónimo - GET /login
+16/04/2026 19:01:41 - INFO - Usuario: Anónimo - GET /static/css/style.css
+16/04/2026 19:01:41 - INFO - Usuario: Anónimo - GET /static/js/main.js
+16/04/2026 19:01:47 - INFO - Usuario: Anónimo - GET /cliente/
+16/04/2026 19:01:47 - INFO - Usuario: Anónimo - GET /static/css/style.css
+16/04/2026 19:01:47 - INFO - Usuario: Anónimo - GET /static/js/main.js
+16/04/2026 19:01:47 - INFO - Usuario: Anónimo - GET /static/images/CaffeChocolateBlanco.png
+17/04/2026 16:11:15 - INFO - Usuario: Anónimo - GET /cliente/
+17/04/2026 16:11:15 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:11:15 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:11:15 - INFO - Usuario: Anónimo - GET /static/images/CaffeChocolateBlanco.png
+17/04/2026 16:11:18 - INFO - Usuario: Anónimo - GET /cliente/
+17/04/2026 16:11:18 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:11:18 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:11:18 - INFO - Usuario: Anónimo - GET /static/images/CaffeChocolateBlanco.png
+17/04/2026 16:11:38 - INFO - Aplicación iniciada
+17/04/2026 16:11:39 - INFO - Aplicación iniciada
+17/04/2026 16:11:45 - INFO - Usuario: Anónimo - GET /
+17/04/2026 16:11:45 - INFO - Usuario: Anónimo - GET /login
+17/04/2026 16:11:45 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:11:45 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:11:47 - INFO - Usuario: Anónimo - GET /cliente/
+17/04/2026 16:11:47 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:11:47 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:11:47 - INFO - Usuario: Anónimo - GET /static/images/CaffeChocolateBlanco.png
+17/04/2026 16:11:56 - INFO - Usuario: Anónimo - GET /cliente/
+17/04/2026 16:11:56 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:11:56 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:11:56 - INFO - Usuario: Anónimo - GET /static/images/CaffeChocolateBlanco.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /cliente/menu
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/c54262a1f7ce4550b99462c49a9c9fba.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/b8361610805b4ab181ba763faba6d165.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/d1cd6db524664d1b9ce1371738b4b552.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/45dd03e8c3b74393a8c223c7ea137e1e.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/e63eba70daa34319bf75b3ad283212bd.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/381d7b66a60f49019f6f809ce21aee9c.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/666124e5a7b1441992512960619fa6ce.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/b62ba8fe48e3480b912d8b816bf976ea.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/f67409b0b2b44cf68b2dd48f60cc5dc3.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/2cf795a793344159a53ca70ad05ed186.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/af51c560cd64461094b5a6e61729bd12.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/5ebcf4d677a5456185e3a8dc3a80a855.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/ccf0cb14eea046f98f1d15058e7bcddc.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/6f8349d9f6ac4a699ae5dfd94ee1cfac.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/b82a6c796bd745b29ee3a4257f89cde3.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/86410d792a124b479dbaa413f8f9b2f5.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/5113216da7ed4fbe841c74098f711b1f.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/9d6af588a7834412ab3e282e9a511102.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/b3366b0767e54fd495786c09a7de20c1.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/a9c6ffd10e04483b936166baddd736ea.png
+17/04/2026 16:12:22 - INFO - Usuario: Anónimo - GET /static/uploads/bebidas/52e2d81f96d04373b0236c8442dbb18a.png
+17/04/2026 16:12:24 - INFO - Usuario: Anónimo - POST /carrito/agregar/1
+17/04/2026 16:12:24 - INFO - Usuario: Anónimo - GET /login
+17/04/2026 16:12:24 - INFO - Usuario: Anónimo - GET /static/css/style.css
+17/04/2026 16:12:24 - INFO - Usuario: Anónimo - GET /static/js/main.js
+17/04/2026 16:14:28 - INFO - Usuario: Anónimo - POST /login
+17/04/2026 16:14:29 - INFO - Usuario: Carlos - GET /admin/dashboard
+17/04/2026 16:22:09 - INFO - Usuario: Carlos - GET /admin/dashboard
+17/04/2026 16:22:27 - INFO - Usuario: Carlos - GET /admin/usuarios/
+17/04/2026 16:22:29 - INFO - Usuario: Carlos - GET /admin/usuarios/
+17/04/2026 16:22:29 - INFO - Usuario: Carlos - GET /admin/compras/
+17/04/2026 16:22:31 - INFO - Usuario: Carlos - GET /admin/proveedores/
+17/04/2026 16:22:41 - INFO - Usuario: Carlos - GET /admin/pedidos/
+17/04/2026 16:22:42 - INFO - Usuario: Carlos - GET /admin/ventas/
+17/04/2026 16:22:53 - INFO - Usuario: Carlos - GET /admin/ventas/
+17/04/2026 16:23:02 - INFO - Usuario: Carlos - GET /admin/pedidos/
+17/04/2026 16:23:04 - INFO - Usuario: Carlos - GET /admin/produccion/
+17/04/2026 16:23:06 - INFO - Usuario: Carlos - GET /admin/materias/
+17/04/2026 16:23:06 - INFO - Usuario: Carlos - GET /admin/recetas/
+17/04/2026 16:23:08 - INFO - Usuario: Carlos - GET /admin/bebidas/
+17/04/2026 16:23:08 - INFO - Usuario: Carlos - GET /static/uploads/bebidas/c54262a1f7ce4550b99462c49a9c9fba.png
+17/04/2026 16:23:08 - INFO - Usuario: Carlos - GET /static/uploads/bebidas/e63eba70daa34319bf75b3ad283212bd.png
+17/04/2026 16:23:08 - INFO - Usuario: Carlos - GET /static/uploads/bebidas/b8361610805b4ab181ba763faba6d165.png
+17/04/2026 16:23:08 - INFO - Usuario: Carlos - GET /static/uploads/bebidas/45dd03e8c3b74393a8c223c7ea137e1e.png
