@@ -9,8 +9,8 @@ class Config:
     
     # Configuración de la base de datos
     SQLALCHEMY_DATABASE_URI = (
-    f"mysql+pymysql://{os.environ.get('DB_USER', 'coffee_admin')}:"
-    f"{os.environ.get('DB_PASSWORD', 'Password_Coffee_2026')}@"
+    f"mysql+pymysql://{os.environ.get('DB_USER', 'root')}:"
+    f"{os.environ.get('DB_PASSWORD', 'admin')}@"
     f"{os.environ.get('DB_HOST', 'localhost')}:"
     f"{os.environ.get('DB_PORT', '3306')}/"
     f"{os.environ.get('DB_NAME', 'coffeetrack')}"

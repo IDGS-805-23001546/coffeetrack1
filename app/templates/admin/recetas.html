@@ -117,17 +117,13 @@
     <div class="sidebar-section">Gestión</div>
     <nav>
         <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
-        <a href="#"><i class="bi bi-cart"></i> Compras</a>
+        <a href="{{ url_for('admin_compras.index') }}"><i class="bi bi-cart"></i> Compras</a>
         <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
-<<<<<<< HEAD:app/admin/templates/admin/bebidas.html
-        <a href="#"><i class="bi bi-bag"></i> Pedidos</a>
-        <a href="#"><i class="bi bi-currency-dollar"></i> Ventas</a>
-=======
+        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
+        <a href="{{ url_for('admin_ventas.index') }}"><i class="bi bi-currency-dollar"></i> Ventas</a>
         <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
         <a href="{{ url_for('admin_ventas.index') }}" class="{{ 'active' if request.endpoint == 'admin_ventas.index' }}">
     <i class="bi bi-currency-dollar"></i> Ventas
-</a>
->>>>>>> origin/Carlos-Rios:app/templates/admin/recetas.html
     </nav>
     <div class="sidebar-logout">
         <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>

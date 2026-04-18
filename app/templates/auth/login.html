@@ -208,13 +208,6 @@
                     {{ 'Crear Cuenta' if registro else 'Iniciar Sesión' }} <i class="bi bi-arrow-right"></i>
                 </button>
 
-                <div class="text-center text-uppercase mb-2" style="color: #c8842a; letter-spacing: 2px; font-size:0.8rem;">o continúa con</div>
-
-                <div class="d-flex justify-content-between mb-4">
-                    <a href="#" class="social-btn"><i class="bi bi-google"></i> Google</a>
-                    <a href="#" class="social-btn"><i class="bi bi-apple"></i> Apple</a>
-                </div>
-
                 <p class="text-center text-muted small">
                     {{ '¿Ya tienes cuenta?' if registro else '¿No tienes cuenta?' }}
                     <a href="{{ url_for('auth.login') if registro else url_for('auth.registro') }}" class="text-warning text-decoration-none fw-bold">

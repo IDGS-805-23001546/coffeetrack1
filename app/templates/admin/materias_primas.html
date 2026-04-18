@@ -21,6 +21,74 @@
     <div>
         <div class="page-title">Materias Primas</div>
         <div class="page-subtitle">Control de inventario — {{ materias|length }} registros</div>
+        <style>
+        /* TABLA */
+        .table-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 2px solid #f0ece6; font-weight: 600; }
+        .table tbody td { vertical-align: middle; font-size: 0.9rem; border-color: #f5f0eb; }
+        .table tbody tr:hover { background-color: #fdf8f3; }
+
+        .badge-cat { background: #fdf3e7; color: #e8891a; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-disponible { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-bajo { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-agotado { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+
+        .stock-ok { color: #27ae60; font-weight: 700; }
+        .stock-low { color: #e67e22; font-weight: 700; }
+        .stock-empty { color: #e74c3c; font-weight: 700; }
+
+        .btn-nueva { background: #e8891a; color: white; border: none; padding: 9px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s; }
+        .btn-nueva:hover { background: #d47b15; }
+        .btn-edit { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+        .btn-edit:hover { background: #e8891a; color: white; }
+
+        .search-input { border-radius: 10px; border: 1px solid #e0d8d0; padding: 9px 14px; font-size: 0.88rem; width: 240px; }
+        .search-input:focus { outline: none; border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+
+        /* MODAL */
+        .modal-content { border-radius: 16px; border: none; }
+        .modal-header { border-bottom: 1px solid #f0ece6; padding: 20px 24px; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        .modal-body { padding: 24px; }
+        .form-label { font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control, .form-select { border-radius: 10px; border: 1px solid #e0d8d0; font-size: 0.9rem; padding: 10px 14px; }
+        .form-control:focus, .form-select:focus { border-color: #e8891a; box-shadow: 0 0 0 3px rgba(232,137,26,0.15); }
+        .btn-submit { background: #e8891a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: #d47b15; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
+        <div>
+            <span class="brand-name">CoffeeTrack</span>
+            <span class="brand-sub">Admin Panel</span>
+        </div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <nav>
+        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    </nav>
+    <div class="sidebar-section">Inventario</div>
+    <nav>
+         <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>        
+        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
+        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a> 
+        <a href="{{ url_for('admin_produccion.index') }}"><i class="bi bi-gear"></i> Producción</a>
+    </nav>
+    <div class="sidebar-section">Gestión</div>
+    <nav>
+        <a href="{{ url_for('admin_proveedores.index') }}"><i class="bi bi-truck"></i> Proveedores</a>
+        <a href="{{ url_for('admin_compras.index') }}"><i class="bi bi-cart"></i> Compras</a>
+        <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
+        <a href="{{ url_for('admin_ventas.index') }}"><i class="bi bi-currency-dollar"></i> Ventas</a>
+    </nav>
+    <div class="sidebar-logout">
+        <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
     </div>
     <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevaMateria">
         + Nueva Materia Prima

@@ -10,6 +10,12 @@ from flask_mail import Message
 
 from . import auth_bp
 
+@auth_bp.after_app_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 def login_required(f):
     @wraps(f)
@@ -43,7 +49,7 @@ def enviar_codigo(email, nombre, codigo):
     )
     msg.html = f'''
     <div style="font-family: Segoe UI, sans-serif; max-width: 500px; margin: auto; padding: 30px; background: #fdf8f3; border-radius: 16px;">
-        <h2 style="color: #e8891a;">☕ CoffeeTrack</h2>
+        <h2 style="color: #e8891a;">CoffeeTrack</h2>
         <p>Hola <strong>{nombre}</strong>,</p>
         <p>Tu código de verificación es:</p>
         <div style="font-size: 2.5rem; font-weight: 700; color: #e8891a; background: white; padding: 20px; border-radius: 12px; text-align: center; letter-spacing: 8px; margin: 20px 0;">
@@ -70,7 +76,6 @@ def login():
     if 'user_id' in session:
         return redirect(url_for('auth.index'))
 
-    # Limite de intentos
     intentos = session.get('login_intentos', 0)
     bloqueado_hasta = session.get('login_bloqueado_hasta')
 
@@ -98,7 +103,6 @@ def login():
                 flash('Tu cuenta no está verificada. Revisa tu correo.', 'warning')
                 return render_template('auth/login.html', form=form)
 
-            # Login exitoso, resetear intentos
             session.pop('login_intentos', None)
             session.pop('login_bloqueado_hasta', None)
 
@@ -207,7 +211,6 @@ def verificar():
             flash('Código incorrecto. Intenta de nuevo.', 'danger')
             return render_template('auth/verificar.html', email=email)
 
-        # Verificar cuenta
         usuario.verificado = True
         cv.usado = True
         db.session.commit()

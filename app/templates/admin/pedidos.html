@@ -50,7 +50,7 @@
             <tr>
                 <td>{{ p.id }}</td>
                 <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
-                <td>{{ p.fecha_pedido.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ (p.fecha_pedido - timedelta(hours=6)).strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>${{ "%.2f"|format(p.subtotal) }}</td>
                 <td>${{ "%.2f"|format(p.descuento) }}</td>
                 <td>${{ "%.2f"|format(p.total) }}</td>

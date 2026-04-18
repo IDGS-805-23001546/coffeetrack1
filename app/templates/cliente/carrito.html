@@ -20,6 +20,10 @@
         background: transparent;
         color: white;
     }
+    body {
+    margin: 0;
+    background: #2c1810;
+    }
     .table-dark-custom th { border-color: rgba(255,255,255,0.1); color: #c8842a; }
     .table-dark-custom td { border-color: rgba(255,255,255,0.05); vertical-align: middle; }
     .btn-remove { color: #ff4d4d; transition: 0.3s; }
@@ -94,9 +98,9 @@
     <h5 class="mb-3" style="color:white; font-weight:700;">Confirmar Pedido</h5>
 
     <div class="mb-3">
-        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Tipo de Entrega</label>
+        <label class="form-label text-white small text-uppercase" style="letter-spacing:1px;">Tipo de Entrega</label>
         <select name="tipo_entrega" id="tipoEntrega" class="form-select"
-            style="background:#2a2a2a; color:white; border-color:#444; border-radius:10px;"
+            style="background:#2a2a2a; color:white; border-color:white; border-radius:10px;"
             onchange="toggleDireccion()">
             <option value="sucursal">Recoger en sucursal</option>
             <option value="domicilio">Entrega a domicilio</option>
@@ -105,26 +109,26 @@
 
     <div id="campoDireccion" style="display:none;">
         <div class="mb-3">
-            <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Dirección de Entrega</label>
+            <label class="form-label text-white small text-uppercase" style="letter-spacing:1px;">Dirección de Entrega</label>
             <input type="text" name="direccion" class="form-control"
-                style="background:#2a2a2a; color:white; border-color:#444; border-radius:10px;"
+                style="background:#2a2a2a; color:white; border-color:white; border-radius:10px;"
                 placeholder="Confirma o edita tu dirección"
                 value="{{ session.get('user_direccion', '') }}">
         </div>
     </div>
 
     <div class="mb-3">
-        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Teléfono de Contacto</label>
+        <label class="form-label text-white small text-uppercase" style="letter-spacing:1px;">Teléfono de Contacto</label>
         <input type="text" name="telefono" class="form-control" maxlength="15"
-            style="background:#2a2a2a; color:white; border-color:#444; border-radius:10px;"
+            style="background:#2a2a2a; color:white; border-color:white; border-radius:10px;"
             placeholder="Tu teléfono"
             value="{{ session.get('user_telefono', '') }}">
     </div>
 
     <div class="mb-3">
-        <label class="form-label text-muted small text-uppercase" style="letter-spacing:1px;">Notas Adicionales</label>
+        <label class="form-label text-white small text-uppercase" style="letter-spacing:1px;">Notas Adicionales</label>
         <textarea name="notas" class="form-control" rows="2"
-            style="background:#2a2a2a; color:white; border-color:#444; border-radius:10px;"
+            style="background:#2a2a2a; color:white; border-color:white; border-radius:10px;"
             placeholder="Instrucciones especiales..."></textarea>
     </div>
 

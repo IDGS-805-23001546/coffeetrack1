@@ -17,10 +17,41 @@
     <div>
         <h1 class="page-title">Proveedores</h1>
         <p class="page-subtitle">Directorio logístico de CoffeeTrack en León.</p>
-    </div>
-    <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevo">
+            <button class="btn-nueva" data-bs-toggle="modal" data-bs-target="#modalNuevo">
         <i class="bi bi-plus-lg me-2"></i> Nuevo Proveedor
     </button>
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-cup-hot-fill text-white"></i></div>
+        <div><span class="brand-name">CoffeeTrack</span><br><small style="color:#888">Admin Panel</small></div>
+    </div>
+    
+    <div class="sidebar-section">Principal</div>
+    <nav>
+        <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    </nav>
+
+    <div class="sidebar-section">Inventario</div>
+    <nav>
+        <a href="{{ url_for('admin_bebidas.index') }}"><i class="bi bi-cup-straw"></i> Bebidas</a>
+        <a href="{{ url_for('admin_recetas.index') }}"><i class="bi bi-journal-text"></i> Recetas</a>
+        <a href="{{ url_for('admin_materias.index') }}"><i class="bi bi-box-seam"></i> Materias Primas</a>
+    </nav>
+
+    <div class="sidebar-section">Gestión</div>
+    <nav>
+        <a href="{{ url_for('admin_proveedores.index') }}" class="active"><i class="bi bi-truck"></i> Proveedores</a>
+        <a href="{{ url_for('admin_compras.index') }}"><i class="bi bi-cart"></i> Compras</a>
+        <a href="{{ url_for('admin_usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="{{ url_for('admin_pedidos.index') }}"><i class="bi bi-bag"></i> Pedidos</a>
+        <a href="{{ url_for('admin_ventas.index') }}"><i class="bi bi-currency-dollar"></i> Ventas</a>
+    </nav>
+
+    <div style="margin-top:auto; padding: 20px; border-top: 1px solid #2a2a2a;">
+        <a href="{{ url_for('auth.logout') }}" style="color:#888; text-decoration:none; font-size:0.9rem;">
+            <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
+        </a>
+    </div>
 </div>
 
 <div class="table-card">
