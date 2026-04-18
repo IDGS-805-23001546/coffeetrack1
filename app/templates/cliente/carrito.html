@@ -23,112 +23,45 @@
         border-radius: 20px;
     }
     .table-dark-custom { background: transparent; }
-    .table-dark-custom th { 
-        border-color: rgba(255,255,255,0.1); 
-        color: #e8891a; 
-        font-size: 0.82rem; 
-        text-transform: uppercase; 
+    .table-dark-custom th {
+        border-color: rgba(255,255,255,0.1);
+        color: #e8891a;
+        font-size: 0.82rem;
+        text-transform: uppercase;
         letter-spacing: 1px;
         background: transparent;
     }
-    .table-dark-custom td { 
-        border-color: rgba(255,255,255,0.05); 
-        vertical-align: middle; 
+    .table-dark-custom td {
+        border-color: rgba(255,255,255,0.05);
+        vertical-align: middle;
         color: white;
         background: transparent;
     }
-    .btn-remove { 
-        color: #ff4d4d; 
-        transition: 0.3s; 
-        background: none; 
-        border: none; 
-        padding: 0;
-    }
+    .btn-remove { color: #ff4d4d; transition: 0.3s; background: none; border: none; padding: 0; }
     .btn-remove:hover { color: #ff1a1a; transform: scale(1.1); }
 
     .qty-control { display: flex; align-items: center; gap: 8px; }
-    .qty-btn { 
-        width: 28px; height: 28px; 
-        border-radius: 8px; 
-        border: 1px solid rgba(255,255,255,0.3); 
-        background: rgba(255,255,255,0.1); 
-        color: white;
-        font-weight: 700; 
-        font-size: 1rem;
-        cursor: pointer; 
-        transition: 0.2s; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        line-height: 1;
+    .qty-btn {
+        width: 28px; height: 28px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.1); color: white;
+        font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s;
+        display: flex; align-items: center; justify-content: center; line-height: 1;
     }
     .qty-btn:hover { background: #e8891a; border-color: #e8891a; color: white; }
-    .qty-num { 
-        font-weight: 700; 
-        min-width: 24px; 
-        text-align: center; 
-        color: white;
-        font-size: 1rem;
-    }
+    .qty-num { font-weight: 700; min-width: 24px; text-align: center; color: white; font-size: 1rem; }
 
-    .label-dark { 
-        font-size: 0.75rem; 
-        text-transform: uppercase; 
-        letter-spacing: 1px; 
-        color: rgba(255,255,255,0.5); 
-        margin-bottom: 6px; 
-        display: block; 
-    }
-    .form-select-dark { 
-        background: rgba(255,255,255,0.08); 
-        color: white; 
-        border: 1px solid rgba(255,255,255,0.2); 
-        border-radius: 10px; 
-        padding: 10px 14px; 
-        width: 100%;
-        font-size: 0.9rem;
-    }
+    .label-dark { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-bottom: 6px; display: block; }
+    .form-select-dark { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 0.9rem; }
     .form-select-dark option { background: #2a2a2a; color: white; }
     .form-select-dark:focus { outline: none; border-color: #e8891a; box-shadow: none; }
-
-    .form-control-dark { 
-        background: rgba(255,255,255,0.08); 
-        color: white; 
-        border: 1px solid rgba(255,255,255,0.2); 
-        border-radius: 10px; 
-        padding: 10px 14px; 
-        width: 100%;
-        font-size: 0.9rem;
-    }
+    .form-control-dark { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 0.9rem; }
     .form-control-dark::placeholder { color: rgba(255,255,255,0.3); }
-    .form-control-dark:focus { 
-        outline: none; 
-        border-color: #e8891a; 
-        background: rgba(255,255,255,0.1);
-        box-shadow: none;
-        color: white;
-    }
+    .form-control-dark:focus { outline: none; border-color: #e8891a; background: rgba(255,255,255,0.1); box-shadow: none; color: white; }
 
     .divider-dark { border-color: rgba(255,255,255,0.1); margin: 16px 0; }
-
-    .btn-agregar-mas {
-        display: inline-flex; 
-        align-items: center; 
-        gap: 8px;
-        background: rgba(232,137,26,0.1); 
-        border: 1px dashed rgba(232,137,26,0.4);
-        color: #e8891a; 
-        border-radius: 12px; 
-        padding: 10px 16px;
-        font-size: 0.88rem; 
-        font-weight: 600; 
-        cursor: pointer;
-        text-decoration: none; 
-        transition: 0.2s; 
-        margin-top: 12px;
-    }
+    .btn-agregar-mas { display: inline-flex; align-items: center; gap: 8px; background: rgba(232,137,26,0.1); border: 1px dashed rgba(232,137,26,0.4); color: #e8891a; border-radius: 12px; padding: 10px 16px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: 0.2s; margin-top: 12px; }
     .btn-agregar-mas:hover { background: rgba(232,137,26,0.2); color: #e8891a; }
-
     .nombre-bebida { color: white; font-weight: 700; margin-bottom: 2px; }
     .precio-unit { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
     .subtotal-cell { color: #e8891a; font-weight: 700; font-size: 1rem; }
@@ -171,18 +104,18 @@
                                     </td>
                                     <td>
                                         <div class="qty-control">
-                                            <form action="{{ url_for('carrito.reducir', bebida_id=item.bebida.id) }}" method="POST" style="display:inline;">
+                                            <form action="{{ url_for('carrito.reducir', key=item.key) }}" method="POST" style="display:inline;">
                                                 <button type="submit" class="qty-btn">−</button>
                                             </form>
                                             <span class="qty-num">{{ item.cantidad }}</span>
-                                            <form action="{{ url_for('carrito.aumentar', bebida_id=item.bebida.id) }}" method="POST" style="display:inline;">
+                                            <form action="{{ url_for('carrito.aumentar', key=item.key) }}" method="POST" style="display:inline;">
                                                 <button type="submit" class="qty-btn">+</button>
                                             </form>
                                         </div>
                                     </td>
                                     <td class="subtotal-cell">${{ "%.2f"|format(item.subtotal) }}</td>
                                     <td>
-                                        <form action="{{ url_for('carrito.eliminar_carrito', bebida_id=item.bebida.id) }}" method="POST" style="display:inline;">
+                                        <form action="{{ url_for('carrito.eliminar_carrito', key=item.key) }}" method="POST" style="display:inline;">
                                             <button type="submit" class="btn-remove">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -244,13 +177,14 @@
                                 placeholder="Tu teléfono"
                                 value="{{ session.get('user_telefono', '') }}">
                         </div>
+
                         <div class="mb-3">
                             <label class="label-dark">Método de Pago</label>
                             <select name="metodo_pago" class="form-select-dark" required>
-                                <option value="efectivo"> Efectivo</option>
-                                <option value="transferencia"> Transferencia</option>
-                                <option value="tarjeta"> Tarjeta</option>
-                                <option value="deposito"> Depósito</option>
+                                <option value="efectivo">💵 Efectivo</option>
+                                <option value="transferencia">🏦 Transferencia</option>
+                                <option value="tarjeta">💳 Tarjeta</option>
+                                <option value="deposito">🏧 Depósito</option>
                             </select>
                         </div>
 
@@ -271,12 +205,12 @@
                                     <i class="bi bi-bicycle me-1"></i>Envío a domicilio
                                 </span>
                                 <span style="color:#5dade2;">+$30.00</span>
-                                </div>
-                            <div class="d-flex justify-content-between mb-3">
-                                    <span style="color:rgba(255,255,255,0.5);">Total a pagar:</span>
-                                    <span id="total-final" style="color:#e8891a; font-weight:800; font-size:1.2rem;">${{ "%.2f"|format(total) }}</span>
-                                </div>
                             </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span style="color:rgba(255,255,255,0.5);">Total a pagar:</span>
+                                <span id="total-final" style="color:#e8891a; font-weight:800; font-size:1.2rem;">${{ "%.2f"|format(total) }}</span>
+                            </div>
+                        </div>
 
                         <button type="submit" class="btn btn-warning w-100 py-3 fw-bold"
                             style="border-radius:12px; font-size:1rem;"
@@ -291,35 +225,27 @@
 </div>
 
 <script>
-// Horarios de envío
 function verificarEnvioDisponible() {
     const ahora = new Date();
-    const dia = ahora.getDay(); // 0=Dom, 1=Lun, 6=Sab
-    const hora = ahora.getHours();
-    const minutos = ahora.getMinutes();
-    const horaDecimal = hora + minutos / 60;
-
+    const dia = ahora.getDay();
+    const horaDecimal = ahora.getHours() + ahora.getMinutes() / 60;
     let envioDisponible = true;
     let mensajeNoDisponible = '';
 
     if (dia === 0) {
-        // Domingo — sin envíos
         envioDisponible = false;
         mensajeNoDisponible = 'Los domingos no contamos con servicio de envío a domicilio. Puedes pasar a recoger hasta las 4pm.';
     } else if (dia === 6) {
-        // Sábado — hasta las 5pm
         if (horaDecimal >= 17) {
             envioDisponible = false;
-            mensajeNoDisponible = 'El servicio de envío a domicilio los sábados está disponible hasta las 5:00pm. Puedes pasar a recoger hasta las 5pm.';
+            mensajeNoDisponible = 'El servicio de envío a domicilio los sábados está disponible hasta las 5:00pm.';
         }
     } else {
-        // Lunes a Viernes — hasta las 9pm
         if (horaDecimal >= 21) {
             envioDisponible = false;
-            mensajeNoDisponible = 'El servicio de envío a domicilio de lunes a viernes está disponible hasta las 9:00pm. Puedes pasar a recoger hasta las 10pm.';
+            mensajeNoDisponible = 'El servicio de envío a domicilio de lunes a viernes está disponible hasta las 9:00pm.';
         }
     }
-
     return { disponible: envioDisponible, mensaje: mensajeNoDisponible };
 }
 
@@ -340,24 +266,18 @@ function toggleDireccion() {
     }
 }
 
-// Al cargar la página verificar si el envío está disponible
 document.addEventListener('DOMContentLoaded', function() {
     const { disponible, mensaje } = verificarEnvioDisponible();
     const selectEntrega = document.getElementById('tipoEntrega');
     const optionDomicilio = selectEntrega.querySelector('option[value="domicilio"]');
 
     if (!disponible) {
-        // Deshabilitar opción domicilio
         optionDomicilio.disabled = true;
         optionDomicilio.textContent = 'Entrega a domicilio (No disponible)';
-
-        // Mostrar aviso debajo del selector
         const aviso = document.createElement('div');
         aviso.style.cssText = 'background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.4); border-radius:10px; padding:10px 14px; margin-top:8px; font-size:0.82rem; color:#e74c3c; display:flex; gap:8px; align-items:flex-start;';
         aviso.innerHTML = '<i class="bi bi-clock" style="flex-shrink:0; margin-top:2px;"></i><span>' + mensaje + '</span>';
         selectEntrega.parentElement.appendChild(aviso);
-
-        // Asegurarse que quede en sucursal
         selectEntrega.value = 'sucursal';
         document.getElementById('campoDireccion').style.display = 'none';
         document.getElementById('fila-envio').style.display = 'none';

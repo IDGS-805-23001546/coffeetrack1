@@ -1,4 +1,19 @@
-.env/
+# Python
 __pycache__/
 *.pyc
 *.pyo
+.env
+
+# Flask
+instance/
+
+# Logs
+logs/
+
+# Uploads (imágenes)
+app/static/img/uploads/
+
+# Virtual environment
+.venv/
+venv/
+env/

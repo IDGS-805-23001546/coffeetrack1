@@ -16,14 +16,18 @@
     .info-row:last-child { border-bottom: none; }
     .info-label { color: #888; }
     .info-value { color: #1a1a1a; font-weight: 600; }
-    .detalle-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f0eb; font-size: 0.88rem; }
-    .detalle-item:last-child { border-bottom: none; }
+    .badge-presencial { background: #fdf3e7; color: #e8891a; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-title">Pedidos</div>
-<div class="page-subtitle">Gestión de pedidos — {{ pedidos|length }} registros</div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-subtitle mb-0">Gestión de pedidos — {{ pedidos|length }} registros</div>
+    <button class="btn-nueva" onclick="abrirNuevoPedido()">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Pedido Presencial
+    </button>
+</div>
 
 <!-- TABLA PEDIDOS -->
 <div class="table-card mb-4">
@@ -49,7 +53,16 @@
             {% for p in pedidos %}
             <tr>
                 <td>{{ p.id }}</td>
-                <td>{{ p.usuario.nombre }} {{ p.usuario.apellidos }}</td>
+                <td>
+                    {% if p.usuario %}
+                        {{ p.usuario.nombre }} {{ p.usuario.apellidos }}
+                    {% else %}
+                        <span style="font-weight:600; color:#e8891a;">
+                            <i class="bi bi-person-badge me-1"></i>{{ p.nombre_cliente or 'Presencial' }}
+                        </span>
+                        <span class="badge-presencial ms-1">Presencial</span>
+                    {% endif %}
+                </td>
                 <td>{{ (p.fecha_pedido - timedelta(hours=6)).strftime('%Y-%m-%d %H:%M') if p.fecha_pedido else '—' }}</td>
                 <td>${{ "%.2f"|format(p.subtotal) }}</td>
                 <td>${{ "%.2f"|format(p.descuento) }}</td>
@@ -105,6 +118,89 @@
     </table>
 </div>
 
+<!-- MODAL NUEVO PEDIDO PRESENCIAL -->
+<div class="modal fade" id="modalNuevoPedido" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-plus me-2" style="color:#e8891a;"></i>Nuevo Pedido Presencial</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin_pedidos.nuevo_presencial') }}" id="formNuevoPedido">
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre del Cliente</label>
+                            <input type="text" name="nombre_cliente" class="form-control" required placeholder="Ej. Juan Pérez">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Método de Pago</label>
+                            <select name="metodo_pago" class="form-select">
+                                <option value="efectivo">💵 Efectivo</option>
+                                <option value="tarjeta">💳 Tarjeta</option>
+                                <option value="transferencia">🏦 Transferencia</option>
+                                <option value="deposito">🏧 Depósito</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="form-label fw-bold mb-2">Bebidas del Pedido</label>
+                    <div id="bebidasContainer">
+                        <div class="bebida-fila row g-2 mb-2 align-items-center">
+                            <div class="col-md-5">
+                                <select name="bebida_id[]" class="form-select bebida-select" required onchange="calcularTotal()">
+                                    <option value="">Seleccionar bebida</option>
+                                    {% for b in bebidas_disponibles %}
+                                    <option value="{{ b.id }}" data-precio="{{ b.precio }}">
+                                        {{ b.nombre }} — ${{ "%.2f"|format(b.precio) }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="cantidad[]" class="form-control" min="1" value="1" required onchange="calcularTotal()">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="temperatura[]" class="form-select">
+                                    <option value="caliente">☕ Caliente</option>
+                                    <option value="frio">🧊 Frío</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-cancelar w-100" onclick="eliminarFila(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-accion mb-4" onclick="agregarFila()">
+                        <i class="bi bi-plus-circle me-1"></i> Agregar bebida
+                    </button>
+
+                    <div class="mb-3">
+                        <label class="form-label">Notas</label>
+                        <textarea name="notas" class="form-control" rows="2" placeholder="Observaciones opcionales..."></textarea>
+                    </div>
+
+                    <div style="background:#fdf3e7; border-radius:12px; padding:16px 20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:0.75rem; color:#888; text-transform:uppercase; letter-spacing:1px; font-weight:600;">Total del Pedido</div>
+                            <div style="font-size:0.8rem; color:#aaa; margin-top:2px;">Pago en sucursal · Sin costo de envío</div>
+                        </div>
+                        <span id="totalPresencial" style="font-size:1.6rem; font-weight:800; color:#e8891a;">$0.00</span>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle me-2"></i>Crear Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL VER DETALLE -->
 <div class="modal fade" id="modalDetalle" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
@@ -133,20 +229,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="padding:24px;">
-                <!-- Estado actual -->
                 <div style="background:#f5f0eb; border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
                     <span style="font-size:0.78rem; color:#888; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Estado actual:</span>
                     <span id="modalEstadoActualBadge"></span>
                 </div>
-
-                <!-- Alerta de flujo -->
                 <div id="alertaFlujo" style="display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; padding:12px 16px; margin-bottom:16px;">
                     <div style="display:flex; gap:8px; align-items:flex-start;">
                         <i class="bi bi-exclamation-triangle-fill" style="color:#e67e22; margin-top:2px;"></i>
                         <div style="font-size:0.85rem; color:#856404;" id="alertaFlujoTexto"></div>
                     </div>
                 </div>
-
                 <form method="POST" id="formEstado">
                     <label class="form-label">Cambiar a</label>
                     <div id="opcionesEstado" class="d-grid gap-2 mb-4"></div>
@@ -163,53 +255,88 @@
 
 {% block extra_js %}
 <script>
-    function verDetalle(id) {
-        document.getElementById('detalleContenido').innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-warning" role="status"></div>
-            </div>`;
-        new bootstrap.Modal(document.getElementById('modalDetalle')).show();
+// ── PEDIDO PRESENCIAL ────────────────────────────────
+function abrirNuevoPedido() {
+    calcularTotal();
+    new bootstrap.Modal(document.getElementById('modalNuevoPedido')).show();
+}
 
-        fetch(`/admin/pedidos/detalle/${id}`)
-        .then(r => r.json())
-        .then(data => {
-            let html = `
-                <div class="mb-3">
-                    <div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">${data.id}</span></div>
-                    <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">${data.cliente}</span></div>
-                    <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">${data.direccion}</span></div>
-                    <div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">${data.telefono}</span></div>
-                    <div class="info-row"><span class="info-label">Estado</span><span class="info-value">${data.estado}</span></div>
-                    <div class="info-row"><span class="info-label">Notas</span><span class="info-value">${data.notas || '—'}</span></div>
-                </div>
-                <hr>
-                <p class="form-label mb-3">Productos</p>`;
+function agregarFila() {
+    const container = document.getElementById('bebidasContainer');
+    const primera = container.querySelector('.bebida-fila');
+    const nueva = primera.cloneNode(true);
+    nueva.querySelector('select[name="bebida_id[]"]').selectedIndex = 0;
+    nueva.querySelector('input[name="cantidad[]"]').value = 1;
+    nueva.querySelector('select[name="temperatura[]"]').selectedIndex = 0;
+    container.appendChild(nueva);
+    calcularTotal();
+}
 
-            data.detalles.forEach(d => {
-    const tempIcon = d.temperatura === 'frio' ? ' Frío' : ' Caliente';
-    const tempColor = d.temperatura === 'frio' ? '#3498db' : '#e8891a';
-    html += `
-    <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
-        <div>
-            <div style="font-weight:600;">${d.bebida}</div>
-            <small style="color:#888;">Cantidad: ${d.cantidad} × $${d.precio_unitario}</small>
-            <br>
-            <span style="font-size:0.75rem; color:${tempColor}; font-weight:600;">${tempIcon}</span>
-        </div>
-        <span style="color:#e8891a; font-weight:700;">$${d.subtotal}</span>
-    </div>`;
+function eliminarFila(btn) {
+    const filas = document.querySelectorAll('.bebida-fila');
+    if (filas.length > 1) {
+        btn.closest('.bebida-fila').remove();
+        calcularTotal();
+    }
+}
+
+function calcularTotal() {
+    let total = 0;
+    document.querySelectorAll('.bebida-fila').forEach(function(fila) {
+        const select = fila.querySelector('select[name="bebida_id[]"]');
+        const cant = parseInt(fila.querySelector('input[name="cantidad[]"]').value) || 0;
+        if (select && select.value) {
+            const opt = select.options[select.selectedIndex];
+            const precio = parseFloat(opt.getAttribute('data-precio')) || 0;
+            total += precio * cant;
+        }
+    });
+    document.getElementById('totalPresencial').textContent = '$' + total.toFixed(2);
+}
+
+document.addEventListener('change', function(e) {
+    if (e.target.name === 'bebida_id[]' || e.target.name === 'cantidad[]') {
+        calcularTotal();
+    }
 });
 
-            html += `<div class="d-flex justify-content-between mt-3 pt-2" style="border-top:2px solid #f0ece6;">
-                <span style="font-weight:700;">Total</span>
-                <span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$${data.total}</span>
-            </div>`;
+// ── VER DETALLE ──────────────────────────────────────
+function verDetalle(id) {
+    document.getElementById('detalleContenido').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-warning" role="status"></div></div>';
+    new bootstrap.Modal(document.getElementById('modalDetalle')).show();
+    fetch('/admin/pedidos/detalle/' + id)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        let html = '<div class="mb-3">' +
+            '<div class="info-row"><span class="info-label">Pedido #</span><span class="info-value">' + data.id + '</span></div>' +
+            '<div class="info-row"><span class="info-label">Cliente</span><span class="info-value">' + data.cliente + '</span></div>' +
+            '<div class="info-row"><span class="info-label">Dirección</span><span class="info-value">' + data.direccion + '</span></div>' +
+            '<div class="info-row"><span class="info-label">Teléfono</span><span class="info-value">' + data.telefono + '</span></div>' +
+            '<div class="info-row"><span class="info-label">Estado</span><span class="info-value">' + data.estado + '</span></div>' +
+            '<div class="info-row"><span class="info-label">Hora estimada</span><span class="info-value">' + data.hora_estimada + '</span></div>' +
+            '<div class="info-row"><span class="info-label">Notas</span><span class="info-value">' + (data.notas || '—') + '</span></div>' +
+            '</div><hr><p class="form-label mb-3">Productos</p>';
 
-            document.getElementById('detalleContenido').innerHTML = html;
+        data.detalles.forEach(function(d) {
+            var tempIcon = d.temperatura === 'frio' ? '🧊 Frío' : '☕ Caliente';
+            var tempColor = d.temperatura === 'frio' ? '#3498db' : '#e8891a';
+            html += '<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">' +
+                '<div><div style="font-weight:600;">' + d.bebida + '</div>' +
+                '<small style="color:#888;">Cantidad: ' + d.cantidad + ' × $' + d.precio_unitario + '</small><br>' +
+                '<span style="font-size:0.75rem; color:' + tempColor + '; font-weight:600;">' + tempIcon + '</span></div>' +
+                '<span style="color:#e8891a; font-weight:700;">$' + d.subtotal + '</span></div>';
         });
-    }
 
-    const transicionesValidas = {
+        html += '<div class="d-flex justify-content-between mt-3 pt-2" style="border-top:2px solid #f0ece6;">' +
+            '<span style="font-weight:700;">Total</span>' +
+            '<span style="font-weight:700; color:#e8891a; font-size:1.1rem;">$' + data.total + '</span></div>';
+
+        document.getElementById('detalleContenido').innerHTML = html;
+    });
+}
+
+// ── CAMBIAR ESTADO ───────────────────────────────────
+const transicionesValidas = {
     'pendiente':      ['confirmado', 'cancelado'],
     'confirmado':     ['en_preparacion', 'cancelado'],
     'en_preparacion': ['enviado', 'entregado', 'cancelado'],
@@ -219,21 +346,21 @@
 };
 
 const estadoInfo = {
-    'pendiente':      { label: 'Pendiente',       color: '#495057', bg: '#e9ecef' },
-    'confirmado':     { label: 'Confirmado',       color: '#0c5460', bg: '#d1ecf1' },
-    'en_preparacion': { label: 'En Preparación',   color: '#856404', bg: '#fff3cd' },
-    'enviado':        { label: 'Enviado',           color: '#004085', bg: '#cce5ff' },
-    'entregado':      { label: 'Entregado',         color: 'white',   bg: '#e8891a' },
-    'cancelado':      { label: 'Cancelado',         color: '#721c24', bg: '#f8d7da' }
+    'pendiente':      { label: 'Pendiente',      color: '#495057', bg: '#e9ecef' },
+    'confirmado':     { label: 'Confirmado',      color: '#0c5460', bg: '#d1ecf1' },
+    'en_preparacion': { label: 'En Preparación',  color: '#856404', bg: '#fff3cd' },
+    'enviado':        { label: 'Enviado',          color: '#004085', bg: '#cce5ff' },
+    'entregado':      { label: 'Entregado',        color: 'white',   bg: '#e8891a' },
+    'cancelado':      { label: 'Cancelado',        color: '#721c24', bg: '#f8d7da' }
 };
 
 const alertasMensajes = {
-    'pendiente':      ' Debes confirmar el pedido primero antes de avanzar.',
-    'confirmado':     ' Debes mandar a producción antes de enviarlo o entregarlo.',
-    'en_preparacion': ' El pedido está en producción. Puedes enviarlo o marcarlo como entregado.',
-    'enviado':        ' El pedido fue enviado. Márcalo como entregado al completarse.',
-    'entregado':      ' Este pedido ya fue entregado.',
-    'cancelado':      '❌ Este pedido fue cancelado.'
+    'pendiente':      'Debes confirmar el pedido primero antes de avanzar.',
+    'confirmado':     'Debes mandar a producción antes de enviarlo o entregarlo.',
+    'en_preparacion': 'El pedido está en producción. Puedes enviarlo o marcarlo como entregado.',
+    'enviado':        'El pedido fue enviado. Márcalo como entregado al completarse.',
+    'entregado':      'Este pedido ya fue entregado.',
+    'cancelado':      'Este pedido fue cancelado.'
 };
 
 function abrirCambiarEstado(id, estadoActual) {
@@ -242,29 +369,25 @@ function abrirCambiarEstado(id, estadoActual) {
     document.getElementById('btnGuardarEstado').disabled = true;
     document.getElementById('estadoSeleccionado').value = '';
 
-    // Badge estado actual
     const info = estadoInfo[estadoActual] || estadoInfo['pendiente'];
     document.getElementById('modalEstadoActualBadge').innerHTML =
         '<span style="background:' + info.bg + '; color:' + info.color + '; padding:4px 14px; border-radius:20px; font-size:0.78rem; font-weight:700;">' + info.label + '</span>';
 
-    // Alerta de flujo
     const alertaDiv = document.getElementById('alertaFlujo');
-    const alertaTexto = document.getElementById('alertaFlujoTexto');
     const msg = alertasMensajes[estadoActual];
     if (msg) {
-        alertaTexto.textContent = msg;
+        document.getElementById('alertaFlujoTexto').textContent = msg;
         alertaDiv.style.display = 'block';
     } else {
         alertaDiv.style.display = 'none';
     }
 
-    // Opciones disponibles
     const opciones = transicionesValidas[estadoActual] || [];
     const container = document.getElementById('opcionesEstado');
     container.innerHTML = '';
 
     if (opciones.length === 0) {
-        container.innerHTML = '<p style="color:#888; font-size:0.88rem; text-align:center;">No hay opciones disponibles para este estado.</p>';
+        container.innerHTML = '<p style="color:#888; font-size:0.88rem; text-align:center;">No hay opciones disponibles.</p>';
     } else {
         opciones.forEach(function(estado) {
             const inf = estadoInfo[estado];
@@ -273,12 +396,7 @@ function abrirCambiarEstado(id, estadoActual) {
             btn.style.cssText = 'background:' + inf.bg + '; color:' + inf.color + '; border:2px solid transparent; padding:10px 16px; border-radius:10px; font-weight:600; font-size:0.9rem; cursor:pointer; text-align:left; transition:0.2s;';
             btn.innerHTML = inf.label;
             btn.addEventListener('click', function() {
-                // Deseleccionar todos
-                container.querySelectorAll('button').forEach(function(b) {
-                    b.style.border = '2px solid transparent';
-                    b.style.boxShadow = 'none';
-                });
-                // Seleccionar este
+                container.querySelectorAll('button').forEach(function(b) { b.style.border = '2px solid transparent'; b.style.boxShadow = 'none'; });
                 btn.style.border = '2px solid #e8891a';
                 btn.style.boxShadow = '0 0 0 3px rgba(232,137,26,0.2)';
                 document.getElementById('estadoSeleccionado').value = estado;
@@ -291,18 +409,19 @@ function abrirCambiarEstado(id, estadoActual) {
     new bootstrap.Modal(document.getElementById('modalEstado')).show();
 }
 
-    document.getElementById('searchPedidos').addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('#pedidosTable tbody tr').forEach(row => {
-            row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
-        });
+// ── BÚSQUEDAS ────────────────────────────────────────
+document.getElementById('searchPedidos').addEventListener('input', function() {
+    const val = this.value.toLowerCase();
+    document.querySelectorAll('#pedidosTable tbody tr').forEach(function(row) {
+        row.style.display = row.cells[1].textContent.toLowerCase().includes(val) ? '' : 'none';
     });
+});
 
-    document.getElementById('searchDetalle').addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('#detalleTable tbody tr').forEach(row => {
-            row.style.display = row.cells[2].textContent.toLowerCase().includes(val) ? '' : 'none';
-        });
+document.getElementById('searchDetalle').addEventListener('input', function() {
+    const val = this.value.toLowerCase();
+    document.querySelectorAll('#detalleTable tbody tr').forEach(function(row) {
+        row.style.display = row.cells[2].textContent.toLowerCase().includes(val) ? '' : 'none';
     });
+});
 </script>
 {% endblock %}

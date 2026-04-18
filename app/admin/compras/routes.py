@@ -75,3 +75,17 @@ def edit(id):
         db.session.rollback()
         flash(f'Error al actualizar: {str(e)}', 'danger')
     return redirect(url_for('admin_compras.index'))
+
+@compras_bp.route('/materias_proveedor/<int:proveedor_id>')
+@admin_required
+def materias_proveedor(proveedor_id):
+    from app.models import ProveedorMateria
+    relaciones = ProveedorMateria.query.filter_by(proveedor_id=proveedor_id).all()
+    if relaciones:
+        materias = [{'id': r.materia_prima.id, 'nombre': r.materia_prima.nombre, 'unidad': r.materia_prima.unidad_medida, 'precio': float(r.materia_prima.precio_unitario)} for r in relaciones]
+        filtrado = True
+    else:
+        materias = [{'id': m.id, 'nombre': m.nombre, 'unidad': m.unidad_medida, 'precio': float(m.precio_unitario)} for m in MateriaPrima.query.filter_by(activo=True).all()]
+        filtrado = False
+    from flask import jsonify
+    return jsonify({'materias': materias, 'filtrado': filtrado})

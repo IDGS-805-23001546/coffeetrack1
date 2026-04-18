@@ -6,11 +6,12 @@ from app.auth.routes import login_required
 from decimal import Decimal
 from datetime import datetime, date, timedelta, timezone
 from flask import send_file
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, A5
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
+from reportlab.lib.units import inch, cm
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 import io
 
 
@@ -20,17 +21,16 @@ def generar_referencia(pedido_id):
 
 
 def calcular_entrega(tipo_entrega):
-    """Calcula hora estimada y día de entrega según horario de la cafetería"""
     ahora = datetime.now()
-    dia_semana = ahora.weekday()  # 0=lunes, 6=domingo
+    dia_semana = ahora.weekday()
     hora_actual = ahora.hour * 60 + ahora.minute
 
-    APERTURA = 7 * 60           # 7:00 AM
-    CIERRE_SEMANA = 22 * 60     # 10:00 PM lunes-viernes
-    CIERRE_FIN = 19 * 60        # 7:00 PM sábado-domingo
-    ULTIMO_ENVIO_SEMANA = 21 * 60  # 9:00 PM lunes-viernes
-    ULTIMO_ENVIO_FIN = 18 * 60     # 6:00 PM sábado-domingo
-    TIEMPO_PREP = 25            # minutos de preparación
+    APERTURA = 7 * 60
+    CIERRE_SEMANA = 22 * 60
+    CIERRE_FIN = 19 * 60
+    ULTIMO_ENVIO_SEMANA = 21 * 60
+    ULTIMO_ENVIO_FIN = 18 * 60
+    TIEMPO_PREP = 25
 
     es_fin_semana = dia_semana >= 5
     cierre = CIERRE_FIN if es_fin_semana else CIERRE_SEMANA
@@ -47,7 +47,6 @@ def calcular_entrega(tipo_entrega):
         entrega_min = hora_lista
     else:
         siguiente = ahora + timedelta(days=1)
-        # Si es domicilio saltar fines de semana si ya no hay servicio
         while tipo_entrega == 'domicilio' and siguiente.weekday() >= 5:
             siguiente += timedelta(days=1)
         dia = siguiente.date()
@@ -68,12 +67,13 @@ def crear():
         return redirect(url_for('cliente.menu'))
 
     usuario = Usuario.query.get(session['user_id'])
-
     subtotal = Decimal('0')
     detalles = []
 
-    for bebida_id, datos in cart.items():
-        bebida = Bebida.query.get(int(bebida_id))
+    # Nueva key formato: "bebida_id_temperatura"
+    for key, datos in cart.items():
+        bebida_id = int(key.split('_')[0])
+        bebida = Bebida.query.get(bebida_id)
         if bebida and bebida.disponible:
             if isinstance(datos, dict):
                 cantidad = datos['cantidad']
@@ -96,18 +96,16 @@ def crear():
         return redirect(url_for('carrito.ver_carrito'))
 
     tipo_entrega = request.form.get('tipo_entrega', 'sucursal')
-    metodo_pago = request.form.get('metodo_pago', 'efectivo') 
+    metodo_pago = request.form.get('metodo_pago', 'efectivo')
     telefono = request.form.get('telefono') or usuario.telefono or 'N/A'
     direccion = request.form.get('direccion') or usuario.direccion or 'Recoger en sucursal'
 
-    # Costo de envío
     costo_envio = Decimal('30.00') if tipo_entrega == 'domicilio' else Decimal('0.00')
     total = subtotal + costo_envio
 
     if tipo_entrega == 'sucursal':
         direccion = 'Recoger en sucursal'
 
-    # Calcular horario estimado
     hora_estimada, dia_entrega = calcular_entrega(tipo_entrega)
 
     pedido = Pedido(
@@ -206,152 +204,170 @@ def ticket(id):
     usuario = Usuario.query.get(pedido.usuario_id)
     buffer = io.BytesIO()
 
+    # Ticket en formato A5 — más parecido a un ticket real
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=letter,
-        rightMargin=50, leftMargin=50,
-        topMargin=50, bottomMargin=50
+        pagesize=(8.5*cm, 22*cm),  # Ancho ticket térmico
+        rightMargin=0.5*cm,
+        leftMargin=0.5*cm,
+        topMargin=0.6*cm,
+        bottomMargin=0.6*cm
     )
 
     styles = getSampleStyleSheet()
+
+    # Estilos personalizados
+    s_titulo = ParagraphStyle('titulo', parent=styles['Normal'],
+        fontSize=16, fontName='Helvetica-Bold',
+        textColor=colors.HexColor('#e8891a'),
+        alignment=TA_CENTER, spaceAfter=2)
+
+    s_sub = ParagraphStyle('sub', parent=styles['Normal'],
+        fontSize=7, textColor=colors.HexColor('#888888'),
+        alignment=TA_CENTER, spaceAfter=1)
+
+    s_ref = ParagraphStyle('ref', parent=styles['Normal'],
+        fontSize=9, fontName='Helvetica-Bold',
+        textColor=colors.HexColor('#1a1a1a'),
+        alignment=TA_CENTER, spaceAfter=2)
+
+    s_label = ParagraphStyle('label', parent=styles['Normal'],
+        fontSize=7, textColor=colors.HexColor('#888888'),
+        fontName='Helvetica-Bold', spaceAfter=0)
+
+    s_valor = ParagraphStyle('valor', parent=styles['Normal'],
+        fontSize=8, textColor=colors.HexColor('#1a1a1a'),
+        spaceAfter=3)
+
+    s_total = ParagraphStyle('total', parent=styles['Normal'],
+        fontSize=13, fontName='Helvetica-Bold',
+        textColor=colors.HexColor('#e8891a'),
+        alignment=TA_RIGHT, spaceAfter=2)
+
+    s_pie = ParagraphStyle('pie', parent=styles['Normal'],
+        fontSize=7, textColor=colors.HexColor('#aaaaaa'),
+        alignment=TA_CENTER, spaceAfter=1)
+
+    ancho = 7.5*cm
     elementos = []
 
-    estilo_titulo = ParagraphStyle(
-        'titulo', parent=styles['Title'],
-        fontSize=22, textColor=colors.HexColor('#e8891a'), spaceAfter=4
-    )
-    estilo_subtitulo = ParagraphStyle(
-        'subtitulo', parent=styles['Normal'],
-        fontSize=10, textColor=colors.HexColor('#888888'), spaceAfter=2
-    )
-    estilo_bold = ParagraphStyle(
-        'bold', parent=styles['Normal'],
-        fontSize=10, textColor=colors.HexColor('#1a1a1a'), fontName='Helvetica-Bold'
-    )
+    # ── ENCABEZADO ─────────────────────────────────────────
+    elementos.append(Paragraph('☕ CoffeeTrack', s_titulo))
+    elementos.append(Paragraph('León, Guanajuato · 2026', s_sub))
+    elementos.append(Spacer(1, 0.2*cm))
+    elementos.append(HRFlowable(width=ancho, thickness=1.5,
+        color=colors.HexColor('#e8891a'), spaceAfter=0.2*cm))
 
-    elementos.append(Paragraph('CoffeeTrack', estilo_titulo))
-    elementos.append(Paragraph('Gestión de Café Bebible — León, Gto.', estilo_subtitulo))
-    elementos.append(Spacer(1, 0.2*inch))
-
-    elementos.append(Table(
-        [['']],
-        colWidths=[6.5*inch],
-        style=TableStyle([('LINEBELOW', (0,0), (-1,-1), 1, colors.HexColor('#e8891a'))])
-    ))
-    elementos.append(Spacer(1, 0.2*inch))
-
+    # Referencia
     ref = ''
     if pedido.notas and 'REF:' in pedido.notas:
         ref = pedido.notas.split('REF:')[-1].strip()
 
-    # Hora en zona horaria México
+    elementos.append(Paragraph(f'PEDIDO #{pedido.id}', s_ref))
+    if ref:
+        elementos.append(Paragraph(ref, s_sub))
+    elementos.append(Spacer(1, 0.15*cm))
+
+    # ── INFORMACIÓN DEL PEDIDO ─────────────────────────────
+    elementos.append(HRFlowable(width=ancho, thickness=0.5,
+        color=colors.HexColor('#e0d8d0'), spaceAfter=0.15*cm))
+
+    # Fecha
     fecha_pedido = pedido.fecha_pedido
     if fecha_pedido.tzinfo is None:
         fecha_pedido = fecha_pedido.replace(tzinfo=timezone.utc)
     fecha_mx = fecha_pedido.astimezone(timezone(timedelta(hours=-6)))
     fecha_str = fecha_mx.strftime('%d/%m/%Y %H:%M')
 
-    # Entrega estimada
-    entrega_str = ''
-    if pedido.hora_estimada_entrega and pedido.dia_entrega:
+    info = [
+        ('FECHA', fecha_str),
+        ('CLIENTE', f'{usuario.nombre} {usuario.apellidos}'),
+        ('TELÉFONO', pedido.telefono_contacto),
+        ('ENTREGA', pedido.direccion_entrega),
+        ('PAGO', (pedido.metodo_pago_cliente or 'efectivo').upper()),
+    ]
+
+    if pedido.hora_estimada_entrega:
         hoy = date.today()
         if pedido.dia_entrega == hoy:
             entrega_str = f'Hoy a las {pedido.hora_estimada_entrega}'
         else:
             dias_es = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
             dia_nombre = dias_es[pedido.dia_entrega.weekday()]
-            entrega_str = f'{dia_nombre} {pedido.dia_entrega.strftime("%d/%m")} a las {pedido.hora_estimada_entrega}'
+            entrega_str = f'{dia_nombre} {pedido.dia_entrega.strftime("%d/%m")} {pedido.hora_estimada_entrega}'
+        info.append(('HORA EST.', entrega_str))
 
-    info_data = [
-        ['Ticket de Compra', ''],
-        ['Pedido #', f'{pedido.id}'],
-        ['Referencia:', ref or 'N/A'],
-        ['Fecha:', fecha_str],
-        ['Cliente:', f'{usuario.nombre} {usuario.apellidos}'],
-        ['Teléfono:', pedido.telefono_contacto],
-        ['Entrega:', pedido.direccion_entrega],
-        ['Hora estimada:', entrega_str or '—'],
-        ['Estado:', pedido.estado.upper()],
-    ]
+    for label, valor in info:
+        elementos.append(Paragraph(label, s_label))
+        elementos.append(Paragraph(str(valor), s_valor))
 
-    tabla_info = Table(info_data, colWidths=[2*inch, 4.5*inch])
-    tabla_info.setStyle(TableStyle([
-        ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
-        ('FONTNAME', (1,0), (1,-1), 'Helvetica'),
-        ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('TEXTCOLOR', (0,0), (0,-1), colors.HexColor('#888888')),
-        ('TEXTCOLOR', (1,0), (1,-1), colors.HexColor('#1a1a1a')),
-        ('ROWBACKGROUNDS', (0,0), (-1,-1), [colors.HexColor('#fdf8f3'), colors.white]),
-        ('TOPPADDING', (0,0), (-1,-1), 6),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    elementos.append(tabla_info)
-    elementos.append(Spacer(1, 0.3*inch))
+    # ── PRODUCTOS ──────────────────────────────────────────
+    elementos.append(HRFlowable(width=ancho, thickness=0.5,
+        color=colors.HexColor('#e0d8d0'), spaceAfter=0.1*cm))
+    elementos.append(Paragraph('PRODUCTOS', s_label))
+    elementos.append(Spacer(1, 0.1*cm))
 
-    elementos.append(Paragraph('Detalle del Pedido', estilo_bold))
-    elementos.append(Spacer(1, 0.1*inch))
-
-    detalle_data = [['Bebida', 'Temp.', 'Cantidad', 'Precio Unit.', 'Subtotal']]
+    # Tabla de productos
+    prod_data = [['Bebida', 'Cant.', 'Precio', 'Total']]
     for d in pedido.detalles.all():
-        temp = ' Frío' if d.temperatura == 'frio' else ' Caliente'
-        detalle_data.append([
-            d.bebida.nombre,
-            temp,
+        temp = '🧊' if d.temperatura == 'frio' else '☕'
+        prod_data.append([
+            f'{temp} {d.bebida.nombre[:18]}',
             str(d.cantidad),
-            f'${float(d.precio_unitario):.2f}',
-            f'${float(d.subtotal):.2f}'
+            f'${float(d.precio_unitario):.0f}',
+            f'${float(d.subtotal):.0f}'
         ])
 
-    tabla_detalle = Table(detalle_data, colWidths=[2.5*inch, 1*inch, 0.8*inch, 1.2*inch, 1*inch])
-    tabla_detalle.setStyle(TableStyle([
+    tabla_prod = Table(prod_data, colWidths=[3.8*cm, 0.9*cm, 1.3*cm, 1.4*cm])
+    tabla_prod.setStyle(TableStyle([
+        # Header
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#e8891a')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('FONTSIZE', (0,0), (-1,0), 7),
         ('ALIGN', (1,0), (-1,-1), 'CENTER'),
+        # Filas
+        ('FONTSIZE', (0,1), (-1,-1), 7),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#fdf8f3'), colors.white]),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#e0d8d0')),
-        ('TOPPADDING', (0,0), (-1,-1), 7),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 7),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    elementos.append(tabla_detalle)
-    elementos.append(Spacer(1, 0.2*inch))
-
-    # Totales con costo de envío
-    costo_envio = float(pedido.costo_envio or 0)
-    total_data = [
-        ['', '', 'Subtotal:', f'${float(pedido.subtotal):.2f}'],
-    ]
-    if costo_envio > 0:
-        total_data.append(['', '', 'Envío a domicilio:', f'${ costo_envio:.2f}'])
-    total_data.append(['', '', 'TOTAL:', f'${float(pedido.total):.2f}'])
-
-    tabla_total = Table(total_data, colWidths=[3*inch, 1*inch, 1.5*inch, 1*inch])
-    ultima_fila = len(total_data) - 1
-    tabla_total.setStyle(TableStyle([
-        ('FONTNAME', (2,0), (2,-1), 'Helvetica-Bold'),
-        ('FONTNAME', (3,ultima_fila), (3,ultima_fila), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('TEXTCOLOR', (2,0), (2,-1), colors.HexColor('#888888')),
-        ('TEXTCOLOR', (3,ultima_fila), (3,ultima_fila), colors.HexColor('#e8891a')),
-        ('FONTSIZE', (3,ultima_fila), (3,ultima_fila), 13),
-        ('ALIGN', (2,0), (-1,-1), 'RIGHT'),
+        ('GRID', (0,0), (-1,-1), 0.3, colors.HexColor('#e0d8d0')),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('LINEABOVE', (2,ultima_fila), (-1,ultima_fila), 1, colors.HexColor('#e8891a')),
+        ('LEFTPADDING', (0,0), (-1,-1), 4),
     ]))
-    elementos.append(tabla_total)
-    elementos.append(Spacer(1, 0.4*inch))
+    elementos.append(tabla_prod)
+    elementos.append(Spacer(1, 0.2*cm))
 
-    elementos.append(Table(
-        [['']],
-        colWidths=[6.5*inch],
-        style=TableStyle([('LINEABOVE', (0,0), (-1,-1), 0.5, colors.HexColor('#e0d8d0'))])
-    ))
-    elementos.append(Spacer(1, 0.1*inch))
-    elementos.append(Paragraph('Gracias por tu compra. CoffeeTrack — León, Gto. 2026', estilo_subtitulo))
+    # ── TOTALES ────────────────────────────────────────────
+    elementos.append(HRFlowable(width=ancho, thickness=0.5,
+        color=colors.HexColor('#e0d8d0'), spaceAfter=0.1*cm))
+
+    costo_envio = float(pedido.costo_envio or 0)
+    totales_data = [['Subtotal', f'${float(pedido.subtotal):.2f}']]
+    if costo_envio > 0:
+        totales_data.append(['Envío', f'${costo_envio:.2f}'])
+    totales_data.append(['TOTAL', f'${float(pedido.total):.2f}'])
+
+    tabla_totales = Table(totales_data, colWidths=[4.5*cm, 3*cm])
+    ultima = len(totales_data) - 1
+    tabla_totales.setStyle(TableStyle([
+        ('FONTSIZE', (0,0), (-1,-1), 8),
+        ('FONTNAME', (0,ultima), (-1,ultima), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,ultima), (-1,ultima), 11),
+        ('TEXTCOLOR', (0,ultima), (-1,ultima), colors.HexColor('#e8891a')),
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ('LINEABOVE', (0,ultima), (-1,ultima), 1, colors.HexColor('#e8891a')),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+    ]))
+    elementos.append(tabla_totales)
+    elementos.append(Spacer(1, 0.3*cm))
+
+    # ── PIE ────────────────────────────────────────────────
+    elementos.append(HRFlowable(width=ancho, thickness=1,
+        color=colors.HexColor('#e8891a'), spaceAfter=0.15*cm))
+    elementos.append(Paragraph('¡Gracias por tu compra!', s_ref))
+    elementos.append(Paragraph('CoffeeTrack — León, Gto.', s_pie))
+    elementos.append(Paragraph('coffeetrack.mx', s_pie))
 
     doc.build(elementos)
     buffer.seek(0)
@@ -359,6 +375,6 @@ def ticket(id):
     return send_file(
         buffer,
         as_attachment=True,
-        download_name=f'ticket_pedido_{pedido.id}.pdf',
+        download_name=f'ticket_CT_{pedido.id}.pdf',
         mimetype='application/pdf'
     )

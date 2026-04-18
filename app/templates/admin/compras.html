@@ -5,12 +5,11 @@
 {% block extra_css %}
 <style>
     .badge-pendiente { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-recibida { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-recibida  { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
     .badge-cancelada { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
     .btn-edit { background: #f0ece6; border: none; color: #555; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
     .btn-edit:hover { background: #e8891a; color: white; }
-    .detalle-compra { font-size: 0.78rem; color: #888; }
-    .detalle-item { display: inline-block; background: #f5f0eb; border-radius: 6px; padding: 2px 8px; margin: 2px; }
+    .detalle-item { display: inline-block; background: #f5f0eb; border-radius: 6px; padding: 2px 8px; margin: 2px; font-size: 0.78rem; color: #888; }
 </style>
 {% endblock %}
 
@@ -50,16 +49,16 @@
                 <td>{{ c.fecha_compra }}</td>
                 <td>
                     {% for d in c.detalles %}
-                        <span class="detalle-item">
-                            {{ d.materia_prima.nombre }}
-                            {% if d.materia_prima.unidad_medida == 'ml' and d.cantidad >= 1000 %}
-                                {{ "%.1f"|format(d.cantidad / 1000) }}L
-                            {% elif d.materia_prima.unidad_medida == 'gr' and d.cantidad >= 1000 %}
-                                {{ "%.1f"|format(d.cantidad / 1000) }}kg
-                            {% else %}
-                                {{ d.cantidad|int }}{{ d.materia_prima.unidad_medida }}
-                            {% endif %}
-                        </span>
+                    <span class="detalle-item">
+                        {{ d.materia_prima.nombre }}
+                        {% if d.materia_prima.unidad_medida == 'ml' and d.cantidad >= 1000 %}
+                            {{ "%.1f"|format(d.cantidad / 1000) }}L
+                        {% elif d.materia_prima.unidad_medida == 'gr' and d.cantidad >= 1000 %}
+                            {{ "%.1f"|format(d.cantidad / 1000) }}kg
+                        {% else %}
+                            {{ d.cantidad|int }}{{ d.materia_prima.unidad_medida }}
+                        {% endif %}
+                    </span>
                     {% endfor %}
                 </td>
                 <td><strong>${{ "%.2f"|format(c.total) }}</strong></td>
@@ -133,7 +132,7 @@
                     </div>
                     <div class="alert alert-warning" style="font-size:0.82rem;">
                         <i class="bi bi-exclamation-triangle me-1"></i>
-                        Al marcar como <strong>Recibida</strong> el stock de cada materia prima se actualizará automáticamente.
+                        Al marcar como <strong>Recibida</strong> el stock se actualizará automáticamente.
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -156,25 +155,19 @@
                 </div>
                 <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; text-align:center; margin-bottom:6px;">Acceso Restringido</div>
                 <div style="font-size:0.85rem; color:#888; text-align:center; margin-bottom:24px;">Ingresa tu PIN de 4 dígitos para registrar una compra</div>
-
                 <div class="mb-3">
-                    <input type="password" id="inputPin" class="form-control text-center"
-                        maxlength="4" placeholder="• • • •"
+                    <input type="password" id="inputPin" class="form-control text-center" maxlength="4" placeholder="• • • •"
                         style="font-size:1.5rem; letter-spacing:8px; border-radius:12px; border:2px solid #e0d8d0; text-align:center;"
                         oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                 </div>
-
                 <div id="pinError" style="display:none; background:#fee2e2; border:1px solid #f8d7da; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.85rem; color:#e74c3c; text-align:center;">
                     <i class="bi bi-x-circle me-1"></i> PIN incorrecto. Intenta de nuevo.
                 </div>
-
                 <div class="d-grid gap-2">
-                    <button type="button" onclick="verificarPin()"
-                        style="background:#e8891a; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; font-size:0.95rem; cursor:pointer;">
+                    <button type="button" onclick="verificarPin()" style="background:#e8891a; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; font-size:0.95rem; cursor:pointer;">
                         <i class="bi bi-unlock me-2"></i>Verificar PIN
                     </button>
-                    <button type="button" data-bs-dismiss="modal"
-                        style="background:#f0ece6; color:#555; border:none; padding:10px; border-radius:12px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                    <button type="button" data-bs-dismiss="modal" style="background:#f0ece6; color:#555; border:none; padding:10px; border-radius:12px; font-weight:600; font-size:0.88rem; cursor:pointer;">
                         Cancelar
                     </button>
                 </div>
@@ -196,12 +189,16 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Proveedor</label>
-                            <select name="proveedor_id" class="form-select" required>
+                            <select name="proveedor_id" class="form-select" required onchange="cargarMaterias(this.value)">
                                 <option value="">Seleccionar proveedor</option>
                                 {% for p in proveedores %}
                                 <option value="{{ p.id }}">{{ p.nombre_empresa }}</option>
                                 {% endfor %}
                             </select>
+                            <small id="avisoProveedor" style="display:none; color:#e8891a; font-size:0.78rem; margin-top:4px;">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <span id="avisoProveedorTexto"></span>
+                            </small>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Fecha</label>
@@ -223,15 +220,10 @@
 
                     <label class="form-label fw-bold">Materias Primas</label>
                     <div id="detalles-container">
-                        <div class="row g-2 mb-2 detalle-fila">
+                        <div class="row g-2 mb-2 detalle-fila align-items-center">
                             <div class="col-md-5">
-                                <select name="materia_prima_id[]" class="form-select" required onchange="actualizarPrecio(this)">
-                                    <option value="">Seleccionar materia prima</option>
-                                    {% for m in materias_primas %}
-                                    <option value="{{ m.id }}" data-precio="{{ m.precio_unitario }}">
-                                        {{ m.nombre }} ({{ m.unidad_medida }})
-                                    </option>
-                                    {% endfor %}
+                                <select name="materia_prima_id[]" class="form-select materia-select" required onchange="actualizarPrecio(this)">
+                                    <option value="">— Selecciona proveedor primero —</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -240,18 +232,23 @@
                             <div class="col-md-3">
                                 <input type="number" step="0.001" name="precio_unitario[]" class="form-control" placeholder="Precio unit." oninput="calcularSubtotal(this)">
                             </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn-cancelar" onclick="eliminarFila(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    
+                    <button type="button" class="btn-accion mb-3" onclick="agregarFila()">
+                        <i class="bi bi-plus-circle me-1"></i> Agregar materia
+                    </button>
 
-                    <div style="text-align:right; font-size:1rem; font-weight:700; color:#1a1a1a;">
+                    <div style="text-align:right; font-size:1rem; font-weight:700; color:#1a1a1a; margin-bottom:16px;">
                         Total estimado: <span id="totalEstimado" style="color:#e8891a;">$0.00</span>
                     </div>
 
-                    <div class="mt-3">
-                        <button type="submit" class="btn-submit">Registrar Compra</button>
-                    </div>
+                    <button type="submit" class="btn-submit">Registrar Compra</button>
                 </form>
             </div>
         </div>
@@ -261,52 +258,105 @@
 
 {% block extra_js %}
 <script>
-    // Fecha de hoy por defecto
-    document.getElementById('fechaCompra').value = new Date().toISOString().split('T')[0];
+document.getElementById('fechaCompra').value = new Date().toISOString().split('T')[0];
 
-    // Busqueda
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        document.querySelectorAll('#comprasTable tbody tr').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
+document.getElementById('searchInput').addEventListener('input', function() {
+    const val = this.value.toLowerCase();
+    document.querySelectorAll('#comprasTable tbody tr').forEach(function(row) {
+        row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
+    });
+});
+
+// Materias disponibles globalmente
+window.materiasDisponibles = [];
+
+function cargarMaterias(proveedorId) {
+    if (!proveedorId) {
+        window.materiasDisponibles = [];
+        resetearSelects();
+        return;
+    }
+
+    fetch('/admin/compras/materias_proveedor/' + proveedorId)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        window.materiasDisponibles = data.materias;
+
+        // Mostrar aviso si tiene materias asignadas
+        const aviso = document.getElementById('avisoProveedor');
+        const avisoTexto = document.getElementById('avisoProveedorTexto');
+        if (data.filtrado) {
+            aviso.style.display = 'block';
+            avisoTexto.textContent = 'Este proveedor solo vende: ' + data.materias.map(function(m) { return m.nombre; }).join(', ');
+        } else {
+            aviso.style.display = 'none';
+        }
+
+        // Actualizar todos los selects existentes
+        document.querySelectorAll('.materia-select').forEach(function(select) {
+            actualizarOpcionesSelect(select);
         });
     });
+}
 
-    function actualizarPrecio(select) {
-        const precio = select.options[select.selectedIndex].dataset.precio;
-        const fila = select.closest('.detalle-fila');
-        const inputPrecio = fila.querySelector('input[name="precio_unitario[]"]');
-        if (precio) inputPrecio.value = precio;
-        calcularSubtotal(inputPrecio);
-    }
+function actualizarOpcionesSelect(select) {
+    const valorActual = select.value;
+    select.innerHTML = '<option value="">Seleccionar materia prima</option>';
+    window.materiasDisponibles.forEach(function(m) {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.nombre + ' (' + m.unidad + ')';
+        opt.setAttribute('data-precio', m.precio);
+        if (String(m.id) === String(valorActual)) opt.selected = true;
+        select.appendChild(opt);
+    });
+}
 
-    function calcularSubtotal(input) {
-        let total = 0;
-        document.querySelectorAll('.detalle-fila').forEach(fila => {
-            const cantidad = parseFloat(fila.querySelector('input[name="cantidad[]"]').value) || 0;
-            const precio = parseFloat(fila.querySelector('input[name="precio_unitario[]"]').value) || 0;
-            total += cantidad * precio;
-        });
-        document.getElementById('totalEstimado').textContent = '$' + total.toFixed(2);
-    }
+function resetearSelects() {
+    document.querySelectorAll('.materia-select').forEach(function(select) {
+        select.innerHTML = '<option value="">— Selecciona proveedor primero —</option>';
+    });
+}
 
-    function agregarFila() {
-        const container = document.getElementById('detalles-container');
-        const primera = container.querySelector('.detalle-fila');
-        const nueva = primera.cloneNode(true);
-        nueva.querySelectorAll('input').forEach(i => i.value = '');
-        nueva.querySelector('select').selectedIndex = 0;
-        container.appendChild(nueva);
-    }
+function actualizarPrecio(select) {
+    const opt = select.options[select.selectedIndex];
+    const precio = opt ? opt.getAttribute('data-precio') : null;
+    const fila = select.closest('.detalle-fila');
+    const inputPrecio = fila.querySelector('input[name="precio_unitario[]"]');
+    if (precio) inputPrecio.value = precio;
+    calcularSubtotal(inputPrecio);
+}
 
-    function eliminarFila(btn) {
-        const filas = document.querySelectorAll('.detalle-fila');
-        if (filas.length > 1) {
-            btn.closest('.detalle-fila').remove();
-            calcularSubtotal(null);
-        }
+function calcularSubtotal(input) {
+    let total = 0;
+    document.querySelectorAll('.detalle-fila').forEach(function(fila) {
+        const cantidad = parseFloat(fila.querySelector('input[name="cantidad[]"]').value) || 0;
+        const precio = parseFloat(fila.querySelector('input[name="precio_unitario[]"]').value) || 0;
+        total += cantidad * precio;
+    });
+    document.getElementById('totalEstimado').textContent = '$' + total.toFixed(2);
+}
+
+function agregarFila() {
+    const container = document.getElementById('detalles-container');
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-2 detalle-fila align-items-center';
+    div.innerHTML = '<div class="col-md-5"><select name="materia_prima_id[]" class="form-select materia-select" required onchange="actualizarPrecio(this)"><option value="">Seleccionar materia prima</option></select></div><div class="col-md-3"><input type="number" step="0.01" name="cantidad[]" class="form-control" placeholder="Cantidad" required oninput="calcularSubtotal(this)"></div><div class="col-md-3"><input type="number" step="0.001" name="precio_unitario[]" class="form-control" placeholder="Precio unit." oninput="calcularSubtotal(this)"></div><div class="col-md-1"><button type="button" class="btn-cancelar" onclick="eliminarFila(this)"><i class="bi bi-trash"></i></button></div>';
+    container.appendChild(div);
+    // Cargar materias del proveedor actual
+    actualizarOpcionesSelect(div.querySelector('.materia-select'));
+}
+
+function eliminarFila(btn) {
+    const filas = document.querySelectorAll('.detalle-fila');
+    if (filas.length > 1) {
+        btn.closest('.detalle-fila').remove();
+        calcularSubtotal(null);
     }
-    function abrirModalPin() {
+}
+
+// ── PIN ──────────────────────────────────────────────
+function abrirModalPin() {
     document.getElementById('inputPin').value = '';
     document.getElementById('pinError').style.display = 'none';
     new bootstrap.Modal(document.getElementById('modalPin')).show();
@@ -316,48 +366,18 @@ function verificarPin() {
     const pin = document.getElementById('inputPin').value;
     if (pin === '1704') {
         document.getElementById('pinError').style.display = 'none';
-
-        // Mostrar mensaje de éxito
         const modalBody = document.querySelector('#modalPin .modal-body');
-        modalBody.innerHTML = `
-            <div style="text-align:center; padding:16px 0;">
-                <div style="width:64px; height:64px; border-radius:50%; background:#d4edda; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#27ae60;">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; margin-bottom:6px;">¡Acceso Correcto!</div>
-                <div style="font-size:0.88rem; color:#888;">Abriendo formulario de compra...</div>
-            </div>`;
+        modalBody.innerHTML = '<div style="text-align:center; padding:16px 0;"><div style="width:64px; height:64px; border-radius:50%; background:#d4edda; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#27ae60;"><i class="bi bi-check-circle"></i></div><div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; margin-bottom:6px;">¡Acceso Correcto!</div><div style="font-size:0.88rem; color:#888;">Abriendo formulario de compra...</div></div>';
 
         setTimeout(function() {
             bootstrap.Modal.getInstance(document.getElementById('modalPin')).hide();
-            // Restaurar modal PIN para siguiente uso
             setTimeout(function() {
-                document.querySelector('#modalPin .modal-body').innerHTML = `
-                    <div style="width:64px; height:64px; border-radius:50%; background:#fdf3e7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#e8891a;">
-                        <i class="bi bi-shield-lock"></i>
-                    </div>
-                    <div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; text-align:center; margin-bottom:6px;">Acceso Restringido</div>
-                    <div style="font-size:0.85rem; color:#888; text-align:center; margin-bottom:24px;">Ingresa tu PIN de 4 dígitos para registrar una compra</div>
-                    <div class="mb-3">
-                        <input type="password" id="inputPin" class="form-control text-center" maxlength="4" placeholder="• • • •"
-                            style="font-size:1.5rem; letter-spacing:8px; border-radius:12px; border:2px solid #e0d8d0; text-align:center;"
-                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-                    </div>
-                    <div id="pinError" style="display:none; background:#fee2e2; border:1px solid #f8d7da; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.85rem; color:#e74c3c; text-align:center;">
-                        <i class="bi bi-x-circle me-1"></i> PIN incorrecto. Intenta de nuevo.
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="button" onclick="verificarPin()" style="background:#e8891a; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; font-size:0.95rem; cursor:pointer;">
-                            <i class="bi bi-unlock me-2"></i>Verificar PIN
-                        </button>
-                        <button type="button" data-bs-dismiss="modal" style="background:#f0ece6; color:#555; border:none; padding:10px; border-radius:12px; font-weight:600; font-size:0.88rem; cursor:pointer;">
-                            Cancelar
-                        </button>
-                    </div>`;
-                // Re-registrar evento Enter
-                document.getElementById('inputPin').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') verificarPin();
-                });
+                // Restaurar modal PIN
+                document.querySelector('#modalPin .modal-body').innerHTML = '<div style="width:64px; height:64px; border-radius:50%; background:#fdf3e7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.8rem; color:#e8891a;"><i class="bi bi-shield-lock"></i></div><div style="font-size:1.1rem; font-weight:700; color:#1a1a1a; text-align:center; margin-bottom:6px;">Acceso Restringido</div><div style="font-size:0.85rem; color:#888; text-align:center; margin-bottom:24px;">Ingresa tu PIN de 4 dígitos para registrar una compra</div><div class="mb-3"><input type="password" id="inputPin" class="form-control text-center" maxlength="4" placeholder="• • • •" style="font-size:1.5rem; letter-spacing:8px; border-radius:12px; border:2px solid #e0d8d0; text-align:center;" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')"></div><div id="pinError" style="display:none; background:#fee2e2; border:1px solid #f8d7da; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.85rem; color:#e74c3c; text-align:center;"><i class="bi bi-x-circle me-1"></i> PIN incorrecto. Intenta de nuevo.</div><div class="d-grid gap-2"><button type="button" onclick="verificarPin()" style="background:#e8891a; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; font-size:0.95rem; cursor:pointer;"><i class="bi bi-unlock me-2"></i>Verificar PIN</button><button type="button" data-bs-dismiss="modal" style="background:#f0ece6; color:#555; border:none; padding:10px; border-radius:12px; font-weight:600; font-size:0.88rem; cursor:pointer;">Cancelar</button></div>';
+                document.getElementById('inputPin').addEventListener('keypress', function(e) { if (e.key === 'Enter') verificarPin(); });
+                // Resetear materias al abrir nueva compra
+                window.materiasDisponibles = [];
+                resetearSelects();
                 new bootstrap.Modal(document.getElementById('modalNuevaCompra')).show();
             }, 400);
         }, 1200);
@@ -368,7 +388,6 @@ function verificarPin() {
     }
 }
 
-// Enter en el input del PIN
 document.getElementById('inputPin').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') verificarPin();
 });

@@ -2,6 +2,7 @@ from app import db
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db 
+
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
     
@@ -43,7 +44,6 @@ class Proveedor(db.Model):
     activo = db.Column(db.Boolean, default=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     compras = db.relationship('CompraMateriaPrima', backref='proveedor', lazy='dynamic')
 
     def __repr__(self):
@@ -57,7 +57,6 @@ class CategoriaMateriaPrima(db.Model):
     nombre = db.Column(db.String(150), unique=True, nullable=False)
     descripcion = db.Column(db.Text)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-
     materias_primas = db.relationship('MateriaPrima', backref='categoria', lazy='dynamic')
 
 
@@ -74,7 +73,6 @@ class MateriaPrima(db.Model):
     activo = db.Column(db.Boolean, default=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     recetas = db.relationship('Receta', backref='materia_prima', lazy='dynamic')
 
     def __repr__(self):
@@ -143,7 +141,6 @@ class CompraMateriaPrima(db.Model):
     notas = db.Column(db.Text)
     usuario_registro_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-
     detalles = db.relationship('DetalleCompraMateriaPrima', backref='compra', lazy='dynamic', cascade='all, delete-orphan')
 
 
@@ -172,7 +169,6 @@ class Produccion(db.Model):
     notas = db.Column(db.Text)
     estado = db.Column(db.Enum('planificada', 'en proceso', 'completada', 'cancelada'), default='planificada', index=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-
     bebida = db.relationship('Bebida', backref='producciones')
     usuario = db.relationship('Usuario', backref='producciones')
 
@@ -181,7 +177,8 @@ class Pedido(db.Model):
     __tablename__ = 'pedidos'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False, index=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True, index=True)
+    nombre_cliente = db.Column(db.String(150))
     fecha_pedido = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
     descuento = db.Column(db.Numeric(10, 2), default=0)
@@ -210,7 +207,6 @@ class DetallePedido(db.Model):
     temperatura = db.Column(db.Enum('caliente', 'frio'), default='caliente')
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
-
     bebida = db.relationship('Bebida', backref='detalles_pedido')
 
 
@@ -239,7 +235,6 @@ class HistorialInventario(db.Model):
     motivo = db.Column(db.Text)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     fecha_movimiento = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-
     materia_prima = db.relationship('MateriaPrima', backref='historial')
     usuario = db.relationship('Usuario', backref='historial_inventario')
 
@@ -255,10 +250,10 @@ class AlertaInventario(db.Model):
     activa = db.Column(db.Boolean, default=True, index=True)
     fecha_alerta = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     fecha_resolucion = db.Column(db.DateTime)
-
     materia_prima = db.relationship('MateriaPrima', backref='alertas')
     bebida = db.relationship('Bebida', backref='alertas')
-    
+
+
 class CodigoVerificacion(db.Model):
     __tablename__ = 'codigos_verificacion'
 
@@ -268,3 +263,10 @@ class CodigoVerificacion(db.Model):
     expira_en = db.Column(db.DateTime, nullable=False)
     usado = db.Column(db.Boolean, default=False)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    
+class ProveedorMateria(db.Model):
+    __tablename__ = 'proveedor_materias'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), nullable=False)
+    materia_prima_id = db.Column(db.Integer, db.ForeignKey('materias_primas.id'), nullable=False)
+    materia_prima = db.relationship('MateriaPrima')
